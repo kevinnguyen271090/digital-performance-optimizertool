@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AppLayout from "./AppLayout";
+import Dashboard from "./pages/Dashboard";
+import Recommendations from "./pages/Recommendations";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import AuthPage from "./pages/Auth";
+import ProtectedRoute from "./components/ProtectedRoute";
+import EnterpriseApp from "./components/EnterpriseApp";
+import { getEnterpriseConfig } from "./config/enterprise";
 
-function App() {
+const App = () => {
+  const config = getEnterpriseConfig();
+
+  // Register Service Worker
+  useEffect(() => {
+    if (config.caching.enableServiceWorker && 'serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered successfully:', registration);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  }, [config.caching.enableServiceWorker]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <EnterpriseApp pageName="app" pageTitle="Avenger Hub">
+      <Router>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="recommendations" element={<Recommendations />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Route>
+        </Routes>
+      </Router>
+    </EnterpriseApp>
   );
-}
+};
 
-export default App;
+export default App; 

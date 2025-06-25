@@ -1,0 +1,93 @@
+import { useEffect, useRef, useCallback } from 'react';
+
+interface PerformanceMetrics {
+  componentName: string;
+  renderTime: number;
+  mountTime: number;
+  updateCount: number;
+  lastUpdate: number;
+}
+
+interface UsePerformanceMonitorOptions {
+  componentName: string;
+  enabled?: boolean;
+  threshold?: number; // ms
+  onSlowRender?: (metrics: PerformanceMetrics) => void;
+}
+
+export const usePerformanceMonitor = ({
+  componentName,
+  enabled = process.env.NODE_ENV === 'development',
+  threshold = 16, // 60fps = 16ms
+  onSlowRender
+}: UsePerformanceMonitorOptions) => {
+  const metricsRef = useRef<PerformanceMetrics>({
+    componentName,
+    renderTime: 0,
+    mountTime: 0,
+    updateCount: 0,
+    lastUpdate: 0
+  });
+
+  const startTimeRef = useRef<number>(0);
+
+  const logPerformance = useCallback((action: 'mount' | 'update' | 'unmount') => {
+    if (!enabled) return;
+
+    const now = performance.now();
+    const renderTime = now - startTimeRef.current;
+
+    if (action === 'mount') {
+      metricsRef.current.mountTime = renderTime;
+      metricsRef.current.lastUpdate = now;
+    } else if (action === 'update') {
+      metricsRef.current.updateCount++;
+      metricsRef.current.renderTime = renderTime;
+      metricsRef.current.lastUpdate = now;
+
+      // Check if render is slow
+      if (renderTime > threshold && onSlowRender) {
+        onSlowRender(metricsRef.current);
+      }
+    }
+
+    // Log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Performance] ${componentName} ${action}:`, {
+        renderTime: `${renderTime.toFixed(2)}ms`,
+        threshold: `${threshold}ms`,
+        isSlow: renderTime > threshold
+      });
+    }
+
+    // TODO: Send to analytics service in production
+    if (process.env.NODE_ENV === 'production') {
+      // Example: analytics.track('component_performance', metricsRef.current);
+    }
+  }, [componentName, enabled, threshold, onSlowRender]);
+
+  useEffect(() => {
+    startTimeRef.current = performance.now();
+    logPerformance('mount');
+
+    return () => {
+      logPerformance('unmount');
+    };
+  }, [logPerformance]); // Add logPerformance to dependencies
+
+  useEffect(() => {
+    if (metricsRef.current.updateCount > 0) {
+      startTimeRef.current = performance.now();
+      logPerformance('update');
+    }
+  }, [logPerformance]); // Add logPerformance to dependencies
+
+  return {
+    metrics: metricsRef.current,
+    logCustomEvent: (eventName: string, data?: any) => {
+      if (enabled) {
+        console.log(`[Performance] ${componentName} ${eventName}:`, data);
+      }
+    }
+  };
+}; 
