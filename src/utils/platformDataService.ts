@@ -156,8 +156,8 @@ export const fetchTikTokData = async (authCode: string) => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_key: process.env.REACT_APP_TIKTOK_CLIENT_KEY || '',
-        client_secret: process.env.REACT_APP_TIKTOK_CLIENT_SECRET || '',
+        client_key: import.meta.env.VITE_TIKTOK_CLIENT_KEY || '',
+        client_secret: import.meta.env.VITE_TIKTOK_CLIENT_SECRET || '',
         code: authCode,
         grant_type: 'authorization_code',
         redirect_uri: `${window.location.origin}/settings`

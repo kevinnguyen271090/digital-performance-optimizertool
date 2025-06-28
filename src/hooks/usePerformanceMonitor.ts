@@ -17,7 +17,7 @@ interface UsePerformanceMonitorOptions {
 
 export const usePerformanceMonitor = ({
   componentName,
-  enabled = process.env.NODE_ENV === 'development',
+  enabled = import.meta.env.MODE === 'development',
   threshold = 16, // 60fps = 16ms
   onSlowRender
 }: UsePerformanceMonitorOptions) => {
@@ -52,7 +52,7 @@ export const usePerformanceMonitor = ({
     }
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log(`[Performance] ${componentName} ${action}:`, {
         renderTime: `${renderTime.toFixed(2)}ms`,
         threshold: `${threshold}ms`,
@@ -61,7 +61,7 @@ export const usePerformanceMonitor = ({
     }
 
     // TODO: Send to analytics service in production
-    if (process.env.NODE_ENV === 'production') {
+    if (import.meta.env.MODE === 'production') {
       // Example: analytics.track('component_performance', metricsRef.current);
     }
   }, [componentName, enabled, threshold, onSlowRender]);

@@ -41,34 +41,72 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
       
       let accounts: GoogleAccount[] = [];
       
+      // Log access_token để kiểm tra
+      console.log('Access token dùng để fetch:', tokenResponse.access_token);
+      
       switch (service.id) {
         case 'google-ads':
           // Fetch Google Ads accounts
           const adsResponse = await fetch('https://googleads.googleapis.com/v14/customers', {
             headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
           });
+          if (adsResponse.status === 401 || adsResponse.status === 403) {
+            setError('Bạn chưa cấp quyền truy cập Google Ads cho ứng dụng. Vui lòng đăng nhập lại và cấp quyền.');
+            break;
+          }
           if (adsResponse.ok) {
             const adsData = await adsResponse.json();
-            accounts = adsData.results?.map((account: any) => ({
-              id: account.customer.id,
-              name: account.customer.descriptiveName,
-              type: 'Google Ads'
-            })) || [];
+            if (!adsData.results || adsData.results.length === 0) {
+              setError('Không tìm thấy tài khoản Google Ads nào. Bạn cần tạo tài khoản trước.');
+            } else {
+              accounts = adsData.results.map((account: any) => ({
+                id: account.customer.id,
+                name: account.customer.descriptiveName,
+                type: 'Google Ads'
+              }));
+            }
           }
           break;
           
         case 'ga4':
-          // Fetch GA4 properties
-          const gaResponse = await fetch('https://analyticsadmin.googleapis.com/v1beta/properties', {
+          // Fetch GA4 accounts trước
+          const accountsRes = await fetch('https://analyticsadmin.googleapis.com/v1beta/accounts', {
             headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
           });
-          if (gaResponse.ok) {
-            const gaData = await gaResponse.json();
-            accounts = gaData.properties?.map((property: any) => ({
-              id: property.name.split('/').pop(),
-              name: property.displayName,
-              type: 'Google Analytics'
-            })) || [];
+          if (accountsRes.status === 401 || accountsRes.status === 403) {
+            setError('Bạn chưa cấp quyền truy cập Google Analytics cho ứng dụng. Vui lòng đăng nhập lại và cấp quyền.');
+            break;
+          }
+          if (accountsRes.ok) {
+            const accountsData = await accountsRes.json();
+            if (!accountsData.accounts || accountsData.accounts.length === 0) {
+              setError('Không tìm thấy tài khoản Google Analytics nào. Bạn cần tạo tài khoản trước.');
+            } else {
+              // Lấy property cho từng account
+              let allProperties: any[] = [];
+              for (const acc of accountsData.accounts) {
+                const propRes = await fetch(`https://analyticsadmin.googleapis.com/v1beta/properties?filter=parent:accounts/${acc.name.split('/').pop()}`, {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                });
+                if (propRes.ok) {
+                  const propData = await propRes.json();
+                  if (propData.properties && propData.properties.length > 0) {
+                    allProperties = allProperties.concat(
+                      propData.properties.map((property: any) => ({
+                        id: property.name.split('/').pop(),
+                        name: property.displayName + ' (Account: ' + acc.displayName + ')',
+                        type: 'Google Analytics'
+                      }))
+                    );
+                  }
+                }
+              }
+              if (allProperties.length === 0) {
+                setError('Không tìm thấy property Google Analytics nào trong các tài khoản của bạn.');
+              } else {
+                accounts = allProperties;
+              }
+            }
           }
           break;
           
@@ -77,13 +115,67 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
           const scResponse = await fetch('https://searchconsole.googleapis.com/v1/sites', {
             headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
           });
+          if (scResponse.status === 401 || scResponse.status === 403) {
+            setError('Bạn chưa cấp quyền truy cập Google Search Console cho ứng dụng. Vui lòng đăng nhập lại và cấp quyền.');
+            break;
+          }
           if (scResponse.ok) {
             const scData = await scResponse.json();
-            accounts = scData.siteEntry?.map((site: any) => ({
-              id: site.siteId,
-              name: site.siteId,
-              type: 'Search Console'
-            })) || [];
+            if (!scData.siteEntry || scData.siteEntry.length === 0) {
+              setError('Không tìm thấy tài khoản Google Search Console nào. Bạn cần tạo tài khoản trước.');
+            } else {
+              accounts = scData.siteEntry.map((site: any) => ({
+                id: site.siteId,
+                name: site.siteId,
+                type: 'Search Console'
+              }));
+            }
+          }
+          break;
+
+        case 'merchant-center':
+          // Fetch Google Merchant Center accounts
+          const mcResponse = await fetch('https://www.googleapis.com/content/v2.1/accounts', {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+          });
+          if (mcResponse.status === 401 || mcResponse.status === 403) {
+            setError('Bạn chưa cấp quyền truy cập Google Merchant Center cho ứng dụng. Vui lòng đăng nhập lại và cấp quyền.');
+            break;
+          }
+          if (mcResponse.ok) {
+            const mcData = await mcResponse.json();
+            if (!mcData.accounts || mcData.accounts.length === 0) {
+              setError('Không tìm thấy tài khoản Google Merchant Center nào. Bạn cần tạo tài khoản trước.');
+            } else {
+              accounts = mcData.accounts.map((account: any) => ({
+                id: account.id,
+                name: account.name || `Account ${account.id}`,
+                type: 'Merchant Center'
+              }));
+            }
+          }
+          break;
+
+        case 'sheets':
+          // Fetch Google Sheets files
+          const sheetsResponse = await fetch('https://www.googleapis.com/drive/v3/files?q=mimeType=\'application/vnd.google-apps.spreadsheet\'&fields=files(id,name)', {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+          });
+          if (sheetsResponse.status === 401 || sheetsResponse.status === 403) {
+            setError('Bạn chưa cấp quyền truy cập Google Sheets cho ứng dụng. Vui lòng đăng nhập lại và cấp quyền.');
+            break;
+          }
+          if (sheetsResponse.ok) {
+            const sheetsData = await sheetsResponse.json();
+            if (!sheetsData.files || sheetsData.files.length === 0) {
+              setError('Không tìm thấy file Google Sheets nào. Bạn cần tạo file trước.');
+            } else {
+              accounts = sheetsData.files.map((file: any) => ({
+                id: file.id,
+                name: file.name,
+                type: 'Google Sheets'
+              }));
+            }
           }
           break;
       }

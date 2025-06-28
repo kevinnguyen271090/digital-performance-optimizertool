@@ -46,14 +46,14 @@ class AnalyticsService {
       properties: {
         ...properties,
         timestamp: Date.now(),
-        environment: process.env.NODE_ENV
+        environment: import.meta.env.MODE
       },
       userId: this.userId,
       timestamp: Date.now()
     };
 
     // Development logging
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log('[Analytics] Track:', analyticsEvent);
     }
 
@@ -76,12 +76,12 @@ class AnalyticsService {
       properties: {
         ...properties,
         timestamp: Date.now(),
-        environment: process.env.NODE_ENV
+        environment: import.meta.env.MODE
       }
     };
 
     // Development logging
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.log('[Analytics] Page View:', pageViewEvent);
     }
 
@@ -90,7 +90,7 @@ class AnalyticsService {
     
     // Send to Google Analytics 4
     if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('config', process.env.REACT_APP_GA_MEASUREMENT_ID, {
+      (window as any).gtag('config', import.meta.env.VITE_GA_MEASUREMENT_ID, {
         page_path: page,
         page_title: title,
         ...properties

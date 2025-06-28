@@ -36,6 +36,7 @@ export const platformsData: PlatformCategory[] = [
           { id: 'gmb', name: 'Google My Business', description: 'Hiệu suất Local SEO', isConnected: false },
           { id: 'gsc', name: 'Search Console', description: 'Hiệu suất SEO', isConnected: false },
           { id: 'youtube', name: 'YouTube Channel', description: 'Phân tích kênh', isConnected: false },
+          { id: 'sheets', name: 'Google Sheets', description: 'Đồng bộ dữ liệu tùy chỉnh', isConnected: false },
         ] 
       },
       { 

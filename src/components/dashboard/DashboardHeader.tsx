@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Layers, User } from "lucide-react";
+import { Grid, Layers, User, FileText } from "lucide-react";
 import DateRangePicker from "../DateRangePicker";
 import { DashboardView } from "../../types/dashboard";
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ interface DashboardHeaderProps {
   onViewChange: (view: DashboardView) => void;
   onDateRangeChange: (startDate: Date, endDate: Date) => void;
   onToggleAccountSelector: () => void;
+  onCreateReport?: () => void;
   dateRangeString: string;
 }
 
@@ -17,6 +18,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = React.memo(({
   onViewChange,
   onDateRangeChange,
   onToggleAccountSelector,
+  onCreateReport,
   dateRangeString
 }) => {
   const { t, i18n } = useTranslation();
@@ -88,6 +90,19 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = React.memo(({
               <span className="hidden sm:inline">Kênh</span>
             </button>
           </div>
+          
+          {/* Nút tạo báo cáo */}
+          {onCreateReport && (
+            <button
+              onClick={onCreateReport}
+              className="flex items-center space-x-2 bg-accent text-white px-3 py-2 rounded-lg font-medium hover:bg-accent/90 transition shadow-sm"
+              title="Tạo báo cáo"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Tạo báo cáo</span>
+            </button>
+          )}
+          
           {/* Filter ngày */}
           <DateRangePicker 
             onDateRangeChange={onDateRangeChange}

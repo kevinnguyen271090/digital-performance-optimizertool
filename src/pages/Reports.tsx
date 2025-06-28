@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from "react";
 import CreateReportModal from "../components/CreateReportModal";
 import ReportCard from "../components/ReportCard";
-import { Plus } from "lucide-react";
+import { Plus, FileText, Table, BarChart3 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 
 const Reports = () => {
   const { t } = useTranslation();
   const [reports, setReports] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   useEffect(() => {
     // Load reports từ localStorage
     const savedReports = JSON.parse(localStorage.getItem("reports") || "[]");
     setReports(savedReports);
+    
+    // Load dashboard data từ localStorage (nếu có)
+    const savedDashboardData = localStorage.getItem("dashboardData");
+    if (savedDashboardData) {
+      setDashboardData(JSON.parse(savedDashboardData));
+    }
   }, []);
 
   const handleReportCreated = (newReport: any) => {
@@ -22,6 +29,61 @@ const Reports = () => {
   const handleViewReport = (report: any) => {
     // Có thể mở modal preview hoặc chuyển trang
     alert(`Xem báo cáo: ${report.name}`);
+  };
+
+  const handleDeleteReport = (reportId: string) => {
+    const updatedReports = reports.filter(report => report.id !== reportId);
+    setReports(updatedReports);
+    localStorage.setItem("reports", JSON.stringify(updatedReports));
+  };
+
+  const quickReportTemplates = [
+    {
+      id: "overview",
+      name: "Báo cáo tổng quan",
+      description: "Tổng hợp KPI và metrics chính",
+      icon: BarChart3,
+      type: "pdf"
+    },
+    {
+      id: "platform",
+      name: "Báo cáo theo nền tảng", 
+      description: "Phân tích chi tiết từng nền tảng",
+      icon: FileText,
+      type: "excel"
+    },
+    {
+      id: "custom",
+      name: "Báo cáo tùy chỉnh",
+      description: "Tạo báo cáo theo yêu cầu",
+      icon: Table,
+      type: "pdf"
+    }
+  ];
+
+  const handleQuickReport = (template: any) => {
+    // Tạo báo cáo nhanh với template
+    const newReport = {
+      id: `report-${Date.now()}`,
+      name: template.name,
+      type: template.type,
+      timeRange: "last_month",
+      includes: {
+        kpi: true,
+        charts: true,
+        recommendations: true,
+        dataTable: true
+      },
+      createdAt: new Date().toISOString(),
+      status: "completed"
+    };
+    
+    handleReportCreated(newReport);
+    
+    // Giả lập tạo báo cáo
+    setTimeout(() => {
+      alert(`Đã tạo ${template.name} thành công!`);
+    }, 1000);
   };
 
   return (
@@ -47,109 +109,93 @@ const Reports = () => {
               </div>
               <div className="p-6">
                 <div className="space-y-3">
-                  <button className="w-full text-left p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {t('reports.overview_template', 'Báo cáo tổng quan')}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('reports.overview_description', 'Tổng hợp KPI và metrics chính')}
-                    </p>
-                  </button>
-                  <button className="w-full text-left p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {t('reports.platform_template', 'Báo cáo theo nền tảng')}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('reports.platform_description', 'Phân tích chi tiết từng nền tảng')}
-                    </p>
-                  </button>
-                  <button className="w-full text-left p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {t('reports.custom_template', 'Báo cáo tùy chỉnh')}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {t('reports.custom_description', 'Tạo báo cáo theo yêu cầu')}
-                    </p>
+                  {quickReportTemplates.map((template) => {
+                    const IconComponent = template.icon;
+                    return (
+                      <button
+                        key={template.id}
+                        onClick={() => handleQuickReport(template)}
+                        className="w-full text-left p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <IconComponent className="w-5 h-5 text-accent group-hover:text-accent/80" />
+                          <div>
+                            <h3 className="font-medium text-gray-900 dark:text-white">
+                              {template.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {template.description}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                {/* Create Custom Report Button */}
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full flex items-center justify-center space-x-2 bg-accent text-white px-4 py-3 rounded-lg font-medium hover:bg-accent/90 transition"
+                  >
+                    <Plus className="w-5 h-5" />
+                    <span>Tạo báo cáo tùy chỉnh</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Report Builder */}
+          {/* Report History */}
           <div className="lg:col-span-2">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {t('reports.create_report', 'Tạo báo cáo')}
+                  {t('reports.report_history', 'Lịch sử báo cáo')}
                 </h2>
               </div>
               <div className="p-6">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('reports.report_name', 'Tên báo cáo')}
-                    </label>
-                    <input
-                      type="text"
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder={t('reports.report_name_placeholder', 'Nhập tên báo cáo')}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('reports.report_description', 'Mô tả báo cáo')}
-                    </label>
-                    <textarea
-                      rows={3}
-                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder={t('reports.report_description_placeholder', 'Mô tả nội dung báo cáo')}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {t('reports.select_data', 'Chọn dữ liệu')}
-                    </label>
-                    <div className="mt-2 space-y-2">
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300" />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                          {t('metrics.impressions', 'Lượt hiển thị')}
-                        </span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300" />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                          {t('metrics.clicks', 'Lượt nhấp')}
-                        </span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300" />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                          {t('metrics.conversions', 'Chuyển đổi')}
-                        </span>
-                      </label>
-                      <label className="flex items-center">
-                        <input type="checkbox" className="rounded border-gray-300" />
-                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                          {t('metrics.revenue', 'Doanh thu')}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
-                      {t('reports.preview', 'Xem trước')}
-                    </button>
-                    <button className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
-                      {t('reports.generate', 'Tạo báo cáo')}
+                {reports.length === 0 ? (
+                  <div className="text-center py-12">
+                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      {t('reports.no_reports', 'Chưa có báo cáo nào')}
+                    </h3>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">
+                      {t('reports.create_first_report', 'Tạo báo cáo đầu tiên để bắt đầu')}
+                    </p>
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="bg-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-accent/90 transition"
+                    >
+                      Tạo báo cáo đầu tiên
                     </button>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reports.map((report) => (
+                      <ReportCard
+                        key={report.id}
+                        report={report}
+                        onView={handleViewReport}
+                        onDelete={() => handleDeleteReport(report.id)}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Create Report Modal */}
+        <CreateReportModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onReportCreated={handleReportCreated}
+          dashboardData={dashboardData}
+        />
       </div>
     </div>
   );

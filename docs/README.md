@@ -293,3 +293,28 @@ MIT License - xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 **Digital Performance Optimizer** - Tối ưu hiệu suất marketing đa nền tảng 🚀
 
 > **Lưu ý:** Nếu phát triển thêm các tính năng lớn (ví dụ: workflow, automation, phân quyền nâng cao...), cần đánh giá lại database, bổ sung bảng mới nếu cần, và cập nhật tài liệu này để team không bị quên.
+
+## Kiến trúc lưu trữ & đồng bộ dữ liệu nền tảng (Platform Data Sync Architecture)
+
+### 1. Tổng quan
+- **Không fetch API trực tiếp mỗi lần user xem dashboard/report.**
+- **Dữ liệu từ các nền tảng (Google, Meta, WooCommerce,...) được đồng bộ về bảng trung gian trên Supabase/Postgres.**
+- **Dashboard/report chỉ query dữ liệu đã lưu này, đảm bảo tốc độ, tiết kiệm quota, tối ưu chi phí.**
+
+### 2. Flow dữ liệu
+1. **User kết nối tài khoản nền tảng (Google, Meta, ...)**
+   - Lưu thông tin kết nối vào bảng `connections` (user_id, platform, service, metadata, trạng thái, ...).
+2. **Job định kỳ (cron/Supabase Edge Function/server nhỏ)**
+   - Tự động fetch dữ liệu mới nhất từ API các nền tảng về bảng dữ liệu snapshot (ví dụ: `analytics_data`, `ads_data`, ...), mỗi 5-15 phút.
+3. **Dashboard/report**
+   - Chỉ query dữ liệu từ bảng snapshot này, không gọi API trực tiếp.
+   - Đảm bảo dữ liệu realtime/delay tối đa 15 phút.
+
+### 3. Ưu điểm
+- Tối ưu performance, chi phí, quota API.
+- Dễ mở rộng, bảo mật tốt, dễ scale lên BigQuery/Azure khi cần.
+- Trải nghiệm user mượt mà, không bị chậm khi xem dashboard.
+
+### 4. Định hướng mở rộng
+- Khi cần scale lớn, có thể chuyển sang BigQuery hoặc warehouse mạnh hơn mà không phải thay đổi nhiều code frontend.
+- Có thể thêm bảng lưu log đồng bộ, lịch sử thay đổi, v.v.

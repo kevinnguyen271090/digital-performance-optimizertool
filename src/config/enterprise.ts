@@ -61,9 +61,9 @@ export interface EnterpriseConfig {
 
 export const ENTERPRISE_CONFIG: EnterpriseConfig = {
   performance: {
-    enableMonitoring: process.env.NODE_ENV === 'production',
+    enableMonitoring: import.meta.env.MODE === 'production',
     slowRenderThreshold: 16, // 60fps
-    enableBundleAnalysis: process.env.NODE_ENV === 'development',
+    enableBundleAnalysis: import.meta.env.MODE === 'development',
     enableLazyLoading: true,
   },
 
@@ -85,13 +85,13 @@ export const ENTERPRISE_CONFIG: EnterpriseConfig = {
 
   errorHandling: {
     enableErrorBoundary: true,
-    enableErrorReporting: process.env.NODE_ENV === 'production',
+    enableErrorReporting: import.meta.env.MODE === 'production',
     enableErrorRecovery: true,
     maxErrorRetries: 3,
   },
 
   caching: {
-    enableServiceWorker: process.env.NODE_ENV === 'production',
+    enableServiceWorker: import.meta.env.MODE === 'production',
     enableMemoryCache: true,
     enableLocalStorage: true,
     cacheExpiryTime: 24 * 60 * 60 * 1000, // 24 hours
@@ -99,16 +99,16 @@ export const ENTERPRISE_CONFIG: EnterpriseConfig = {
 
   monitoring: {
     enableHealthChecks: true,
-    enableUptimeMonitoring: process.env.NODE_ENV === 'production',
+    enableUptimeMonitoring: import.meta.env.MODE === 'production',
     enablePerformanceMonitoring: true,
     enableUserBehaviorTracking: true,
   },
 
   api: {
-    baseUrl: process.env.REACT_APP_API_BASE_URL || 'https://api.example.com',
+    baseUrl: import.meta.env.VITE_API_BASE_URL || 'https://api.example.com',
     timeout: 30000, // 30 seconds
     retryAttempts: 3,
-    enableRequestLogging: process.env.NODE_ENV === 'development',
+    enableRequestLogging: import.meta.env.MODE === 'development',
     enableResponseCaching: true,
   },
 };
@@ -118,14 +118,14 @@ export const getEnterpriseConfig = (): EnterpriseConfig => {
   const config = { ...ENTERPRISE_CONFIG };
 
   // Development overrides
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.MODE === 'development') {
     config.performance.enableMonitoring = true;
     config.analytics.enableTracking = false; // Disable in dev
     config.errorHandling.enableErrorReporting = false;
   }
 
   // Production overrides
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     config.performance.enableBundleAnalysis = false;
     config.api.enableRequestLogging = false;
   }

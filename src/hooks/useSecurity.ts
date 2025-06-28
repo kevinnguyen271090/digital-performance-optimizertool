@@ -77,7 +77,7 @@ class SecurityService {
     this.events.push(event);
 
     // Development logging
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.warn('[Security] Event:', event);
     }
 

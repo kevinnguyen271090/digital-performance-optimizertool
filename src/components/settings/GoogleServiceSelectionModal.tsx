@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { GoogleAnalyticsIcon, GoogleSearchConsoleIcon, GoogleAdsIcon } from './icons';
 
 // Định nghĩa kiểu dữ liệu cho Dịch vụ Google
-export type GoogleServiceType = 'ga4' | 'search-console' | 'google-ads';
+export type GoogleServiceType = 'ga4' | 'search-console' | 'google-ads' | 'merchant-center' | 'sheets';
 
 export interface Service {
   id: GoogleServiceType;
@@ -34,6 +34,20 @@ export const googleServices: Service[] = [
     description: 'Theo dõi các chiến dịch quảng cáo.',
     icon: GoogleAdsIcon,
     scopes: ['https://www.googleapis.com/auth/adwords'],
+  },
+  {
+    id: 'merchant-center',
+    name: 'Google Merchant Center',
+    description: 'Quản lý sản phẩm và hiệu suất e-commerce.',
+    icon: GoogleAnalyticsIcon, // Có thể tạo icon riêng sau
+    scopes: ['https://www.googleapis.com/auth/content'],
+  },
+  {
+    id: 'sheets',
+    name: 'Google Sheets',
+    description: 'Đồng bộ dữ liệu từ Google Sheets.',
+    icon: GoogleAnalyticsIcon, // Có thể tạo icon riêng sau
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
   },
 ];
 

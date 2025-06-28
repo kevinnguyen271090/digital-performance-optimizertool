@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { Helmet } from 'react-helmet';
 import { useOutletContext } from 'react-router-dom';
@@ -11,6 +11,7 @@ import GoogleSheetsConnector from '../components/google-sheets/GoogleSheetsConne
 import { useGoogleAccountConnect } from '../hooks/useGoogleAccountConnect';
 import { useSettings } from '../hooks/useSettings';
 import { useTranslation } from 'react-i18next';
+import ConnectedAccountsTab from '../components/settings/ConnectedAccountsTab';
 
 interface OutletContextType {
   session: Session | null;
@@ -33,7 +34,10 @@ const Settings: React.FC = React.memo(() => {
     handleConnect,
     handleGoogleServiceSelect,
     handleGoogleAccountsSelected,
-    saveConnection
+    saveConnection,
+    setSelectedGoogleService,
+    setShowGoogleServiceSelectionModal,
+    setShowGoogleAccountSelectorModal
   } = useSettings(session);
 
   // Google OAuth hook
@@ -41,6 +45,8 @@ const Settings: React.FC = React.memo(() => {
 
   // Memoize platforms để tránh re-render không cần thiết
   const memoizedPlatforms = useMemo(() => platforms, [platforms]);
+
+  const [activeTab, setActiveTab] = useState<'connect' | 'accounts'>('connect');
 
   // Handler functions for different platforms
   const handleWooCommerceSuccess = async (credentials: { storeUrl: string; consumerKey: string; consumerSecret: string }) => {
@@ -69,6 +75,12 @@ const Settings: React.FC = React.memo(() => {
     }
   };
 
+  // Hàm mới: gọi xác thực Google trước khi mở modal chọn tài khoản
+  const handleGoogleServiceSelectWithAuth = (service: any) => {
+    triggerGoogleLogin();
+    handleGoogleServiceSelect(service);
+  };
+
   return (
     <>
       <Helmet>
@@ -88,20 +100,41 @@ const Settings: React.FC = React.memo(() => {
               </p>
             </div>
 
-            {isLoadingConnections ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-              </div>
+            {/* Tabs */}
+            <div className="flex space-x-4 mb-8 border-b">
+              <button
+                className={`px-4 py-2 font-semibold border-b-2 transition-all ${activeTab === 'connect' ? 'border-accent text-accent' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
+                onClick={() => setActiveTab('connect')}
+              >
+                Kết nối nền tảng
+              </button>
+              <button
+                className={`px-4 py-2 font-semibold border-b-2 transition-all ${activeTab === 'accounts' ? 'border-accent text-accent' : 'border-transparent text-gray-500 dark:text-gray-400'}`}
+                onClick={() => setActiveTab('accounts')}
+              >
+                Tài khoản đã kết nối
+              </button>
+            </div>
+
+            {/* Tab content */}
+            {activeTab === 'connect' ? (
+              isLoadingConnections ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                  {memoizedPlatforms.map((platform) => (
+                    <PlatformButton
+                      key={platform.id}
+                      platform={platform}
+                      onClick={() => handleConnect(platform)}
+                    />
+                  ))}
+                </div>
+              )
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {memoizedPlatforms.map((platform) => (
-                  <PlatformButton
-                    key={platform.id}
-                    platform={platform}
-                    onClick={() => handleConnect(platform)}
-                  />
-                ))}
-              </div>
+              session?.user?.id && <ConnectedAccountsTab userId={session.user.id} />
             )}
           </div>
         </div>
@@ -110,7 +143,7 @@ const Settings: React.FC = React.memo(() => {
         <GoogleServiceSelectionModal
           isOpen={showGoogleServiceSelectionModal}
           onClose={handleModalClose}
-          onSelectService={handleGoogleServiceSelect}
+          onSelectService={handleGoogleServiceSelectWithAuth}
         />
 
         {showGoogleAccountSelectorModal && selectedGoogleService && (
@@ -118,7 +151,7 @@ const Settings: React.FC = React.memo(() => {
             isOpen={showGoogleAccountSelectorModal}
             onClose={handleModalClose}
             onConfirm={handleGoogleAccountsSelected}
-            userEmail={profile?.email || 'user@example.com'}
+            userEmail={profile?.email || session?.user?.email || 'user@example.com'}
             service={selectedGoogleService}
             accessToken={accessToken}
             profile={profile}
@@ -136,7 +169,7 @@ const Settings: React.FC = React.memo(() => {
           onClose={handleModalClose}
           onSuccess={handleMetaSuccess}
           onFail={handleMetaFail}
-          appId={process.env.REACT_APP_FACEBOOK_APP_ID || ''}
+          appId={import.meta.env.VITE_FACEBOOK_APP_ID || ''}
         />
 
         <GoogleSheetsConnector

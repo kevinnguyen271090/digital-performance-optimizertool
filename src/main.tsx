@@ -6,7 +6,15 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './i18n';
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID as string;
+// Thêm khai báo type cho import.meta.env
+interface ImportMeta {
+  env: {
+    VITE_GOOGLE_CLIENT_ID: string;
+    [key: string]: string;
+  };
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

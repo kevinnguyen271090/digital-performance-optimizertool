@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Download, Share2, Eye, Calendar, FileText } from "lucide-react";
+import { Download, Share2, Eye, Calendar, FileText, Trash2 } from "lucide-react";
 
 interface ReportCardProps {
   report: {
@@ -10,14 +10,17 @@ interface ReportCardProps {
       kpi: boolean;
       charts: boolean;
       recommendations: boolean;
+      dataTable?: boolean;
     };
     createdAt: string;
     status: string;
+    type?: string;
   };
   onView: (report: any) => void;
+  onDelete?: (reportId: string) => void;
 }
 
-const ReportCard: React.FC<ReportCardProps> = ({ report, onView }) => {
+const ReportCard: React.FC<ReportCardProps> = ({ report, onView, onDelete }) => {
   const [isSharing, setIsSharing] = useState(false);
 
   const getTimeRangeLabel = (range: string) => {
@@ -40,11 +43,17 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onView }) => {
   };
 
   const handleDownload = () => {
-    // Giả lập download PDF
+    // Giả lập download PDF/Excel
     const link = document.createElement("a");
     link.href = "#";
-    link.download = `${report.name}.pdf`;
+    link.download = `${report.name}.${report.type || 'pdf'}`;
     link.click();
+  };
+
+  const handleDelete = () => {
+    if (onDelete && confirm("Bạn có chắc muốn xóa báo cáo này?")) {
+      onDelete(report.id);
+    }
   };
 
   return (
@@ -62,6 +71,13 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onView }) => {
               <FileText className="w-4 h-4" />
               <span>{new Date(report.createdAt).toLocaleDateString("vi-VN")}</span>
             </div>
+            {report.type && (
+              <div className="flex items-center space-x-1">
+                <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                  {report.type.toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -83,6 +99,9 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onView }) => {
           )}
           {report.includes.recommendations && (
             <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs">Recommendations</span>
+          )}
+          {report.includes.dataTable && (
+            <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs">Data Table</span>
           )}
         </div>
       </div>
@@ -111,6 +130,15 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onView }) => {
           <Share2 className="w-4 h-4" />
           <span className="text-sm">{isSharing ? "Đã copy" : "Chia sẻ"}</span>
         </button>
+        {onDelete && (
+          <button
+            onClick={handleDelete}
+            className="flex items-center space-x-1 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span className="text-sm">Xóa</span>
+          </button>
+        )}
       </div>
     </div>
   );
