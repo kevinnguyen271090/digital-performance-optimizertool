@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import { supabase } from "../utils/supabaseClient";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,37 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { t, i18n } = useTranslation();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [user] = useState<any>(null); // TODO: Get user from auth context
+  const [profile, setProfile] = useState<{ username?: string } | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchUserAndProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      if (session?.user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single();
+        setProfile(profileData || null);
+      }
+    };
+    fetchUserAndProfile();
+  }, []);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
 
   const handleLogout = () => {
     // TODO: Implement logout logic
@@ -97,42 +128,45 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               <ThemeToggle />
 
               {/* User Menu */}
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                  <span className="hidden md:block">{user?.email}</span>
-                </button>
-
-                {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {t('navigation.profile', 'Hồ sơ')}
-                    </Link>
-                    <Link
-                      to="/help"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {t('navigation.help', 'Trợ giúp')}
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      {t('navigation.logout', 'Đăng xuất')}
-                    </button>
-                  </div>
-                )}
-              </div>
+              {user && (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setUserMenuOpen((open) => !open)}
+                    className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-blue-500 rounded-full text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                  >
+                    {profile?.username?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </button>
+                  {userMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                      <button
+                        onClick={() => { setUserMenuOpen(false); navigate('/profile'); }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <span className="mr-2">👤</span> Hồ sơ
+                      </button>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <span className="mr-2">💳</span> Thanh toán
+                      </button>
+                      <button
+                        onClick={() => { setUserMenuOpen(false); }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <span className="mr-2">⚙️</span> Cài đặt
+                      </button>
+                      <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50"
+                      >
+                        <span className="mr-2">🚪</span> Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -27,16 +27,26 @@
 
 Ứng dụng dashboard toàn diện để theo dõi và tối ưu hiệu suất marketing đa nền tảng, tích hợp các công cụ digital marketing phổ biến.
 
-## 🚀 Tính năng chính
+## �� Tính năng chính
 
-- **Dashboard tổng quan** với KPI cards và metrics real-time
-- **Quản lý mục tiêu marketing** với tracking và analytics
-- **Tích hợp đa nền tảng**: Meta, Google, TikTok, WooCommerce
-- **Onboarding tour tương tác** cho người dùng mới
-- **Date range picker** linh hoạt
-- **Account selector** cho multi-account management
-- **Dark/Light theme** toggle
-- **Responsive design** cho mọi thiết bị
+- ✅ **Dashboard tổng quan** với KPI cards và metrics real-time
+- ✅ **Quản lý mục tiêu marketing** với tracking và analytics
+- ✅ **Tích hợp đa nền tảng**: Meta, Google, TikTok, WooCommerce
+- ✅ **Onboarding tour tương tác** cho người dùng mới
+- ✅ **Date range picker** linh hoạt
+- ✅ **Account selector** cho multi-account management
+- ✅ **Dark/Light theme** toggle
+- ✅ **Responsive design** cho mọi thiết bị
+- ✅ **Đăng ký, xác thực email, đăng nhập** bằng email/password hoặc Google
+- ✅ **Quản lý hồ sơ cá nhân (profile)**: cập nhật tên, avatar, username, trạng thái xác thực email
+- ✅ **Hệ thống tổ chức (organization)**: tạo, tham gia, phân quyền owner/admin/member
+- ✅ **Quản lý thành viên tổ chức**, mời user, phân quyền động
+- ✅ **Bảo mật dữ liệu** với Row Level Security (RLS)
+- ✅ **Xóa user tự động** xóa dữ liệu liên quan (ON DELETE CASCADE)
+- ➖ **Lịch sử hoạt động, thông báo**, quản lý kết nối dịch vụ
+- ⬜ **Báo cáo tự động** PDF/Excel từ dữ liệu thực
+- ⬜ **Recommendations Engine** AI-powered insights
+- ⬜ **Advanced Analytics** cohort analysis, funnel analysis
 
 ## 🏗️ Cấu trúc dự án (Sau refactor)
 
@@ -187,12 +197,12 @@ Các platform integrations được cấu hình trong `src/constants/platforms.t
 - [x] TypeScript setup
 - [x] Basic integrations
 
-### Phase 2: Core Integrations 🏗️
-- [ ] Meta platform integration
-- [ ] Google Analytics integration
+### Phase 2: Core Integrations ➖
+- [x] Meta platform integration
+- [x] Google Analytics integration
 - [ ] Basic reporting
 
-### Phase 3: Advanced Features 📅
+### Phase 3: Advanced Features ⬜
 - [ ] Advanced analytics
 - [ ] Cross-platform attribution
 - [ ] Custom dashboards
@@ -318,3 +328,17 @@ MIT License - xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 ### 4. Định hướng mở rộng
 - Khi cần scale lớn, có thể chuyển sang BigQuery hoặc warehouse mạnh hơn mà không phải thay đổi nhiều code frontend.
 - Có thể thêm bảng lưu log đồng bộ, lịch sử thay đổi, v.v.
+
+## Quick Start
+1. Đăng ký tài khoản, xác thực email
+2. Đăng nhập, cập nhật hồ sơ cá nhân
+3. Tạo hoặc tham gia tổ chức, quản lý thành viên
+4. Sử dụng các tính năng dashboard, báo cáo, ...
+
+(Chi tiết xem thêm các file docs khác)
+
+## Debug Profile
+- Đã thêm log debug vào hook `useProfile` để kiểm tra session và profileData khi load trang Profile.
+- Khi gặp lỗi không load được dữ liệu, kiểm tra log Console (Session, ProfileData) và tab Network để xác định nguyên nhân.
+- Đảm bảo biến môi trường VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY đúng chuẩn.
+- Kiểm tra bảng user_profiles trên Supabase và RLS policy.

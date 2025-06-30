@@ -57,7 +57,8 @@ const Settings: React.FC = React.memo(() => {
   };
 
   const handleMetaSuccess = async (response: any) => {
-    const success = await saveConnection('meta', { access_token: response.accessToken }, undefined, { profile: response });
+    const connectionData = { access_token: response.accessToken, account_id: response.accountID };
+    const success = await saveConnection('meta', connectionData, undefined, { profile: response });
     if (success) {
       handleModalClose();
     }

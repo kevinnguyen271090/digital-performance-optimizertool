@@ -9,6 +9,7 @@ import AuthPage from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import EnterpriseApp from "./components/EnterpriseApp";
 import { getEnterpriseConfig } from "./config/enterprise";
+import ProfilePage from './pages/Profile';
 
 const App = () => {
   const config = getEnterpriseConfig();
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="recommendations" element={<Recommendations />} />
               <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
           </Route>
         </Routes>

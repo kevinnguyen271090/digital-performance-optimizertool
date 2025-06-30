@@ -30,6 +30,7 @@ export const usePerformanceMonitor = ({
   });
 
   const startTimeRef = useRef<number>(0);
+  const isMountedRef = useRef<boolean>(false);
 
   const logPerformance = useCallback((action: 'mount' | 'update' | 'unmount') => {
     if (!enabled) return;
@@ -40,7 +41,8 @@ export const usePerformanceMonitor = ({
     if (action === 'mount') {
       metricsRef.current.mountTime = renderTime;
       metricsRef.current.lastUpdate = now;
-    } else if (action === 'update') {
+      isMountedRef.current = true;
+    } else if (action === 'update' && isMountedRef.current) {
       metricsRef.current.updateCount++;
       metricsRef.current.renderTime = renderTime;
       metricsRef.current.lastUpdate = now;
@@ -49,6 +51,8 @@ export const usePerformanceMonitor = ({
       if (renderTime > threshold && onSlowRender) {
         onSlowRender(metricsRef.current);
       }
+    } else if (action === 'unmount') {
+      isMountedRef.current = false;
     }
 
     // Log to console in development
@@ -66,6 +70,7 @@ export const usePerformanceMonitor = ({
     }
   }, [componentName, enabled, threshold, onSlowRender]);
 
+  // Mount effect - chỉ chạy một lần
   useEffect(() => {
     startTimeRef.current = performance.now();
     logPerformance('mount');
@@ -73,14 +78,15 @@ export const usePerformanceMonitor = ({
     return () => {
       logPerformance('unmount');
     };
-  }, [logPerformance]); // Add logPerformance to dependencies
+  }, []); // Empty dependency array
 
+  // Update effect - chỉ chạy khi component update
   useEffect(() => {
-    if (metricsRef.current.updateCount > 0) {
+    if (isMountedRef.current && metricsRef.current.updateCount > 0) {
       startTimeRef.current = performance.now();
       logPerformance('update');
     }
-  }, [logPerformance]); // Add logPerformance to dependencies
+  }); // Không có dependency array để tránh vòng lặp
 
   return {
     metrics: metricsRef.current,

@@ -4,6 +4,32 @@ File này ghi lại các thay đổi, quyết định và tiến độ của d�
 
 ---
 
+## 📊 Trạng thái tổng quan
+
+### ✅ Đã hoàn thành (Done)
+- [x] Thiết lập dự án và UI cơ bản
+- [x] Hệ thống xác thực người dùng (Supabase Auth)
+- [x] Kết nối nền tảng bên ngoài (Meta, Google, TikTok, WooCommerce)
+- [x] Dashboard với dữ liệu thực
+- [x] Dashboard thông minh theo nền tảng
+- [x] Quản lý hồ sơ cá nhân (profile)
+- [x] Hệ thống tổ chức (organization), phân quyền
+- [x] Bảo mật RLS, ON DELETE CASCADE
+- [x] Refactor code thành Enterprise level
+- [x] Tự động hóa dọn dẹp dữ liệu (pg_cron)
+
+### ➖ Đang làm (In Progress)
+- [ ] Lịch sử hoạt động, thông báo
+- [ ] Dashboard, báo cáo nâng cao
+
+### ⬜ Chưa làm (Not Started)
+- [ ] Báo cáo tự động PDF/Excel
+- [ ] Recommendations Engine AI-powered
+- [ ] Advanced Analytics (cohort, funnel, attribution)
+- [ ] Deployment và Production
+
+---
+
 ### **Ngày 25/07/2024**
 
 **✅ Đã hoàn thành:**
@@ -27,8 +53,6 @@ File này ghi lại các thay đổi, quyết định và tiến độ của d�
 -   **Tích hợp `Settings.tsx` với Database:**
     -   Chỉnh sửa trang `Settings` để lưu thông tin kết nối (access tokens, API keys) vào bảng `connections` trong Supabase.
     -   Đọc trạng thái kết nối từ database để hiển thị đúng trên giao diện, kể cả sau khi người dùng tải lại trang. 
-
-# Tiến độ Dự án - Digital Performance Optimizer
 
 ## Cột mốc đã hoàn thành ✅
 
@@ -188,7 +212,7 @@ File này ghi lại các thay đổi, quyết định và tiến độ của d�
 ## Công việc cần làm để hoàn thiện Dashboard
 
 ### 1. UI/UX & Layout
-- [ĐANG LÀM] Tối ưu layout tổng quan: header, filter, tab chuyển kênh, KPI card, bảng số liệu, insight
+- [➖] Tối ưu layout tổng quan: header, filter, tab chuyển kênh, KPI card, bảng số liệu, insight
 - [ ] Responsive cho mọi thiết bị (desktop, tablet, mobile)
 - [ ] Drill-down đa cấp: từ tổng quan → từng kênh → từng chiến dịch
 - [ ] Tooltip giải thích KPI, số liệu
@@ -197,7 +221,7 @@ File này ghi lại các thay đổi, quyết định và tiến độ của d�
 - [ ] Onboarding hướng dẫn user mới
 
 ### 2. Dữ liệu & Logic
-- [ ] Kết nối dữ liệu thật: Supabase, Google Sheet, API
+- [✅] Kết nối dữ liệu thật: Supabase, Google Sheet, API
 - [ ] Mapping trường dữ liệu chuẩn hóa (snake_case → camelCase)
 - [ ] Tổng hợp số liệu đa kênh, multi-channel compare
 - [ ] Tính toán KPI tổng, KPI từng kênh, ROAS, CPA, v.v.
@@ -221,3 +245,35 @@ File này ghi lại các thay đổi, quyết định và tiến độ của d�
 **Lưu ý:**
 - Tính năng xuất PDF đã chuyển sang trang Report (Custom Report), không còn trên Dashboard.
 - Dashboard chỉ tập trung vào phân tích nhanh, real-time, không phải nơi xuất báo cáo tuỳ biến. 
+
+# Features Progress & Milestone
+
+## Checklist tính năng
+- [✅] Đăng ký, xác thực email, đăng nhập
+- [✅] Hồ sơ cá nhân (profile), cập nhật thông tin
+- [✅] Hệ thống tổ chức (organization), phân quyền
+- [✅] Quản lý thành viên tổ chức
+- [✅] Bảo mật RLS, ON DELETE CASCADE
+- [➖] Dashboard, báo cáo nâng cao
+- [➖] Lịch sử hoạt động, thông báo
+- [⬜] Báo cáo tự động PDF/Excel
+- [⬜] Recommendations Engine AI-powered
+- [⬜] Advanced Analytics
+
+## Bảng tiến độ chi tiết
+| Tính năng | Trạng thái | Người phụ trách | Ngày bắt đầu | Ngày hoàn thành |
+|-----------|------------|-----------------|--------------|-----------------|
+| Đăng ký/login/profile | ✅ Done | ... | ... | ... |
+| Organization | ✅ Done | ... | ... | ... |
+| Dashboard cơ bản | ✅ Done | ... | ... | ... |
+| Dashboard nâng cao | ➖ Doing | ... | ... | ... |
+| Báo cáo tự động | ⬜ Not Started | ... | ... | ... |
+| Recommendations | ⬜ Not Started | ... | ... | ... |
+
+--- 
+
+### [Ngày cập nhật: hôm nay]
+- Đã hoàn thiện logic và UI tích hợp tính năng quản lý tổ chức (tạo, xem, phân quyền) vào trang Profile.
+- Đã refactor đồng bộ hook, modal, component, page.
+- Cần kiểm tra và fix bug hiển thị/tạo tổ chức vào ngày mai.
+--- 

@@ -551,3 +551,188 @@ Nếu gặp vấn đề trong quá trình setup:
 ---
 
 **Lưu ý**: Đảm bảo backup dữ liệu trước khi thực hiện các thay đổi lớn và test kỹ trong môi trường development trước khi deploy production. 
+
+### HTTPS Development Server Setup
+
+Để chạy HTTPS trên localhost (cần thiết cho OAuth và bên thứ 3):
+
+#### Bước 1: Cài đặt mkcert
+```bash
+# Tải mkcert từ: https://github.com/FiloSottile/mkcert/releases
+# Copy file mkcert.exe vào C:\mkcert\
+```
+
+#### Bước 2: Cài đặt certificate authority
+```bash
+C:\mkcert\mkcert.exe -install
+```
+
+#### Bước 3: Tạo certificate cho localhost
+```bash
+C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
+```
+
+#### Bước 4: Copy certificate files
+```bash
+copy "localhost+2.pem" "server.cert"
+copy "localhost+2-key.pem" "server.key"
+```
+
+#### Bước 5: Khởi động server HTTPS
+```bash
+npm run dev
+```
+
+**Kết quả:**
+- 🌐 **URL**: https://localhost:3000
+- 🔒 **HTTPS**: Certificate đáng tin cậy, không cảnh báo
+- 📱 **Network**: Có thể truy cập từ network
+
+### HTTP Development Server (Alternative)
+
+Nếu không cần HTTPS:
+```bash
+# Vite sẽ tự động chạy HTTP trên port 3000
+npm run dev
+```
+
+## 🏗️ Project Structure
+
+```
+digital-performance-optimizer/
+├── src/
+│   ├── components/          # React components
+│   │   ├── dashboard/       # Dashboard components
+│   │   ├── profile/         # Profile components
+│   │   ├── settings/        # Settings components
+│   │   └── google-sheets/   # Google Sheets integration
+│   ├── hooks/               # Custom React hooks
+│   ├── utils/               # Utility functions
+│   ├── types/               # TypeScript type definitions
+│   ├── constants/           # Constants and configurations
+│   └── config/              # Environment configurations
+├── supabase/                # Supabase configuration
+│   └── functions/           # Edge Functions
+├── scripts/                 # Database scripts
+├── docs/                    # Documentation
+└── public/                  # Static assets
+```
+
+## 🔐 Environment Variables
+
+Tạo file `.env` với các biến sau:
+
+```env
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Google OAuth
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Meta OAuth
+VITE_META_APP_ID=your_meta_app_id
+VITE_META_APP_SECRET=your_meta_app_secret
+
+# TikTok OAuth
+VITE_TIKTOK_CLIENT_KEY=your_tiktok_client_key
+VITE_TIKTOK_CLIENT_SECRET=your_tiktok_client_secret
+
+# WooCommerce
+VITE_WOOCOMMERCE_CONSUMER_KEY=your_woocommerce_consumer_key
+VITE_WOOCOMMERCE_CONSUMER_SECRET=your_woocommerce_consumer_secret
+```
+
+## 🗄️ Database Setup
+
+### 1. Supabase Setup
+1. Tạo project trên Supabase
+2. Copy URL và anon key vào `.env`
+3. Chạy SQL scripts trong thư mục `scripts/`
+
+### 2. Required Tables
+- `organizations` - Thông tin tổ chức
+- `organization_members` - Thành viên tổ chức
+- `connections` - Kết nối platform
+- `analytics_data` - Dữ liệu analytics
+- `audit_logs` - Log hoạt động
+- `user_2fa` - Two-factor authentication
+
+### 3. Edge Functions
+Deploy các Edge Functions:
+```bash
+supabase functions deploy fetch-google-analytics
+supabase functions deploy fetch-meta-ads
+supabase functions deploy two-factor-auth
+supabase functions deploy cleanup
+```
+
+## 🚀 Deployment
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Preview Production Build
+```bash
+npm run preview
+```
+
+### Deploy to Vercel/Netlify
+1. Connect repository
+2. Set environment variables
+3. Deploy automatically
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. Certificate Errors
+```bash
+# Nếu gặp "key values mismatch"
+# Xóa certificate cũ và tạo lại
+del server.cert server.key
+C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
+copy "localhost+2.pem" "server.cert"
+copy "localhost+2-key.pem" "server.key"
+```
+
+#### 2. Port Already in Use
+```bash
+# Kiểm tra process đang dùng port 3000
+netstat -ano | findstr :3000
+
+# Kill process
+taskkill /PID <process_id> /F
+```
+
+#### 3. Supabase Connection Issues
+- Kiểm tra environment variables
+- Verify Supabase project settings
+- Check RLS policies
+
+#### 4. OAuth Issues
+- Verify redirect URIs trong OAuth apps
+- Check HTTPS certificate cho localhost
+- Ensure correct client IDs và secrets
+
+## 📚 Additional Resources
+
+- [Vite Documentation](https://vitejs.dev/)
+- [React Documentation](https://react.dev/)
+- [Supabase Documentation](https://supabase.com/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/)
+
+## 🆘 Support
+
+Nếu gặp vấn đề:
+1. Kiểm tra logs trong browser console
+2. Verify environment variables
+3. Check database connections
+4. Review Edge Function logs
+
+---
+
+**Happy Coding! 🚀** 

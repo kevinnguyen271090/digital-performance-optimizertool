@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { useAnalytics, usePageTracking } from '../hooks/useAnalytics';
 import { useSecurity } from '../hooks/useSecurity';
@@ -16,7 +16,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
   pageName = 'unknown',
   pageTitle 
 }) => {
-  const config = getEnterpriseConfig();
+  const config = useMemo(() => getEnterpriseConfig(), []);
   const { track, identify } = useAnalytics();
   const { sanitizeInput, checkRateLimit, logSecurityEvent } = useSecurity(config.security);
   
@@ -25,17 +25,29 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
     componentName: 'EnterpriseApp',
     enabled: config.performance.enableMonitoring,
     threshold: config.performance.slowRenderThreshold,
-    onSlowRender: (metrics) => {
+    onSlowRender: useCallback((metrics: any) => {
       track('performance_slow_render', {
         component: metrics.componentName,
         renderTime: metrics.renderTime,
         threshold: config.performance.slowRenderThreshold
       });
-    }
+    }, [track, config.performance.slowRenderThreshold])
   });
 
   // Page tracking
   usePageTracking(pageName, pageTitle);
+
+  // Health check callback - di chuyển ra ngoài useEffect
+  const healthCheck = useCallback(() => {
+    track('health_check', {
+      timestamp: Date.now(),
+      userAgent: navigator.userAgent,
+      performance: {
+        memory: (performance as any).memory,
+        timing: performance.timing
+      }
+    });
+  }, [track]);
 
   // Security monitoring
   useEffect(() => {
@@ -106,21 +118,10 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
   // Health check
   useEffect(() => {
     if (config.monitoring.enableHealthChecks) {
-      const healthCheck = () => {
-        track('health_check', {
-          timestamp: Date.now(),
-          userAgent: navigator.userAgent,
-          performance: {
-            memory: (performance as any).memory,
-            timing: performance.timing
-          }
-        });
-      };
-
       const interval = setInterval(healthCheck, 5 * 60 * 1000); // Every 5 minutes
       return () => clearInterval(interval);
     }
-  }, [track, config.monitoring.enableHealthChecks]);
+  }, [healthCheck, config.monitoring.enableHealthChecks]);
 
   // User identification
   useEffect(() => {

@@ -22,6 +22,7 @@ export * from './settings/icons';
 export { default as KPICard } from './KPICard';
 export { default as GoalCard } from './GoalCard';
 export { default as GoalModal } from './GoalModal';
+export { default as KPIImportModal } from './KPIImportModal';
 export { default as TrendChart } from './TrendChart';
 export { default as DateRangePicker } from './DateRangePicker';
 export { default as SearchBar } from './SearchBar';
@@ -62,4 +63,8 @@ export { default as ChannelDetailInsights } from './channel-detail/ChannelDetail
 
 // Enterprise components
 export { default as ErrorBoundary } from './ErrorBoundary';
-export { default as EnterpriseApp } from './EnterpriseApp'; 
+export { default as EnterpriseApp } from './EnterpriseApp';
+export { default as CreateOrganizationModal } from './CreateOrganizationModal';
+
+// Profile components
+export * from './profile'; 

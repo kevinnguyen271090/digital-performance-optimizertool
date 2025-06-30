@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HelpCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import WooCommerceGuideModal from './WooCommerceGuideModal';
 import { supabase } from '../../utils/supabaseClient';
@@ -18,20 +18,7 @@ const WooCommerceConnectModal: React.FC<WooCommerceConnectModalProps> = ({ isOpe
   const [status, setStatus] = useState<'idle' | 'checking' | 'connected' | 'form'>('idle');
   const [existingConnection, setExistingConnection] = useState<any>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      checkExistingConnection();
-    } else {
-      // Reset state when closed
-      setStatus('idle');
-      setExistingConnection(null);
-      setStoreUrl('');
-      setConsumerKey('');
-      setConsumerSecret('');
-    }
-  }, [isOpen]);
-
-  const checkExistingConnection = async () => {
+  const checkExistingConnection = useCallback(async () => {
     setStatus('checking');
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -60,22 +47,38 @@ const WooCommerceConnectModal: React.FC<WooCommerceConnectModalProps> = ({ isOpe
       console.error('Error checking WooCommerce connection:', error);
       setStatus('form'); // Default to form on error
     }
-  };
+  }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      checkExistingConnection();
+    } else {
+      // Reset state when closed
+      setStatus('idle');
+      setExistingConnection(null);
+      setStoreUrl('');
+      setConsumerKey('');
+      setConsumerSecret('');
+    }
+  }, [isOpen, checkExistingConnection]);
 
-  const handleConnect = () => {
+  const handleConnect = useCallback(() => {
     if (storeUrl && consumerKey && consumerSecret) {
       onConnect({ storeUrl, consumerKey, consumerSecret });
       onClose();
     } else {
       alert('Vui lòng điền đầy đủ các trường.');
     }
-  };
+  }, [storeUrl, consumerKey, consumerSecret, onConnect, onClose]);
   
-  const handleReconnect = () => {
+  const handleReconnect = useCallback(() => {
     setExistingConnection(null);
     setStatus('form');
-  };
+  }, []);
+
+  const handleCloseGuide = useCallback(() => {
+    setShowGuide(false);
+  }, []);
 
   if (!isOpen) {
     return null;
@@ -210,7 +213,7 @@ const WooCommerceConnectModal: React.FC<WooCommerceConnectModalProps> = ({ isOpe
 
       <WooCommerceGuideModal
         isOpen={showGuide}
-        onClose={() => setShowGuide(false)}
+        onClose={handleCloseGuide}
       />
     </>
   );

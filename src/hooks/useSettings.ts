@@ -4,6 +4,7 @@ import { Session } from '@supabase/supabase-js';
 import { Platform } from '../components/settings/types';
 import { platformsData } from '../components/settings/platformData';
 import { GoogleServiceType } from '../components/settings/GoogleServiceSelectionModal';
+import { getOrganizationIdByUser } from '../utils/organization';
 
 export const useSettings = (session: Session | null) => {
   const [platforms, setPlatforms] = useState<Platform[]>(
@@ -23,7 +24,7 @@ export const useSettings = (session: Session | null) => {
     if (!session?.user) return;
     setIsLoadingConnections(true);
     try {
-      const { data, error } = await supabase.from('connections').select('platform, status, service');
+      const { data, error } = await supabase.from('connections').select('platform, status, service, account_details, last_connected, last_sync');
       if (error) throw error;
 
       setPlatforms(prevPlatforms => prevPlatforms.map(p => ({
@@ -55,22 +56,35 @@ export const useSettings = (session: Session | null) => {
       alert("Lỗi: Không tìm thấy user session.");
       return false;
     }
+    // Lấy organization_id của user
+    const organization_id = await getOrganizationIdByUser(session.user.id);
+    if (!organization_id) {
+      alert('Không tìm thấy tổ chức của user.');
+      return false;
+    }
     try {
       const conflictKey = service ? 'user_id, platform, service' : 'user_id, platform';
       const upsertData: any = {
         user_id: session.user.id,
+        organization_id,
         platform: platform,
         service: service,
         credentials: connectionData,
         status: 'connected',
         last_connected: new Date().toISOString(),
+        account_identifier:
+          platform === 'google' ? (connectionData.property_id || (metadata?.selected_accounts?.[0]?.propertyId)) :
+          platform === 'woocommerce' ? connectionData.storeUrl :
+          platform === 'meta' ? (connectionData.account_id || metadata?.profile?.id) :
+          platform === 'tiktok' ? connectionData.account_id :
+          undefined,
       };
       if (metadata) upsertData.metadata = metadata;
       const { error } = await supabase
         .from('connections')
         .upsert(
           upsertData,
-          { onConflict: conflictKey }
+          { onConflict: 'platform, account_identifier' }
         );
       if (error) throw error;
       alert(`Đã kết nối thành công với ${platform} ${service || ''}!`);

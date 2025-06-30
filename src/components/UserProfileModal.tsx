@@ -1,15 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogOut, User, CreditCard, Settings, X } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import UserOrganizationProfile from './UserOrganizationProfile';
 
 interface UserProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
+  activeTab?: 'profile' | 'billing' | 'settings';
 }
 
-const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) => {
+const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, activeTab = 'profile' }) => {
   const navigate = useNavigate();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [activeTabState, setActiveTabState] = useState<'profile' | 'billing' | 'settings'>(activeTab);
+
+  useEffect(() => {
+    setActiveTabState(activeTab);
+  }, [activeTab, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log('[UserProfileModal] Modal opened. activeTab:', activeTab, 'activeTabState:', activeTabState);
+    }
+  }, [isOpen, activeTab, activeTabState]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+      console.log('[UserProfileModal] userId:', session?.user?.id);
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -23,6 +46,32 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) 
 
   // Add a slide-in animation
   const animationClass = 'animate-[slide-in-right_0.3s_ease-out]';
+
+  // Keyframe for the animation
+  const styleSheet = document.createElement("style")
+  styleSheet.innerText = `
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  .animate-\\[slide-in-right_0\\.3s_ease-out\\] {
+    animation: slide-in-right 0.3s ease-out;
+  }
+  `
+  document.head.appendChild(styleSheet);
+
+  // Cleanup style tag khi unmount
+  useEffect(() => {
+    return () => {
+      if (styleSheet && styleSheet.parentNode) {
+        styleSheet.parentNode.removeChild(styleSheet);
+      }
+    };
+  }, []);
 
   return (
     // Fullscreen overlay
@@ -43,18 +92,27 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) 
         </div>
 
         <nav className="flex flex-col">
-          <a href="#profile" className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <button
+            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'profile' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            onClick={() => setActiveTabState('profile')}
+          >
             <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span>Profile</span>
-          </a>
-          <a href="#billing" className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          </button>
+          <button
+            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'billing' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            onClick={() => setActiveTabState('billing')}
+          >
             <CreditCard className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span>Billing</span>
-          </a>
-          <a href="#settings" className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          </button>
+          <button
+            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'settings' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            onClick={() => setActiveTabState('settings')}
+          >
             <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span>Settings</span>
-          </a>
+          </button>
           
           <hr className="my-4 border-gray-200 dark:border-gray-700" />
 
@@ -66,27 +124,17 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose }) 
             <span>Log out</span>
           </button>
         </nav>
+
+        {/* Thông tin tổ chức */}
+        {activeTabState === 'profile' && userId && (
+          console.log('[UserProfileModal] Render UserOrganizationProfile, userId:', userId),
+          <UserOrganizationProfile userId={userId} />
+        )}
+        {activeTabState === 'billing' && <div>Billing info...</div>}
+        {activeTabState === 'settings' && <div>Settings...</div>}
       </div>
     </div>
   );
 };
-
-// Keyframe for the animation
-const styleSheet = document.createElement("style")
-styleSheet.innerText = `
-@keyframes slide-in-right {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-.animate-\\[slide-in-right_0\\.3s_ease-out\\] {
-  animation: slide-in-right 0.3s ease-out;
-}
-`
-document.head.appendChild(styleSheet);
-
 
 export default UserProfileModal; 

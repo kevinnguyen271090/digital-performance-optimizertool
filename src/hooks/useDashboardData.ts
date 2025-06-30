@@ -25,7 +25,7 @@ export const useDashboardData = (session: Session | null) => {
       // We remove the status filter to debug a potential RLS issue.
       const { data: connections, error } = await supabase
         .from('connections')
-        .select('platform, status, updated_at, metadata, account_details')
+        .select('platform, status, updated_at, metadata, account_details, last_connected, last_sync')
         .eq('user_id', session.user.id);
         // .eq('status', 'connected'); // Temporarily removed for debugging
 

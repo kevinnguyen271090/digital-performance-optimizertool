@@ -3,6 +3,27 @@
 ## 🎯 Tổng quan dự án
 Ứng dụng Digital Performance Optimizer là một dashboard toàn diện để theo dõi và tối ưu hiệu suất marketing đa nền tảng, tích hợp các công cụ digital marketing phổ biến như Meta, Google, TikTok, LinkedIn, Shopify và các công cụ Email Marketing, CRM.
 
+## 📊 Trạng thái tổng quan
+
+### ✅ Đã hoàn thành (Done)
+- [x] Kiến trúc tổng thể & Data Pipeline
+- [x] Multi-Tenancy và Phân quyền người dùng
+- [x] Backend Strategy với Supabase
+- [x] Caching Strategy nhiều tầng
+- [x] Performance Optimization
+- [x] Database Schema design
+- [x] Row Level Security (RLS) policies
+
+### ➖ Đang làm (In Progress)
+- [ ] Advanced Analytics implementation
+- [ ] Cross-platform attribution modeling
+- [ ] Real-time data sync optimization
+
+### ⬜ Chưa làm (Not Started)
+- [ ] Machine Learning integration
+- [ ] Advanced reporting features
+- [ ] Mobile app development
+
 ## 🚀 Kiến trúc tổng thể & Data Pipeline
 
 ### Nguyên tắc thiết kế
@@ -208,488 +229,93 @@ ALTER TABLE analytics_data SET (
 );
 ```
 
-## 🎨 Trải nghiệm người dùng & Giao diện dashboard
-
-### Dashboard Strategy
-```typescript
-const dashboardStrategy = {
-  approach: "Admin-configured templates",
-  customization: "Role-based dashboards",
-  realtime: "Near real-time (15-30 min delay)",
-  responsive: "Mobile-first design"
-};
-```
-
-### UI/UX Features
-```typescript
-const uiFeatures = {
-  core: [
-    "KPI cards with trends",
-    "Multi-channel comparison charts",
-    "Date range filters",
-    "Platform-specific views"
-  ],
-  advanced: [
-    "Custom dashboards (future)",
-    "Drag-and-drop builder (future)",
-    "AI insights (future)",
-    "Predictive analytics (future)"
-  ]
-};
-```
-
-## 📊 Data Retention Strategy
-
-```typescript
-const dataRetention = {
-  hot: "3 months (Tinybird)",
-  warm: "1 year (Supabase)",
-  cold: "5 years (compressed)",
-  archive: "10+ years (S3/Cloud Storage)"
-};
-
-// Cleanup functions
-CREATE OR REPLACE FUNCTION cleanup_old_analytics_data()
-RETURNS void AS $$
-BEGIN
-  DELETE FROM analytics_data 
-  WHERE created_at < NOW() - INTERVAL '1 year';
-END;
-$$ LANGUAGE plpgsql;
-
--- Schedule cleanup
-SELECT cron.schedule('cleanup-analytics', '0 2 * * 0', 'SELECT cleanup_old_analytics_data();');
-```
-
-## 🚀 Roadmap Implementation
-
-### Phase 1: MVP (0-100 users) - 2-3 tháng
-```typescript
-const mvpFeatures = {
-  core: [
-    "Basic ETL pipeline",
-    "Simple dashboard",
-    "Multi-tenant auth",
-    "RLS implementation",
-    "Google Analytics integration",
-    "Meta Ads integration"
-  ],
-  cost: "$25/month (Supabase Pro)",
-  timeline: "2-3 months"
-};
-```
-
-### Phase 2: Growth (100-1,000 users) - 3-4 tháng
-```typescript
-const growthFeatures = {
-  additions: [
-    "Advanced caching",
-    "Materialized views",
-    "Real-time notifications",
-    "Custom dashboards",
-    "WooCommerce integration",
-    "TikTok Ads integration"
-  ],
-  cost: "$100/month (Supabase + Tinybird)",
-  timeline: "3-4 months"
-};
-```
-
-### Phase 3: Scale (1,000+ users) - 4-6 tháng
-```typescript
-const scaleFeatures = {
-  enterprise: [
-    "AI insights",
-    "Predictive analytics",
-    "Advanced RBAC",
-    "API marketplace",
-    "White-label solutions",
-    "Enterprise SSO"
-  ],
-  cost: "$200/month",
-  timeline: "4-6 months"
-};
-```
-
-## 🔧 Error Handling & Monitoring
-
-```typescript
-const errorHandling = {
-  apiFailures: "Retry with exponential backoff",
-  dataInconsistency: "Data validation checks",
-  performance: "Query timeout handling",
-  monitoring: "Supabase logs + custom metrics"
-};
-
-// Monitoring queries
-CREATE OR REPLACE FUNCTION log_api_error(
-  platform VARCHAR,
-  error_message TEXT,
-  organization_id UUID
-) RETURNS void AS $$
-BEGIN
-  INSERT INTO error_logs (platform, error_message, organization_id, created_at)
-  VALUES (platform, error_message, organization_id, NOW());
-END;
-$$ LANGUAGE plpgsql;
-```
-
-## 🔒 Security Enhancements
-
-```typescript
-const securityMeasures = {
-  encryption: "Data at rest and in transit",
-  audit: "Complete audit trail",
-  backup: "Daily automated backups",
-  compliance: "GDPR, SOC2 ready"
-};
-
--- Audit trail
-CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  organization_id UUID REFERENCES organizations(id),
-  action VARCHAR(100) NOT NULL,
-  resource VARCHAR(100) NOT NULL,
-  details JSONB,
-  ip_address INET,
-  user_agent TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-## 📈 Cost Analysis
-
-| Phase | Users | Supabase | Tinybird | Total | Cost/User |
-|-------|-------|----------|----------|-------|-----------|
-| MVP | 100 | $25 | $0 | $25 | $0.25 |
-| Growth | 1,000 | $25 | $50 | $75 | $0.075 |
-| Scale | 10,000 | $25 | $150 | $175 | $0.0175 |
-
-## 🎯 Kết luận
-
-Kiến trúc này cung cấp:
-- **Performance tối ưu** với caching strategy
-- **Multi-tenancy hoàn chỉnh** với RLS
-- **Scalability** từ startup đến enterprise
-- **Cost-effective** so với các giải pháp thương mại
-- **Security** enterprise-grade
-- **Flexibility** để mở rộng tính năng
-
-Đây là một kiến trúc rất solid có thể scale từ MVP đến enterprise, học hỏi tốt từ các nền tảng lớn như Power BI và Looker Studio.
-
-## 🚀 Tính năng đã hoàn thành
-
-### ✅ Core Features
-- [x] Dashboard tổng quan với KPI cards
-- [x] Quản lý mục tiêu marketing (Goals)
-- [x] Tích hợp đa nền tảng (Meta, Google, TikTok, WooCommerce)
-- [x] Date range picker
-- [x] Account selector
-- [x] Onboarding tour tương tác
-- [x] Dark/Light theme toggle
-- [x] Responsive design
-
-### ✅ Technical Features
-- [x] TypeScript integration
-- [x] Custom hooks cho state management
-- [x] Component refactoring và tách file
-- [x] Type definitions
-- [x] Constants management
-- [x] Error handling
-- [x] Loading states
-
-## 🔄 Tính năng đang phát triển
-
-### 🏗️ Platform Integrations
-- [ ] **Meta (Facebook/Instagram)**
-  - [ ] Facebook Login integration
-  - [ ] Meta Business API
-  - [ ] Ads Manager data
-  - [ ] Instagram Insights
-  - [ ] Page Insights
-
-- [ ] **Google**
-  - [ ] Google Analytics 4
-  - [ ] Google Ads API
-  - [ ] Search Console
-  - [ ] Google My Business
-
-- [ ] **TikTok**
-  - [ ] TikTok Business API
-  - [ ] TikTok Ads Manager
-  - [ ] TikTok Shop
-  - [ ] TikTok Pixel
-
-- [ ] **LinkedIn**
-  - [ ] LinkedIn Marketing API
-  - [ ] Campaign Manager
-  - [ ] Company Page Insights
-
-- [ ] **Shopify**
-  - [ ] Shopify Admin API
-  - [ ] Order management
-  - [ ] Product analytics
-  - [ ] Customer insights
-
-- [ ] **WooCommerce**
-  - [ ] WooCommerce REST API
-  - [ ] Order tracking
-  - [ ] Product management
-  - [ ] Customer analytics
-
-### 🏗️ Email Marketing Tools
-- [ ] **Mailchimp**
-  - [ ] Campaign analytics
-  - [ ] Subscriber management
-  - [ ] A/B testing results
-
-- [ ] **SendGrid**
-  - [ ] Email delivery stats
-  - [ ] Campaign performance
-  - [ ] Bounce tracking
-
-- [ ] **ConvertKit**
-  - [ ] Subscriber growth
-  - [ ] Email sequences
-  - [ ] Conversion tracking
-
-### 🏗️ CRM Tools
-- [ ] **HubSpot**
-  - [ ] Contact management
-  - [ ] Deal pipeline
-  - [ ] Marketing automation
-
-- [ ] **Salesforce**
-  - [ ] Lead management
-  - [ ] Opportunity tracking
-  - [ ] Sales analytics
-
-- [ ] **Pipedrive**
-  - [ ] Deal management
-  - [ ] Sales pipeline
-  - [ ] Activity tracking
-
-## 📊 Analytics & Reporting
-
-### 🎯 KPI Tracking
-- [ ] **Revenue Metrics**
-  - [ ] Total revenue
-  - [ ] Revenue by platform
-  - [ ] Revenue attribution
-  - [ ] Customer lifetime value
-
-- [ ] **Conversion Metrics**
-  - [ ] Conversion rate
-  - [ ] Cost per acquisition (CPA)
-  - [ ] Return on ad spend (ROAS)
-  - [ ] Click-through rate (CTR)
-
-- [ ] **Engagement Metrics**
-  - [ ] Impressions
-  - [ ] Reach
-  - [ ] Engagement rate
-  - [ ] Social media metrics
-
-### 📈 Advanced Analytics
-- [ ] **Cross-platform attribution**
-- [ ] **Customer journey mapping**
-- [ ] **A/B testing framework**
-- [ ] **Predictive analytics**
-- [ ] **Real-time dashboards**
-
-## 🔧 Technical Improvements
-
-### 🏗️ Performance Optimization
-- [ ] **Code splitting**
-- [ ] **Lazy loading**
-- [ ] **Caching strategies**
-- [ ] **Bundle optimization**
-
-### 🏗️ Testing
-- [ ] **Unit tests**
-- [ ] **Integration tests**
-- [ ] **E2E tests**
-- [ ] **Performance tests**
-
-### 🏗️ DevOps
-- [ ] **CI/CD pipeline**
-- [ ] **Automated deployment**
-- [ ] **Monitoring & logging**
-- [ ] **Error tracking**
-
-## 🎨 UI/UX Enhancements
-
-### 🎯 User Experience
-- [ ] **Advanced filtering**
-- [ ] **Custom dashboards**
-- [ ] **Export functionality**
-- [ ] **Mobile app**
-
-### 🎨 Design System
-- [ ] **Component library**
-- [ ] **Design tokens**
-- [ ] **Accessibility improvements**
-- [ ] **Internationalization**
-
-## 🔐 Security & Compliance
-
-### 🛡️ Security
-- [ ] **OAuth 2.0 implementation**
-- [ ] **API key management**
-- [ ] **Data encryption**
-- [ ] **Rate limiting**
-
-### 📋 Compliance
-- [ ] **GDPR compliance**
-- [ ] **Data privacy controls**
-- [ ] **Audit logging**
-- [ ] **Data retention policies**
-
-## 📱 Mobile & Accessibility
-
-### 📱 Mobile Features
-- [ ] **Progressive Web App (PWA)**
-- [ ] **Mobile-optimized UI**
-- [ ] **Offline functionality**
-- [ ] **Push notifications**
-
-### ♿ Accessibility
-- [ ] **WCAG 2.1 compliance**
-- [ ] **Screen reader support**
-- [ ] **Keyboard navigation**
-- [ ] **High contrast mode**
-
-## 🚀 Deployment & Infrastructure
-
-### ☁️ Cloud Infrastructure
-- [ ] **AWS/Vercel deployment**
-- [ ] **Database setup**
-- [ ] **CDN configuration**
-- [ ] **Backup strategies**
-
-### 📊 Monitoring
-- [ ] **Application monitoring**
-- [ ] **Performance tracking**
-- [ ] **Error alerting**
-- [ ] **Usage analytics**
-
-## 📈 Business Features
-
-### 💼 Enterprise Features
-- [ ] **Multi-tenant architecture**
-- [ ] **Role-based access control**
-- [ ] **Team collaboration**
-- [ ] **White-label solutions**
-
-### 📊 Advanced Reporting
-- [ ] **Custom report builder**
-- [ ] **Scheduled reports**
-- [ ] **Data visualization**
-- [ ] **Export to PDF/Excel**
-
-## 🎯 Roadmap Timeline
-
-### Phase 1: Foundation (Hoàn thành)
-- ✅ Basic dashboard structure
-- ✅ Core components
-- ✅ TypeScript setup
-- ✅ Basic integrations
-
-### Phase 2: Core Integrations (Đang thực hiện)
-- 🏗️ Meta platform integration
-- 🏗️ Google Analytics integration
-- 🏗️ Basic reporting
-
-### Phase 3: Advanced Features (Q2 2024)
-- 📅 Advanced analytics
-- 📅 Cross-platform attribution
-- 📅 Custom dashboards
-
-### Phase 4: Enterprise Features (Q3 2024)
-- 📅 Multi-tenant support
-- 📅 Advanced security
-- 📅 API marketplace
-
-### Phase 5: AI & ML (Q4 2024)
-- 📅 Predictive analytics
-- 📅 Automated insights
-- 📅 Smart recommendations
-
-## 🔄 Recent Updates
-
-### ✅ Refactor Progress (Tháng 6/2024)
-- [x] Tách Dashboard.tsx thành các components nhỏ
-- [x] Tạo custom hooks cho state management
-- [x] Tách types và interfaces
-- [x] Tạo constants files
-- [x] Clean up unused imports
-- [x] Cải thiện type safety
-
-### 🎯 Next Steps
-1. Hoàn thành tách các components còn lại
-2. Tạo unit tests cho các hooks
-3. Implement error boundaries
-4. Tối ưu performance
-5. Thêm loading states
-
-## 📝 Notes
-- Ưu tiên tính năng core trước khi mở rộng
-- Đảm bảo code quality và maintainability
-- Tập trung vào user experience
-- Tuân thủ best practices của React và TypeScript 
-
-## 🚩 Định hướng & task mới (Checkpoint 07/2024)
-
-### Tính năng cần phát triển:
-- [ ] Lấy danh sách sheet, header, sample data thật từ Google Sheets.
-- [ ] Giao diện mapping động, validate realtime, báo lỗi rõ ràng.
-- [ ] Lưu cấu hình mapping, cho phép chỉnh sửa, đồng bộ lại.
-- [ ] Import dữ liệu vào DB, thiết kế lại database cho dữ liệu động.
-- [ ] Tab quản lý nguồn dữ liệu đã kết nối.
-- [ ] Module tạo report/dashboard động (giống Looker Studio/Power BI).
-
-### Kiến trúc database:
-- Bảng connections (metadata), bảng imported_data (jsonb), bảng mapping_config, bảng reports. 
-
-## 🚩 Mở rộng database & các tính năng tương lai (Checkpoint 07/2024)
-
-### Bảng mới đã tạo:
-- notifications, activity_logs, shared_reports, scheduled_jobs, organizations, organization_members, api_keys
-
-### Tính năng sẽ dùng:
-- Thông báo realtime, log thao tác, chia sẻ report, tự động import/sync, tổ chức/team, tích hợp API ngoài.
-
-### Checklist tối ưu:
-- [ ] Index các trường truy vấn nhiều
-- [ ] Dọn dẹp log, notification cũ định kỳ
-- [ ] Theo dõi chi phí, tối ưu query
-- [ ] Chỉ import dữ liệu cần thiết
-- [ ] Sử dụng Supabase Storage cho file lớn 
-
-## Checkpoint mới (24/06/2025)
-
-- [x] Đã triển khai pg_cron cho tự động dọn dẹp dữ liệu định kỳ trong database.
-- [x] Đã xác nhận các hàm cleanup chạy ổn định, log không lỗi.
-- [x] Không cần sử dụng Edge Function schedule hoặc cron ngoài cho các tác vụ này.
-
-## Định hướng phát triển quản lý kết nối & đồng bộ dữ liệu đa nền tảng
-
-### 1. Lý do chọn giải pháp lưu trữ trung gian
-- Tránh gọi API trực tiếp mỗi lần user xem dashboard (tốn quota, chậm, dễ rate limit).
-- Dễ kiểm soát, bảo mật, tối ưu chi phí vận hành.
-- Dễ mở rộng khi số lượng user, tài khoản, loại dữ liệu tăng mạnh.
-
-### 2. Flow tổng thể
-- User kết nối tài khoản → lưu vào bảng `connections` (Supabase).
-- Job định kỳ (cron/Edge Function) fetch dữ liệu từ API về bảng snapshot (analytics_data, ads_data, ...).
-- Dashboard/report chỉ query bảng snapshot này.
-- Khi cần, user có thể trigger refresh thủ công (nếu quota cho phép).
-
-### 3. So sánh với Power BI/Looker Studio
-- Power BI/Looker Studio luôn dùng Data Warehouse/Data Extract làm trung gian, không fetch API trực tiếp.
-- App MVP nên học theo mô hình này để tối ưu performance, chi phí, UX.
-
-### 4. Định hướng mở rộng
-- Khi dữ liệu lớn, chuyển sang BigQuery/Azure Data Lake.
-- Có thể thêm các bảng log, lịch sử đồng bộ, bảng lưu cấu hình dashboard/report cho từng user.
+## 🎯 Roadmap & Milestones
+
+### Phase 1: Foundation ✅
+- [x] Database schema design
+- [x] Multi-tenant architecture
+- [x] Basic authentication & authorization
+- [x] Core platform integrations
+
+### Phase 2: Data Pipeline ➖
+- [x] ETL jobs setup
+- [x] Data sync mechanisms
+- [➖] Real-time data processing
+- [ ] Advanced caching strategies
+
+### Phase 3: Analytics & Insights ⬜
+- [ ] Advanced analytics implementation
+- [ ] Machine learning integration
+- [ ] Cross-platform attribution
+- [ ] Predictive analytics
+
+### Phase 4: Enterprise Features ⬜
+- [ ] Advanced reporting
+- [ ] Custom dashboards
+- [ ] API integrations
+- [ ] Mobile app development
+
+## 🔧 Technical Decisions
+
+### Database Choice
+- **Primary**: Supabase (PostgreSQL) - cho CRUD operations, auth, realtime
+- **Analytics**: Tinybird - cho high-performance analytics queries
+- **Caching**: Redis (when needed) - cho session data, temporary caching
+
+### API Strategy
+- **REST APIs**: Supabase client cho CRUD operations
+- **GraphQL**: Apollo Client cho complex queries (future consideration)
+- **Real-time**: Supabase Realtime cho live updates
+
+### Security Approach
+- **Authentication**: Supabase Auth với JWT tokens
+- **Authorization**: Row Level Security (RLS) policies
+- **Data Encryption**: Supabase built-in encryption
+- **API Security**: Rate limiting, CORS, input validation
+
+## 📊 Performance Targets
+
+### Response Times
+- **Dashboard Load**: < 2 seconds
+- **API Calls**: < 500ms
+- **Real-time Updates**: < 100ms
+- **Data Sync**: < 15 minutes delay
+
+### Scalability Goals
+- **Concurrent Users**: 10,000+
+- **Data Volume**: 1TB+ per organization
+- **API Requests**: 1M+ per day
+- **Real-time Connections**: 1,000+ concurrent
+
+## 🚀 Deployment Strategy
+
+### Development
+- **Local**: Docker containers
+- **Staging**: Supabase staging project
+- **Testing**: Automated testing pipeline
+
+### Production
+- **Frontend**: Vercel/Netlify
+- **Backend**: Supabase production
+- **Monitoring**: Sentry, LogRocket
+- **CDN**: Cloudflare
+
+## 📈 Success Metrics
+
+### Technical Metrics
+- **Uptime**: 99.9%
+- **Error Rate**: < 0.1%
+- **Page Load Time**: < 2s
+- **API Response Time**: < 500ms
+
+### Business Metrics
+- **User Adoption**: 80% of invited users
+- **Feature Usage**: 70% of users use core features
+- **Data Accuracy**: 99.5% accuracy in reporting
+- **Customer Satisfaction**: 4.5/5 rating
+
+---
+
+**Last updated**: July 2024
+**Status**: Planning & Architecture Complete ✅
+**Next Phase**: Implementation ➖

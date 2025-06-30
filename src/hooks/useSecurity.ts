@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { supabase } from '../utils/supabaseClient';
 
 interface SecurityConfig {
   enableCSP?: boolean;
@@ -13,6 +14,36 @@ interface SecurityEvent {
   timestamp: number;
   userId?: string;
   ip?: string;
+}
+
+interface SecurityState {
+  twoFactorEnabled: boolean;
+  lastPasswordChange: string | null;
+  loginHistory: Array<{
+    timestamp: string;
+    ip: string;
+    device: string;
+    location: string;
+  }>;
+}
+
+interface UseSecurityReturn {
+  securityState: SecurityState;
+  loading: boolean;
+  message: string;
+  messageType: 'success' | 'error';
+  
+  // Password management
+  changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  
+  // 2FA management
+  setup2FA: () => Promise<{ qrCode: string; backupCodes: string[] } | null>;
+  verify2FA: (code: string) => Promise<boolean>;
+  disable2FA: () => Promise<boolean>;
+  
+  // Security monitoring
+  getLoginHistory: () => Promise<void>;
+  clearMessage: () => void;
 }
 
 class SecurityService {
@@ -97,44 +128,208 @@ class SecurityService {
   }
 }
 
-export const useSecurity = (config?: SecurityConfig) => {
-  const [securityService] = useState(() => SecurityService.getInstance());
+export const useSecurity = (): UseSecurityReturn => {
+  const [securityState, setSecurityState] = useState<SecurityState>({
+    twoFactorEnabled: false,
+    lastPasswordChange: null,
+    loginHistory: []
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
-  const sanitizeInput = useCallback((input: string): string => {
-    return securityService.sanitizeInput(input);
-  }, [securityService]);
+  const clearMessage = useCallback(() => {
+    setMessage('');
+  }, []);
 
-  const validateCSRFToken = useCallback((token: string): boolean => {
-    return securityService.validateCSRFToken(token);
-  }, [securityService]);
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<boolean> => {
+    setLoading(true);
+    setMessage('');
 
-  const checkRateLimit = useCallback((key: string, limit: number, windowMs: number): boolean => {
-    return securityService.checkRateLimit(key, limit, windowMs);
-  }, [securityService]);
+    try {
+      // Validate current password first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: (await supabase.auth.getUser()).data.user?.email || '',
+        password: currentPassword
+      });
 
-  const validateInput = useCallback((input: any, rules: Record<string, any>): boolean => {
-    return securityService.validateInput(input, rules);
-  }, [securityService]);
+      if (signInError) {
+        setMessage('Mật khẩu hiện tại không đúng');
+        setMessageType('error');
+        return false;
+      }
 
-  const logSecurityEvent = useCallback((type: SecurityEvent['type'], details: string, userId?: string) => {
-    securityService.logSecurityEvent(type, details, userId);
-  }, [securityService]);
+      // Update password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
 
-  // Auto-cleanup old events
-  useEffect(() => {
-    const interval = setInterval(() => {
-      securityService.clearOldEvents(24 * 60 * 60 * 1000); // 24 hours
-    }, 60 * 60 * 1000); // Every hour
+      if (error) {
+        setMessage('Lỗi thay đổi mật khẩu: ' + error.message);
+        setMessageType('error');
+        return false;
+      }
 
-    return () => clearInterval(interval);
-  }, [securityService]);
+      setMessage('Mật khẩu đã được thay đổi thành công!');
+      setMessageType('success');
+      setSecurityState(prev => ({
+        ...prev,
+        lastPasswordChange: new Date().toISOString()
+      }));
+      return true;
+    } catch (error: any) {
+      setMessage('Lỗi thay đổi mật khẩu: ' + error.message);
+      setMessageType('error');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const setup2FA = useCallback(async (): Promise<{ qrCode: string; backupCodes: string[] } | null> => {
+    setLoading(true);
+    setMessage('');
+
+    try {
+      // TODO: Implement actual 2FA setup with Supabase
+      // This would typically involve:
+      // 1. Call Supabase function to generate TOTP secret
+      // 2. Generate QR code for authenticator app
+      // 3. Generate backup codes
+      
+      // Mock implementation for now
+      const qrCode = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+      const backupCodes = [
+        '12345678',
+        '87654321', 
+        '11111111',
+        '22222222',
+        '33333333',
+        '44444444',
+        '55555555',
+        '66666666'
+      ];
+
+      setMessage('Quét mã QR bằng ứng dụng xác thực của bạn');
+      setMessageType('success');
+      
+      return { qrCode, backupCodes };
+    } catch (error: any) {
+      setMessage('Lỗi thiết lập 2FA: ' + error.message);
+      setMessageType('error');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const verify2FA = useCallback(async (code: string): Promise<boolean> => {
+    setLoading(true);
+    setMessage('');
+
+    try {
+      // TODO: Implement actual 2FA verification with Supabase
+      // This would typically involve:
+      // 1. Call Supabase function to verify TOTP code
+      // 2. Enable 2FA for the user if verification succeeds
+      
+      // Mock verification for now
+      if (code === '123456') {
+        setSecurityState(prev => ({
+          ...prev,
+          twoFactorEnabled: true
+        }));
+        setMessage('2FA đã được kích hoạt thành công!');
+        setMessageType('success');
+        return true;
+      } else {
+        setMessage('Mã xác thực không đúng');
+        setMessageType('error');
+        return false;
+      }
+    } catch (error: any) {
+      setMessage('Lỗi xác thực: ' + error.message);
+      setMessageType('error');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const disable2FA = useCallback(async (): Promise<boolean> => {
+    setLoading(true);
+    setMessage('');
+
+    try {
+      // TODO: Implement actual 2FA disable with Supabase
+      // This would typically involve:
+      // 1. Call Supabase function to disable 2FA
+      // 2. Remove TOTP secret from user profile
+      
+      setSecurityState(prev => ({
+        ...prev,
+        twoFactorEnabled: false
+      }));
+      setMessage('2FA đã được tắt thành công!');
+      setMessageType('success');
+      return true;
+    } catch (error: any) {
+      setMessage('Lỗi tắt 2FA: ' + error.message);
+      setMessageType('error');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const getLoginHistory = useCallback(async (): Promise<void> => {
+    setLoading(true);
+
+    try {
+      // TODO: Implement actual login history retrieval
+      // This would typically involve:
+      // 1. Call Supabase function to get login history
+      // 2. Parse and format the data
+      
+      // Mock data for now
+      const mockHistory = [
+        {
+          timestamp: new Date().toISOString(),
+          ip: '192.168.1.1',
+          device: 'Chrome on Windows',
+          location: 'Ho Chi Minh City, Vietnam'
+        },
+        {
+          timestamp: new Date(Date.now() - 86400000).toISOString(),
+          ip: '192.168.1.2',
+          device: 'Safari on iPhone',
+          location: 'Ho Chi Minh City, Vietnam'
+        }
+      ];
+
+      setSecurityState(prev => ({
+        ...prev,
+        loginHistory: mockHistory
+      }));
+    } catch (error: any) {
+      setMessage('Lỗi tải lịch sử đăng nhập: ' + error.message);
+      setMessageType('error');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
-    sanitizeInput,
-    validateCSRFToken,
-    checkRateLimit,
-    validateInput,
-    logSecurityEvent,
-    getEvents: () => securityService.getEvents()
+    securityState,
+    loading,
+    message,
+    messageType,
+    changePassword,
+    setup2FA,
+    verify2FA,
+    disable2FA,
+    getLoginHistory,
+    clearMessage
   };
 }; 

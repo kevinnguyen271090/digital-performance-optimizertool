@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useLocation, Link, useOutletContext } from "react-router-dom";
 import OnboardingTour from "./components/OnboardingTour";
 import RevenueOrderModal from "./components/RevenueOrderModal";
@@ -6,7 +6,6 @@ import MobileNavigation from "./components/MobileNavigation";
 import { ToastManager, ToastType } from "./components/Toast";
 import ThemeToggle from "./components/ThemeToggle";
 import SearchModal from "./components/SearchModal";
-import UserProfileModal from "./components/UserProfileModal";
 import { Search, Home, BarChart, FileText, Settings as SettingsIcon } from "lucide-react";
 
 const AppLayout = () => {
@@ -23,6 +22,8 @@ const AppLayout = () => {
   }>>([]);
   const location = useLocation();
   const context = useOutletContext();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Check if user has completed onboarding tour
@@ -47,6 +48,17 @@ const AppLayout = () => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
 
   const handleCompleteOnboarding = () => {
     setRunTour(false);
@@ -78,7 +90,6 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-inter">
       <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
-      <UserProfileModal isOpen={isProfileModalOpen} onClose={() => setIsProfileModalOpen(false)} />
       <OnboardingTour
         run={runTour}
         onComplete={handleCompleteOnboarding}
@@ -123,12 +134,31 @@ const AppLayout = () => {
               
               <ThemeToggle />
               
-              <button 
-                onClick={() => setIsProfileModalOpen(true)}
-                className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-blue-500 rounded-full text-white text-sm font-medium hover:bg-blue-600 transition-colors"
-              >
-                U
-              </button>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setUserMenuOpen((open) => !open)}
+                  className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-blue-500 rounded-full text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                >
+                  U
+                </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => { setUserMenuOpen(false); window.location.href = '/profile'; }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <span className="mr-2">👤</span> Hồ sơ
+                    </button>
+                    <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                    <button
+                      onClick={() => { setUserMenuOpen(false); /* TODO: logout logic */ }}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50"
+                    >
+                      <span className="mr-2">🚪</span> Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </header>
           

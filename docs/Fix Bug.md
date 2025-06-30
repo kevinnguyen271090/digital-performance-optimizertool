@@ -14,7 +14,14 @@
 - [ ] Logic truyền accessToken/profile giữa các modal Google chưa rõ ràng, có thể gây lỗi khi xác thực nhiều dịch vụ Google.
 - [ ] Chưa có kiểm tra trạng thái kết nối thực tế (ví dụ: token hết hạn, revoke, v.v.)
 
-## 3. Performance
+## 3. Performance & Vòng lặp vô hạn - CRITICAL
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong usePerformanceMonitor do useEffect dependencies không đúng. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong usePageTracking do pageView function thay đổi liên tục. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong EnterpriseApp do config và callbacks không được memoize. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong ProtectedRoute do fetchSession function không được memoize. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong WooCommerceConnectModal do checkExistingConnection function không được memoize. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Vòng lặp vô hạn trong useOrganization do fetchOrganizations và createOrganization functions không được memoize. ✅ **ĐÃ SỬA**
+- [x] **LỖI NGHIÊM TRỌNG**: Invalid hook call trong EnterpriseApp do useCallback được gọi bên trong useEffect (vi phạm Rules of Hooks). ✅ **ĐÃ SỬA**
 - [ ] Chưa có lazy loading cho các modal lớn hoặc component ít dùng (ví dụ: các modal kết nối, OnboardingTour).
 - [ ] Một số hook fetch data (useDashboardData, useGoals) chưa debounce hoặc cache, có thể gây nhiều request không cần thiết.
 - [ ] Chưa có kiểm soát loading state đồng bộ giữa các component khi fetch nhiều nguồn dữ liệu.
@@ -29,6 +36,45 @@
 - [ ] Chưa có test coverage cho các hook và component quan trọng (Settings, Dashboard, Goal, ...).
 - [ ] Chưa có kiểm tra memory leak khi mở/đóng modal nhiều lần.
 
+# Bug & Fix Progress
+
+## Hướng dẫn ghi nhận bug
+- Mỗi bug nên ghi rõ: mô tả, trạng thái (open/doing/done), người phụ trách, ngày phát hiện, ngày fix, ảnh/chụp màn hình nếu có.
+- Khi fix xong, cập nhật trạng thái và mô tả cách fix.
+
+## Template báo cáo bug
+| ID | Mô tả bug | Trạng thái | Người phụ trách | Ngày phát hiện | Ngày fix | Cách fix/nguyên nhân |
+|----|-----------|------------|-----------------|---------------|----------|---------------------|
+| BUG-001 | Vòng lặp vô hạn trong usePerformanceMonitor | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Tối ưu dependencies và logic useEffect |
+| BUG-002 | Vòng lặp vô hạn trong usePageTracking | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Loại bỏ pageView khỏi dependencies |
+| BUG-003 | Vòng lặp vô hạn trong EnterpriseApp | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Memoize config và callbacks |
+| BUG-004 | Vòng lặp vô hạn trong ProtectedRoute | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Memoize fetchSession function |
+| BUG-005 | Vòng lặp vô hạn trong WooCommerceConnectModal | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Memoize checkExistingConnection function |
+| BUG-006 | Vòng lặp vô hạn trong useOrganization | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Memoize fetchOrganizations and createOrganization functions |
+| BUG-007 | Invalid hook call in EnterpriseApp | ✅ Done | AI Assistant | Hôm nay | Hôm nay | Memoize useCallback |
+
+## Tiến độ fix bug
+- [x] Bug #1: Vòng lặp vô hạn trong usePerformanceMonitor (đã fix)
+- [x] Bug #2: Vòng lặp vô hạn trong usePageTracking (đã fix)
+- [x] Bug #3: Vòng lặp vô hạn trong EnterpriseApp (đã fix)
+- [x] Bug #4: Vòng lặp vô hạn trong ProtectedRoute (đã fix)
+- [x] Bug #5: Vòng lặp vô hạn trong WooCommerceConnectModal (đã fix)
+- [x] Bug #6: Vòng lặp vô hạn trong useOrganization (đã fix)
+- [x] Bug #7: Invalid hook call in EnterpriseApp (đã fix)
+
 ---
 
 > Ghi chú: Danh sách này sẽ được cập nhật liên tục khi phát hiện thêm lỗi hoặc vấn đề mới trong quá trình kiểm tra và phát triển. 
+
+---
+### [Ngày cập nhật: hôm nay]
+- [x] **CRITICAL**: Vòng lặp vô hạn trong các hook và component đã được sửa. Các vấn đề chính:
+  - usePerformanceMonitor: Tối ưu dependencies và logic useEffect
+  - usePageTracking: Loại bỏ pageView khỏi dependencies
+  - EnterpriseApp: Memoize config và callbacks
+  - ProtectedRoute: Memoize fetchSession function
+  - WooCommerceConnectModal: Memoize checkExistingConnection function
+  - useOrganization: Memoize fetchOrganizations and createOrganization functions
+  - Invalid hook call: Memoize useCallback
+- [ ] Tính năng tổ chức chưa hiển thị/tạo được trên trang Profile. Cần kiểm tra lại luồng fetch/create organization, props truyền vào modal, và dữ liệu trả về từ Supabase.
+--- 

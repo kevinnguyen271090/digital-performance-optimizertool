@@ -1,6 +1,6 @@
 # Digital Performance Optimizer 🚀
 
-**Dashboard toàn diện để theo dõi và tối ưu hiệu suất marketing đa nền tảng**
+**Enterprise-grade digital marketing analytics platform** - Tối ưu hiệu suất marketing đa nền tảng với AI insights và automation.
 
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -45,145 +45,194 @@ User Connection → OAuth → Store Credentials → ETL Jobs → Data Warehouse 
 - Node.js 18+
 - npm hoặc yarn
 - Supabase account
-- Google Cloud account (cho OAuth)
 
-### 1. Clone Repository
+### Installation
+
+1. **Clone repository**
 ```bash
-git clone <your-repo-url>
+git clone <repository-url>
 cd digital-performance-optimizer
 ```
 
-### 2. Install Dependencies
+2. **Install dependencies**
 ```bash
 npm install
-# hoặc
-yarn install
 ```
 
-### 3. Setup Environment
+3. **Setup environment**
 ```bash
-cp .env.example .env.local
+cp .env.example .env
+# Edit .env với Supabase credentials
 ```
 
-Cập nhật các biến môi trường:
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-VITE_META_APP_ID=your_meta_app_id
+4. **Setup HTTPS Development Server**
+```bash
+# Cài đặt mkcert (tải từ https://github.com/FiloSottile/mkcert/releases)
+C:\mkcert\mkcert.exe -install
+C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
+
+# Copy certificate files
+copy "localhost+2.pem" "server.cert"
+copy "localhost+2-key.pem" "server.key"
 ```
 
-### 4. Setup Database
-Chạy script SQL trong Supabase SQL Editor (xem [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md))
-
-### 5. Start Development Server
+5. **Start development server**
 ```bash
 npm run dev
 ```
 
-Truy cập: http://localhost:5173
+**Access**: https://localhost:3000
 
-## 📋 Setup Chi tiết
+## 🏗️ Project Structure
 
-Xem hướng dẫn setup chi tiết tại: [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md)
-
-### Các bước chính:
-1. **Setup Supabase Project** - Database schema, RLS policies
-2. **Setup OAuth Apps** - Google, Meta, TikTok
-3. **Deploy Edge Functions** - ETL jobs
-4. **Configure Cron Jobs** - Data sync scheduling
-5. **Production Deployment** - Vercel, custom domain
-
-## 🏛️ Kiến trúc Database
-
-### Core Tables
-```sql
-organizations          -- Quản lý tổ chức
-organization_members   -- Thành viên tổ chức
-connections           -- Kết nối nền tảng
-analytics_data        -- Dữ liệu analytics real-time
-imported_data         -- Dữ liệu historical
-audit_logs            -- Audit trail
-error_logs            -- Error tracking
-```
-
-### Data Flow
-```
-API Sources → Edge Functions → analytics_data → Materialized Views → Dashboard
-```
-
-## 🎨 Giao diện
-
-### Dashboard Features
-- **KPI Cards**: Revenue, ROAS, CPA, Conversions
-- **Multi-channel Charts**: So sánh hiệu suất đa nền tảng
-- **Real-time Updates**: Cập nhật tự động mỗi 15-30 phút
-- **Responsive Design**: Tối ưu cho mọi thiết bị
-- **Dark/Light Mode**: Tùy chọn giao diện
-
-### Role-based Views
-- **CEO/Director**: Dashboard tổng quan, quản lý tổ chức
-- **Admin**: Quản lý kết nối, user management
-- **Member**: Xem dashboard, báo cáo
-- **Viewer**: Chỉ xem dữ liệu được phân quyền
-
-## 🔧 Development
-
-### Scripts
-```bash
-npm run dev          # Development server
-npm run build        # Build production
-npm run preview      # Preview production build
-npm run test         # Run tests
-npm run lint         # Lint code
-```
-
-### Project Structure
 ```
 src/
 ├── components/          # React components
 │   ├── dashboard/       # Dashboard components
-│   ├── settings/        # Settings components
-│   └── ui/             # UI components
-├── hooks/              # Custom hooks
-├── types/              # TypeScript types
-├── utils/              # Utilities
-├── constants/          # Constants
-└── pages/              # Page components
+│   ├── profile/         # Profile management
+│   ├── settings/        # Platform connections
+│   └── google-sheets/   # Google Sheets integration
+├── hooks/               # Custom React hooks
+├── utils/               # Utility functions
+├── types/               # TypeScript definitions
+├── constants/           # App constants
+└── config/              # Environment configs
 ```
 
-## 📊 Performance & Scaling
+## 🔧 Development
 
-### Current Performance
-- **Query Response**: < 100ms (cached data)
-- **Data Freshness**: 15-30 minutes
-- **Concurrent Users**: 1000+ (Supabase Pro)
-- **Data Retention**: 1 year hot, 5 years cold
+### HTTPS Development
+Dự án được cấu hình để chạy HTTPS trên localhost với certificate mkcert:
+- **URL**: https://localhost:3000
+- **Certificate**: mkcert localhost certificate
+- **Browser**: No security warnings
+- **OAuth**: Fully compatible với OAuth providers
 
-### Scaling Strategy
-- **Phase 1 (MVP)**: Supabase Pro ($25/month)
-- **Phase 2 (Growth)**: Supabase + Tinybird ($100/month)
-- **Phase 3 (Scale)**: Enterprise solution ($200/month)
-
-## 🔒 Security
-
-### Security Features
-- **OAuth 2.0**: Secure authentication
-- **Row-Level Security**: Data isolation
-- **Audit Trail**: Complete activity logging
-- **Encryption**: Data at rest and in transit
-- **GDPR Compliance**: Data privacy ready
-
-### Multi-tenant Security
-```sql
--- RLS Policy example
-CREATE POLICY "Users can only access their organization data" 
-ON analytics_data FOR ALL 
-USING (organization_id IN (
-  SELECT organization_id FROM organization_members 
-  WHERE user_id = auth.uid()
-));
+### Available Scripts
+```bash
+npm run dev          # Start development server (HTTPS)
+npm run build        # Build for production
+npm run preview      # Preview production build
 ```
+
+## 🗄️ Database
+
+### Supabase Setup
+1. Tạo project trên Supabase
+2. Copy URL và anon key vào `.env`
+3. Chạy SQL scripts trong `scripts/`
+
+### Required Tables
+- `organizations` - Organization management
+- `connections` - Platform connections
+- `analytics_data` - Analytics data storage
+- `audit_logs` - Activity logging
+- `user_2fa` - Two-factor authentication
+
+## 🔐 Environment Variables
+
+```env
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# OAuth Providers
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_META_APP_ID=your_meta_app_id
+VITE_TIKTOK_CLIENT_KEY=your_tiktok_client_key
+VITE_WOOCOMMERCE_CONSUMER_KEY=your_woocommerce_key
+```
+
+## 📊 Features Overview
+
+### Dashboard
+- **Real-time Metrics** - Live performance data
+- **Multi-Platform View** - Unified analytics across platforms
+- **AI Insights** - Automated optimization recommendations
+- **Custom Date Ranges** - Flexible time period analysis
+
+### Profile Management
+- **User Profiles** - Complete user information management
+- **Organization Settings** - Multi-org support
+- **Security Settings** - 2FA, password management
+- **Avatar Upload** - Profile picture management
+
+### Platform Integration
+- **Google Analytics** - GA4 data integration
+- **Meta Ads** - Facebook/Instagram ads data
+- **TikTok Ads** - Video advertising analytics
+- **WooCommerce** - E-commerce performance
+- **Google Sheets** - Data export và reporting
+
+### Enterprise Features
+- **Performance Monitoring** - Component và API performance
+- **Error Tracking** - Comprehensive error logging
+- **User Analytics** - Behavior tracking và insights
+- **Caching** - Multi-level caching strategy
+- **Offline Support** - Service worker implementation
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+npm run build
+```
+
+### Deploy to Vercel/Netlify
+1. Connect repository
+2. Set environment variables
+3. Deploy automatically
+
+## 📚 Documentation
+
+- [Setup Guide](./docs/SETUP_GUIDE.md) - Detailed setup instructions
+- [Refactor Progress](./docs/REFACTOR_PROGRESS.md) - Development progress
+- [Component Architecture](./docs/COMPONENT_ARCHITECTURE.md) - Component structure
+- [Database Overview](./docs/DATABASE_OVERVIEW.md) - Database schema
+- [Enterprise Features](./docs/ENTERPRISE_FEATURES.md) - Enterprise capabilities
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Certificate Errors
+```bash
+# Fix "key values mismatch" error
+del server.cert server.key
+C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
+copy "localhost+2.pem" "server.cert"
+copy "localhost+2-key.pem" "server.key"
+```
+
+#### Port Issues
+```bash
+# Check port usage
+netstat -ano | findstr :3000
+```
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Create feature branch
+3. Make changes
+4. Test thoroughly
+5. Submit pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+## 🆘 Support
+
+- **Documentation**: Check [docs](./docs/) folder
+- **Issues**: Create GitHub issue
+- **Email**: support@example.com
+
+---
+
+**Built with ❤️ for enterprise digital marketing teams**
+
+**Status**: ✅ Production Ready | 🏢 Enterprise Grade | 🚀 HTTPS Development
 
 ## 📈 Roadmap
 
@@ -236,24 +285,6 @@ USING (organization_id IN (
 - [Planning](./docs/PLANNING.md) - Kiến trúc và roadmap
 - [API Reference](./docs/API.md) - API documentation
 - [Contributing](./docs/CONTRIBUTING.md) - Hướng dẫn đóng góp
-
-## 🤝 Contributing
-
-1. Fork repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: [docs/](./docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-repo/discussions)
 
 ## 🙏 Acknowledgments
 

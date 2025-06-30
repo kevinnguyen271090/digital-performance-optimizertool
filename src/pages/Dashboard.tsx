@@ -1,7 +1,8 @@
 import { useOutletContext } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
-import { BarChart2, Percent, DollarSign, TrendingUp } from "lucide-react";
+import { BarChart2, Percent, DollarSign, TrendingUp, Plus, Target } from "lucide-react";
 import GoalModal from "../components/GoalModal";
+import KPIImportModal from "../components/KPIImportModal";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardOverview from "../components/dashboard/DashboardOverview";
 import DashboardContent from "../components/dashboard/DashboardContent";
@@ -12,8 +13,12 @@ import { useDashboardState } from "../hooks/useDashboardState";
 import { DashboardKPIs } from '../components';
 import { useGoals } from '../hooks/useGoals';
 import { buildCompareChannels, buildOverviewKPIData, buildExecutiveData } from '../utils/dashboardUtils';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import KPISection from '../components/dashboard/KPISection';
+import InsightsSection from '../components/dashboard/InsightsSection';
+import MainContentSection from '../components/dashboard/MainContentSection';
+import GoalsSection from '../components/dashboard/GoalsSection';
 
 interface OutletContextType {
   session: Session | null;
@@ -51,6 +56,7 @@ const Dashboard: React.FC = () => {
     closeGoalModal 
   } = useGoals(session?.user?.id);
   const { t } = useTranslation();
+  const [showKPIModal, setShowKPIModal] = useState(false);
 
   // Build data từ platformData - memoize expensive calculations
   const compareChannels = useMemo(() => buildCompareChannels(platformData), [platformData]);
@@ -66,6 +72,76 @@ const Dashboard: React.FC = () => {
           <TrendingUp className="w-5 h-5" />
   })), [overviewKPIData]);
 
+  // Tạo KPI data từ dữ liệu thực và goals
+  const kpiData = useMemo(() => {
+    const kpis = [];
+    
+    // Thêm KPI từ dữ liệu thực (platformData)
+    if (overviewKPIData.length > 0) {
+      kpis.push(...overviewKPIData.map(kpi => ({
+        title: kpi.title,
+        value: typeof kpi.value === 'number' ? 
+          (kpi.title.includes('Doanh thu') || kpi.title.includes('Chi phí') || kpi.title.includes('CPA') ? 
+            `₫${kpi.value.toLocaleString('vi-VN')}` : 
+            kpi.title.includes('ROAS') ? 
+              `${kpi.value.toFixed(2)}x` : 
+              kpi.value.toLocaleString('vi-VN')
+          ) : kpi.value.toString(),
+        change: kpi.change,
+        status: kpi.status,
+        icon: kpi.iconType === 'dollar' ? <DollarSign className="w-5 h-5" /> :
+              kpi.iconType === 'chart' ? <BarChart2 className="w-5 h-5" /> :
+              kpi.iconType === 'percent' ? <Percent className="w-5 h-5" /> :
+              <TrendingUp className="w-5 h-5" />
+      })));
+    }
+
+    // Thêm KPI từ goals nếu có
+    goals.forEach(goal => {
+      const currentValue = goal.currentValue || 0;
+      const targetValue = goal.targetValue;
+      const progress = targetValue > 0 ? (currentValue / targetValue) * 100 : 0;
+      
+      kpis.push({
+        title: goal.title,
+        value: `${currentValue.toLocaleString('vi-VN')} / ${targetValue.toLocaleString('vi-VN')} ${goal.unit}`,
+        change: progress,
+        status: progress >= 100 ? 'normal' : progress >= 80 ? 'warning' : 'danger',
+        icon: <Target className="w-5 h-5" />
+      });
+    });
+
+    return kpis;
+  }, [overviewKPIData, goals]);
+
+  // Xử lý import KPI từ Excel
+  const handleImportKPI = async (importedKPIs: any[]) => {
+    try {
+      // Lưu từng KPI vào database thông qua useGoals hook
+      for (const kpi of importedKPIs) {
+        const goal = {
+          id: `goal-${Date.now()}-${Math.random()}`,
+          title: kpi.title,
+          targetValue: kpi.targetValue,
+          currentValue: kpi.currentValue,
+          unit: kpi.unit,
+          period: kpi.period,
+          description: kpi.description,
+          status: "on-track" as const,
+          createdAt: new Date().toISOString()
+        };
+        
+        await handleSaveGoal(goal);
+      }
+      
+      // Hiển thị thông báo thành công
+      alert(`Đã import thành công ${importedKPIs.length} KPI!`);
+    } catch (error) {
+      console.error('Lỗi import KPI:', error);
+      alert('Có lỗi xảy ra khi import KPI. Vui lòng thử lại.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -79,7 +155,17 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-600 mb-4">{t('dashboard.no_platform', 'Chưa có kết nối nền tảng')}</h2>
-          <p className="text-gray-500">{t('dashboard.please_connect', 'Vui lòng kết nối các nền tảng marketing trong phần Cài đặt')}</p>
+          <p className="text-gray-500 mb-6">{t('dashboard.please_connect', 'Vui lòng kết nối các nền tảng marketing trong phần Cài đặt')}</p>
+          <div className="space-y-4">
+            <button 
+              onClick={() => setShowKPIModal(true)}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4 inline mr-2" />
+              Nhập KPI thủ công
+            </button>
+            <p className="text-sm text-gray-400">Hoặc kết nối nền tảng để lấy dữ liệu tự động</p>
+          </div>
         </div>
       </div>
     );
@@ -91,79 +177,40 @@ const Dashboard: React.FC = () => {
       case 'overview':
         return (
           <>
-            {/* Overview KPIs - Responsive grid */}
-            <div className="w-full mb-6">
-              <DashboardOverview 
-                kpis={overviewKPIs}
-                goals={goals}
-                onEditGoal={handleEditGoal}
-                onDeleteGoal={handleDeleteGoal}
-                onOpenGoalModal={openGoalModal}
-              />
-            </div>
+            <KPISection
+              kpiData={kpiData}
+              onAddGoal={openGoalModal}
+              onImportExcel={() => setShowKPIModal(true)}
+            />
 
-            {/* Box Insights & Gợi ý tối ưu - full width, ngay dưới KPI */}
-            <div className="w-full mb-6">
-              <DashboardInsightsSection 
-                platformData={platformData}
-                selectedChannel={'all'}
-              />
-            </div>
+            <InsightsSection 
+              platformData={platformData}
+              selectedChannel={'all'}
+            />
 
-            {/* Main content area - Responsive layout */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full">
-              <div className="xl:col-span-2 w-full">
-                <DashboardContent 
-                  platformData={platformData}
-                  currentView={currentView}
-                  connectedPlatforms={connectedPlatforms}
-                  hasConnectedPlatforms={hasConnectedPlatforms}
-                  selectedAccounts={selectedAccounts}
-                  onAccountSelectionChange={() => {}}
-                  executiveData={executiveData}
-                  channelDetailData={{}}
-                  dateRangeString={dateRangeString}
-                />
-              </div>
-              <div className="w-full space-y-6">
-                <DashboardKPIs kpis={[]} compareChannels={compareChannels} />
-              </div>
-            </div>
+            <MainContentSection
+              platformData={platformData}
+              currentView={currentView as any}
+              connectedPlatforms={connectedPlatforms}
+              hasConnectedPlatforms={hasConnectedPlatforms}
+              selectedAccounts={selectedAccounts}
+              executiveData={executiveData}
+              channelDetailData={{}}
+              dateRangeString={dateRangeString}
+              kpiData={kpiData}
+              compareChannels={compareChannels}
+            />
 
-            {/* Bottom section - Responsive grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
               <DashboardDataTableSection 
                 platformData={platformData}
                 selectedChannel={'all'}
               />
-              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-sm w-full">
-                <h3 className="font-bold text-base md:text-lg mb-4 text-gray-900 dark:text-white">{t('dashboard.goals_targets', 'Goals & Targets')}</h3>
-                <div className="space-y-3 md:space-y-4">
-                  {goals.map((goal) => (
-                    <div key={goal.id} className="p-3 md:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-gray-900 dark:text-white truncate">{goal.title}</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            {t('dashboard.target', 'Target')}: {goal.targetValue} {goal.unit}
-                          </p>
-                        </div>
-                        <div className="text-right ml-4 flex-shrink-0">
-                          <p className="font-bold text-gray-900 dark:text-white">{goal.currentValue || 0}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {goal.period}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {goals.length === 0 && (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      <p>{t('dashboard.no_goals', 'Chưa có mục tiêu nào được thiết lập')}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <GoalsSection
+                goals={goals}
+                onAddGoal={openGoalModal}
+                t={t}
+              />
             </div>
           </>
         );
@@ -211,6 +258,12 @@ const Dashboard: React.FC = () => {
         onClose={closeGoalModal}
         goal={editingGoal}
         onSave={handleSaveGoal}
+      />
+
+      <KPIImportModal
+        isOpen={showKPIModal}
+        onClose={() => setShowKPIModal(false)}
+        onImport={handleImportKPI}
       />
     </div>
   );

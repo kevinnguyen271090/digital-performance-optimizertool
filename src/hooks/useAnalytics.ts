@@ -134,5 +134,5 @@ export const usePageTracking = (page: string, title?: string) => {
 
   useEffect(() => {
     pageView(page, title);
-  }, [page, title, pageView]);
+  }, [page, title]);
 }; 
