@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useMemo } from 'react';
 import ErrorBoundary from './ErrorBoundary';
 import { useAnalytics, usePageTracking } from '../hooks/useAnalytics';
 import { useSecurity } from '../hooks/useSecurity';
+import { SecurityService } from '../hooks/useSecurity';
 import { usePerformanceMonitor } from '../hooks/usePerformanceMonitor';
 import { getEnterpriseConfig } from '../config/enterprise';
 
@@ -18,7 +19,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
 }) => {
   const config = useMemo(() => getEnterpriseConfig(), []);
   const { track, identify } = useAnalytics();
-  const { sanitizeInput, checkRateLimit, logSecurityEvent } = useSecurity(config.security);
+  const securityService = SecurityService.getInstance();
   
   // Performance monitoring
   usePerformanceMonitor({
@@ -56,7 +57,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
     if (originalInnerHTML && originalInnerHTML.set) {
       Object.defineProperty(Element.prototype, 'innerHTML', {
         set: function(value: string) {
-          const sanitized = sanitizeInput(value);
+          const sanitized = securityService.sanitizeInput(value);
           originalInnerHTML.set!.call(this, sanitized);
         },
         get: originalInnerHTML.get,
@@ -69,7 +70,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
         Object.defineProperty(Element.prototype, 'innerHTML', originalInnerHTML);
       }
     };
-  }, [sanitizeInput]);
+  }, [securityService]);
 
   // Rate limiting for API calls
   useEffect(() => {
@@ -78,8 +79,8 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
       const url = typeof input === 'string' ? input : input.toString();
       
       // Check rate limit
-      if (!checkRateLimit(`api_${url}`, config.security.maxRequestsPerMinute, 60000)) {
-        logSecurityEvent('rate_limit', `API rate limit exceeded for ${url}`);
+      if (!securityService.checkRateLimit(`api_${url}`, config.security.maxRequestsPerMinute, 60000)) {
+        securityService.logSecurityEvent('rate_limit', `API rate limit exceeded for ${url}`);
         throw new Error('Rate limit exceeded');
       }
 
@@ -113,7 +114,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
     return () => {
       window.fetch = originalFetch;
     };
-  }, [checkRateLimit, logSecurityEvent, track, config]);
+  }, [securityService, track, config]);
 
   // Health check
   useEffect(() => {

@@ -46,7 +46,7 @@ interface UseSecurityReturn {
   clearMessage: () => void;
 }
 
-class SecurityService {
+export class SecurityService {
   private static instance: SecurityService;
   private events: SecurityEvent[] = [];
   private rateLimitMap = new Map<string, { count: number; resetTime: number }>();

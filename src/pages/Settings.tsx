@@ -12,6 +12,7 @@ import { useGoogleAccountConnect } from '../hooks/useGoogleAccountConnect';
 import { useSettings } from '../hooks/useSettings';
 import { useTranslation } from 'react-i18next';
 import ConnectedAccountsTab from '../components/settings/ConnectedAccountsTab';
+import { useOrganization } from '../hooks/useOrganization';
 
 interface OutletContextType {
   session: Session | null;
@@ -48,6 +49,13 @@ const Settings: React.FC = React.memo(() => {
 
   const [activeTab, setActiveTab] = useState<'connect' | 'accounts'>('connect');
 
+  const { organizations, fetchOrganizations } = useOrganization();
+  React.useEffect(() => {
+    if (session?.user?.id) {
+      fetchOrganizations(session.user.id);
+    }
+  }, [session?.user?.id, fetchOrganizations]);
+
   // Handler functions for different platforms
   const handleWooCommerceSuccess = async (credentials: { storeUrl: string; consumerKey: string; consumerSecret: string }) => {
     const success = await saveConnection('woocommerce', credentials);
@@ -81,6 +89,9 @@ const Settings: React.FC = React.memo(() => {
     triggerGoogleLogin();
     handleGoogleServiceSelect(service);
   };
+
+  const userId = session?.user?.id || '';
+  const organizationId = organizations.length > 0 ? organizations[0].organization_id : '';
 
   return (
     <>
@@ -156,6 +167,8 @@ const Settings: React.FC = React.memo(() => {
             service={selectedGoogleService}
             accessToken={accessToken}
             profile={profile}
+            userId={userId}
+            organizationId={organizationId}
           />
         )}
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { X, AlertCircle, RefreshCw, Check } from 'lucide-react';
 import { Service } from './GoogleServiceSelectionModal';
+import { SecurityService } from '../../hooks/useSecurity';
+import { supabase } from '../../utils/supabaseClient';
 
 interface GoogleAccount {
   id: string;
@@ -17,6 +19,8 @@ interface GoogleAccountSelectorProps {
   service: Service | null;
   accessToken?: string | null;
   profile?: any;
+  userId: string;
+  organizationId: string;
 }
 
 const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
@@ -26,13 +30,23 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
   userEmail,
   service,
   accessToken,
-  profile
+  profile,
+  userId,
+  organizationId
 }) => {
   const [accounts, setAccounts] = useState<GoogleAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAccounts = useCallback(async (tokenResponse: any) => {
+    const securityService = SecurityService.getInstance();
+    const isAllowed = securityService.checkRateLimit('google-account', 10, 60000);
+
+    if (!isAllowed) {
+      setError('Bạn thao tác quá nhanh, vui lòng thử lại sau!');
+      return;
+    }
+
     if (!service) return;
     
     try {
@@ -79,6 +93,7 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
           }
           if (accountsRes.ok) {
             const accountsData = await accountsRes.json();
+            console.log('accountsData:', accountsData);
             if (!accountsData.accounts || accountsData.accounts.length === 0) {
               setError('Không tìm thấy tài khoản Google Analytics nào. Bạn cần tạo tài khoản trước.');
             } else {
@@ -90,6 +105,7 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
                 });
                 if (propRes.ok) {
                   const propData = await propRes.json();
+                  console.log('propData:', propData);
                   if (propData.properties && propData.properties.length > 0) {
                     allProperties = allProperties.concat(
                       propData.properties.map((property: any) => ({
@@ -180,7 +196,8 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
           break;
       }
       
-      setAccounts(accounts);
+      setAccounts(accounts.filter(acc => !!acc.id));
+      console.log('Tất cả accounts hiện tại:', accounts);
     } catch (error) {
       console.error('Error fetching accounts:', error);
       setError('Không thể lấy danh sách tài khoản. Vui lòng thử lại.');
@@ -208,10 +225,62 @@ const GoogleAccountSelector: React.FC<GoogleAccountSelectorProps> = ({
     );
   };
 
-  const handleConfirm = () => {
-    const selected = accounts.filter(account => account.isSelected);
-    onConfirm(selected);
-    onClose();
+  const handleConfirm = async () => {
+    const selected = accounts.filter(acc => acc.isSelected);
+    let errorAccounts: string[] = [];
+    for (const acc of selected) {
+      console.log('Account chuẩn bị insert:', acc);
+      if (!acc.id) {
+        console.error('Tài khoản thiếu id:', acc);
+        errorAccounts.push(acc.name || 'Không rõ tên');
+        continue;
+      }
+      try {
+        // Kiểm tra tài khoản đã tồn tại chưa
+        const { data: existed, error: checkError } = await supabase
+          .from('connections')
+          .select('id')
+          .eq('platform', 'ga4')
+          .eq('account_identifier', acc.id)
+          .limit(1)
+          .maybeSingle();
+        if (checkError) {
+          console.error('Lỗi kiểm tra tồn tại:', checkError);
+          errorAccounts.push(`${acc.name || acc.id} (lỗi kiểm tra tồn tại)`);
+          continue;
+        }
+        if (existed) {
+          errorAccounts.push(`${acc.name || acc.id} (tài khoản đã được kết nối)`);
+          continue;
+        }
+        const data = {
+          platform: 'ga4',
+          account_identifier: acc.id,
+          user_id: userId,
+          organization_id: organizationId,
+          service: 'analytics',
+          credentials: {},
+        };
+        console.log("Insert Supabase:", data);
+        const { error: insertError } = await supabase.from('connections').insert([data]);
+        if (insertError) {
+          if (insertError.code === '23505' || (insertError.message && insertError.message.includes('duplicate'))) {
+            errorAccounts.push(`${acc.name || acc.id} (tài khoản đã tồn tại)`);
+          } else {
+            errorAccounts.push(`${acc.name || acc.id} (${insertError.message})`);
+          }
+        }
+      } catch (e) {
+        const err = e as Error;
+        errorAccounts.push(`${acc.name || acc.id} (exception: ${err.message})`);
+      }
+    }
+    if (errorAccounts.length > 0) {
+      alert(`Không thể kết nối các tài khoản sau: ${errorAccounts.join(', ')}.`);
+    } else {
+      onConfirm(selected);
+      onClose();
+    }
   };
 
   const getAccountIcon = () => {

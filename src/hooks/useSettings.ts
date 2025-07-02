@@ -82,11 +82,33 @@ export const useSettings = (session: Session | null) => {
       if (metadata) upsertData.metadata = metadata;
       const { error } = await supabase
         .from('connections')
-        .upsert(
-          upsertData,
-          { onConflict: 'platform, account_identifier' }
-        );
-      if (error) throw error;
+        .insert(upsertData);
+      if (error) {
+        // Nếu là lỗi duplicate key, lấy user đã connect
+        if (error.message.includes('duplicate key') || error.message.includes('violates unique constraint')) {
+          const { data: existed } = await supabase
+            .from('connections')
+            .select('user_id')
+            .eq('platform', upsertData.platform)
+            .eq('account_identifier', upsertData.account_identifier)
+            .limit(1)
+            .single();
+          let email = '';
+          if (existed && existed.user_id) {
+            const { data: user } = await supabase
+              .from('auth.users')
+              .select('email')
+              .eq('id', existed.user_id)
+              .limit(1)
+              .single();
+            email = user?.email || '';
+          }
+          alert(`Tài khoản này đã được user khác kết nối${email ? ' - ' + email : ''}!`);
+        } else {
+          alert(`Lưu kết nối ${platform} ${service || ''} thất bại: ${error.message}`);
+        }
+        return false;
+      }
       alert(`Đã kết nối thành công với ${platform} ${service || ''}!`);
       await fetchConnectionStatuses();
       handleModalClose();
