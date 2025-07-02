@@ -1,3 +1,61 @@
+# 🏗️ Cấu trúc thư mục dự án (2025) - ĐÃ CẬP NHẬT
+
+```
+digital-performance-optimizer/
+├── frontend/                       # React + Vite Frontend
+│   ├── src/                        # Source code
+│   │   ├── components/
+│   │   │   ├── dashboard/
+│   │   │   ├── settings/
+│   │   │   ├── google-sheets/
+│   │   │   ├── channel-detail/
+│   │   │   ├── ui/
+│   │   │   └── ... (các component khác)
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── constants/
+│   │   ├── types/
+│   │   ├── utils/
+│   │   ├── locales/
+│   │   ├── App.tsx
+│   │   └── ...
+│   ├── public/                     # Static assets
+│   ├── package.json                # Frontend dependencies
+│   ├── vite.config.ts
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── Dockerfile.dev
+│   └── ... (các file cấu hình frontend)
+├── backend/                        # Python FastAPI Backend
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py                 # FastAPI app entrypoint
+│   │   ├── core/                   # Core config, security, celery
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   └── security.py
+│   │   ├── database/               # DB connection, session, migrations
+│   │   ├── models/                 # SQLAlchemy models
+│   │   ├── schemas/                # Pydantic schemas
+│   │   ├── api/                    # API routes
+│   │   ├── services/               # Business logic/service layer
+│   │   ├── tasks/                  # Celery tasks, scheduled jobs
+│   │   └── utils/                  # Helper functions, utilities
+│   ├── requirements.txt
+│   ├── pyproject.toml
+│   ├── env.example
+│   └── Dockerfile
+├── scripts/                        # SQL/scripts setup DB, migration, sync
+├── supabase/                       # Supabase config, edge functions
+├── docs/                           # Tài liệu dự án, kiến trúc, hướng dẫn
+├── docker-compose.yml              # Development environment
+├── package.json                    # Root monorepo config
+├── .gitignore                      # Root gitignore
+└── README.md                       # Root documentation
+```
+
+> Cấu trúc này giúp quản lý, phát triển, bảo trì và scale hệ thống dễ dàng, đồng bộ frontend-backend-database, CI/CD thuận tiện.
+
 # Tình trạng hiện tại - Avenger Hub
 
 ## ✅ Đã sửa thành công
@@ -157,7 +215,24 @@ Download the React DevTools for a better development experience
 27. `docs/BACKEND_IMPLEMENTATION_PLAN.md` (mới)
 28. `docs/FRONTEND_IMPROVEMENTS.md` (mới)
 
+### Files mới cho Monorepo Structure ✅ MỚI HOÀN THÀNH
+29. `frontend/` (thư mục mới)
+30. `backend/app/main.py` (FastAPI entrypoint)
+31. `backend/Dockerfile` (Backend container)
+32. `frontend/Dockerfile.dev` (Frontend development container)
+33. `docker-compose.yml` (Development environment)
+34. `package.json` (Root monorepo config)
+35. `.gitignore` (Root gitignore)
+36. `README.md` (Root documentation)
+
 ## 🚀 Bước tiếp theo
+
+### ✅ HOÀN THÀNH - Cấu trúc dự án (Monorepo)
+1. **Sắp xếp lại cấu trúc thư mục** theo chuẩn monorepo
+2. **Tách frontend và backend** thành các thư mục riêng biệt
+3. **Tạo Docker setup** cho development environment
+4. **Cập nhật documentation** phản ánh cấu trúc mới
+5. **Setup root package.json** với scripts quản lý monorepo
 
 ### Ưu tiên cao - Backend Development
 1. **Setup Python FastAPI project** theo `docs/BACKEND_IMPLEMENTATION_PLAN.md`

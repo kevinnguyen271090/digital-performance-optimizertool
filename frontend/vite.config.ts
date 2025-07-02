@@ -13,5 +13,10 @@ export default defineConfig({
       cert: fs.readFileSync(path.resolve(__dirname, 'server.cert')),
     },
     open: true
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
   }
 }); 

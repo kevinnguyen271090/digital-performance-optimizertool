@@ -4,10 +4,13 @@
 
 ### Prerequisites
 - Node.js 18+ 
+- Python 3.9+
 - npm hoặc yarn
+- pip (Python package manager)
 - Git
 - Supabase account
 - Google Cloud account (cho OAuth)
+- Redis (cho Celery background jobs)
 
 ## 📋 Bước 1: Setup Supabase Project
 
@@ -198,6 +201,50 @@ CREATE INDEX idx_audit_logs_org_date ON audit_logs(organization_id, created_at);
 ### 1.5 Setup Functions
 ```sql
 -- Function để tạo organization khi user đăng ký
+```
+
+## 📋 Bước 2: Setup Backend (Python FastAPI)
+
+### 2.1 Cài đặt Backend Dependencies
+```bash
+cd digital-performance-optimizer/backend
+pip install -r requirements.txt
+```
+
+### 2.2 Cấu hình Environment Variables
+```bash
+# Copy file env.example thành .env
+cp env.example .env
+
+# Cập nhật các giá trị trong .env
+DATABASE_URL=postgresql://username:password@localhost:5432/digital_performance_optimizer
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SECRET_KEY=your-secret-key-here
+REDIS_URL=redis://localhost:6379/0
+```
+
+### 2.3 Chạy Backend Development Server
+```bash
+cd digital-performance-optimizer/backend
+uvicorn app.main:app --reload
+```
+
+Backend API sẽ chạy tại `http://localhost:8000`
+
+### 2.4 Setup Celery Background Jobs
+```bash
+# Terminal 1: Chạy Redis
+redis-server
+
+# Terminal 2: Chạy Celery Worker
+cd digital-performance-optimizer/backend
+celery -A app.core.celery worker --loglevel=info
+
+# Terminal 3: Chạy Celery Beat (scheduler)
+cd digital-performance-optimizer/backend
+celery -A app.core.celery beat --loglevel=info
+```
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS trigger AS $$
 BEGIN

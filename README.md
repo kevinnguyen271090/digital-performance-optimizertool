@@ -1,12 +1,104 @@
-# Digital Performance Optimizer 🚀
+# Digital Performance Optimizer (Avenger Hub)
 
-**Enterprise-grade digital marketing analytics platform** - Tối ưu hiệu suất marketing đa nền tảng với AI insights và automation.
+## 🏗️ Cấu trúc dự án (Monorepo)
 
-[![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+```
+digital-performance-optimizer/
+├── frontend/                     # React + Vite Frontend
+│   ├── src/                      # Source code
+│   ├── public/                   # Static assets
+│   ├── package.json              # Frontend dependencies
+│   └── ... (các file cấu hình frontend)
+├── backend/                      # Python FastAPI Backend
+│   ├── app/                      # Backend source code
+│   ├── requirements.txt          # Python dependencies
+│   └── ... (các file cấu hình backend)
+├── scripts/                      # SQL scripts, database setup
+├── supabase/                     # Supabase config, edge functions
+├── docs/                         # Tài liệu dự án
+└── README.md                     # File này
+```
+
+## 🚀 Quick Start
+
+### Frontend Development
+```bash
+cd frontend
+npm install
+npm start
+```
+
+### Backend Development
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+### Database Setup
+```bash
+# Chạy các script SQL trong thư mục scripts/
+```
+
+## 📚 Documentation
+
+- [Architecture Overview](docs/Architecture%20of%20system.md)
+- [Current Status](docs/CURRENT_STATUS.md)
+- [Setup Guide](docs/SETUP_GUIDE.md)
+- [Backend Implementation Plan](docs/BACKEND_IMPLEMENTATION_PLAN.md)
+- [Component Architecture](docs/COMPONENT_ARCHITECTURE.md)
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS
+- **Backend**: Python FastAPI, Celery, Redis
+- **Database**: Supabase (PostgreSQL + RLS)
+- **Deployment**: Vercel/Netlify (Frontend), DigitalOcean/AWS (Backend)
+
+## 📊 Features
+
+- ✅ Dashboard tổng quan với KPI real-time
+- ✅ Quản lý mục tiêu marketing
+- ✅ Tích hợp đa nền tảng (Meta, Google, WooCommerce)
+- ✅ 2FA Authentication
+- ✅ Multi-tenant architecture
+- ✅ AI Insights & Analytics
+- ✅ Background data processing
+
+## 🔧 Development
+
+### Prerequisites
+- Node.js 18+
+- Python 3.9+
+- Redis
+- Supabase account
+
+### Environment Setup
+1. Copy `frontend/.env.example` to `frontend/.env.local`
+2. Copy `backend/env.example` to `backend/.env`
+3. Update environment variables
+
+### Running the Application
+```bash
+# Terminal 1: Frontend
+cd frontend && npm start
+
+# Terminal 2: Backend
+cd backend && uvicorn app.main:app --reload
+
+# Terminal 3: Redis
+redis-server
+
+# Terminal 4: Celery Worker
+cd backend && celery -A app.core.celery worker --loglevel=info
+
+# Terminal 5: Celery Beat
+cd backend && celery -A app.core.celery beat --loglevel=info
+```
+
+## 📝 License
+
+MIT License
 
 ## 🎯 Tổng quan
 
@@ -38,138 +130,6 @@ User Connection → OAuth → Store Credentials → ETL Jobs → Data Warehouse 
 - **Layer 2**: Redis (khi cần)
 - **Layer 3**: CDN cho static assets
 - **Layer 4**: Browser cache
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- npm hoặc yarn
-- Supabase account
-
-### Installation
-
-1. **Clone repository**
-```bash
-git clone <repository-url>
-cd digital-performance-optimizer
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Setup environment**
-```bash
-cp .env.example .env
-# Edit .env với Supabase credentials
-```
-
-4. **Setup HTTPS Development Server**
-```bash
-# Cài đặt mkcert (tải từ https://github.com/FiloSottile/mkcert/releases)
-C:\mkcert\mkcert.exe -install
-C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
-
-# Copy certificate files
-copy "localhost+2.pem" "server.cert"
-copy "localhost+2-key.pem" "server.key"
-```
-
-5. **Start development server**
-```bash
-npm run dev
-```
-
-**Access**: https://localhost:3000
-
-## 🏗️ Project Structure
-
-```
-src/
-├── components/          # React components
-│   ├── dashboard/       # Dashboard components
-│   ├── profile/         # Profile management
-│   ├── settings/        # Platform connections
-│   └── google-sheets/   # Google Sheets integration
-├── hooks/               # Custom React hooks
-├── utils/               # Utility functions
-├── types/               # TypeScript definitions
-├── constants/           # App constants
-└── config/              # Environment configs
-```
-
-## 🔧 Development
-
-### HTTPS Development
-Dự án được cấu hình để chạy HTTPS trên localhost với certificate mkcert:
-- **URL**: https://localhost:3000
-- **Certificate**: mkcert localhost certificate
-- **Browser**: No security warnings
-- **OAuth**: Fully compatible với OAuth providers
-
-### Available Scripts
-```bash
-npm run dev          # Start development server (HTTPS)
-npm run build        # Build for production
-npm run preview      # Preview production build
-```
-
-## 🗄️ Database
-
-### Supabase Setup
-1. Tạo project trên Supabase
-2. Copy URL và anon key vào `.env`
-3. Chạy SQL scripts trong `scripts/`
-
-### Required Tables
-- `organizations` - Organization management
-- `connections` - Platform connections
-- `analytics_data` - Analytics data storage
-- `audit_logs` - Activity logging
-- `user_2fa` - Two-factor authentication
-
-## 🔐 Environment Variables
-
-```env
-# Supabase
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# OAuth Providers
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-VITE_META_APP_ID=your_meta_app_id
-VITE_TIKTOK_CLIENT_KEY=your_tiktok_client_key
-VITE_WOOCOMMERCE_CONSUMER_KEY=your_woocommerce_key
-```
-
-## 📊 Features Overview
-
-### Dashboard
-- **Real-time Metrics** - Live performance data
-- **Multi-Platform View** - Unified analytics across platforms
-- **AI Insights** - Automated optimization recommendations
-- **Custom Date Ranges** - Flexible time period analysis
-
-### Profile Management
-- **User Profiles** - Complete user information management
-- **Organization Settings** - Multi-org support
-- **Security Settings** - 2FA, password management
-- **Avatar Upload** - Profile picture management
-
-### Platform Integration
-- **Google Analytics** - GA4 data integration
-- **Meta Ads** - Facebook/Instagram ads data
-- **TikTok Ads** - Video advertising analytics
-- **WooCommerce** - E-commerce performance
-- **Google Sheets** - Data export và reporting
-
-### Enterprise Features
-- **Performance Monitoring** - Component và API performance
-- **Error Tracking** - Comprehensive error logging
-- **User Analytics** - Behavior tracking và insights
-- **Caching** - Multi-level caching strategy
-- **Offline Support** - Service worker implementation
 
 ## 🚀 Deployment
 

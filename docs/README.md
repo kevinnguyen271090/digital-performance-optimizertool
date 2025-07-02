@@ -48,36 +48,47 @@
 - ⬜ **Recommendations Engine** AI-powered insights
 - ⬜ **Advanced Analytics** cohort analysis, funnel analysis
 
-## 🏗️ Cấu trúc dự án (Sau refactor)
+## 🏗️ Cấu trúc dự án (Đã cập nhật 2025)
 
 ```
-src/
-├── components/
-│   ├── dashboard/           # Components con cho Dashboard
-│   │   ├── DashboardHeader.tsx
-│   │   ├── DashboardViewToggle.tsx
-│   │   ├── DashboardOverview.tsx
-│   │   ├── DashboardPlatforms.tsx
-│   │   ├── DashboardChannels.tsx
-│   │   └── DashboardExecutive.tsx
-│   ├── settings/           # Components cho Settings
-│   └── ui/                 # UI components chung
-├── hooks/                  # Custom hooks
-│   ├── useGoals.ts         # Quản lý goals
-│   ├── useDateRange.ts     # Quản lý date range
-│   ├── useAccountSelection.ts # Quản lý account selection
-│   └── useDashboardData.ts # Quản lý dashboard data
-├── types/                  # TypeScript types
-│   ├── dashboard.ts        # Types cho dashboard
-│   ├── goals.ts           # Types cho goals
-│   ├── platform.ts        # Types cho platforms
-│   └── common.ts          # Common types
-├── constants/              # Constants và config
-│   ├── dashboard.ts       # Dashboard constants
-│   ├── platforms.ts       # Platform constants
-│   └── goals.ts          # Goal constants
-├── utils/                  # Utilities và services
-└── pages/                  # Page components
+digital-performance-optimizer/
+├── backend/                        # Python FastAPI backend
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py                 # FastAPI app entrypoint
+│   │   ├── core/                   # Core config, security, celery
+│   │   ├── database/               # DB connection, session, migrations
+│   │   ├── models/                 # SQLAlchemy models
+│   │   ├── schemas/                # Pydantic schemas
+│   │   ├── api/                    # API routes
+│   │   ├── services/               # Business logic/service layer
+│   │   ├── tasks/                  # Celery tasks, scheduled jobs
+│   │   └── utils/                  # Helper functions, utilities
+│   ├── requirements.txt
+│   ├── pyproject.toml
+│   └── env.example
+├── src/                            # Frontend React (Vite)
+│   ├── components/
+│   │   ├── dashboard/              # Dashboard components
+│   │   ├── settings/               # Settings components
+│   │   ├── google-sheets/          # Google Sheets components
+│   │   ├── channel-detail/         # Channel detail components
+│   │   ├── ui/                     # UI components chung
+│   │   └── ... (các component khác)
+│   ├── hooks/                      # Custom hooks
+│   ├── pages/                      # Page components
+│   ├── constants/                  # Constants và config
+│   ├── types/                      # TypeScript types
+│   ├── utils/                      # Utilities và services
+│   ├── locales/                    # Internationalization
+│   ├── App.tsx
+│   └── ...
+├── public/                         # Static assets
+├── scripts/                        # SQL/scripts setup DB, migration, sync
+├── supabase/                       # Supabase config, edge functions
+├── docs/                           # Tài liệu dự án, kiến trúc, hướng dẫn
+├── package.json                    # Frontend dependencies
+└── README.md
 ```
 
 ## 🎯 Nguyên tắc thiết kế
@@ -90,13 +101,15 @@ src/
 
 ## 🛠️ Công nghệ sử dụng
 
-- **Frontend**: React 18, TypeScript
-- **Styling**: Tailwind CSS
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Shadcn/UI
 - **State Management**: React Hooks + Custom Hooks
 - **UI Components**: Lucide React Icons
 - **Tour Guide**: React Joyride
-- **Backend**: Supabase (planned)
-- **Deployment**: Vercel/Netlify
+- **Backend**: Python FastAPI (đang phát triển)
+- **Database**: Supabase (PostgreSQL + RLS)
+- **Background Jobs**: Celery + Redis
+- **Deployment**: Vercel/Netlify (Frontend), DigitalOcean/AWS (Backend)
 
 ## 📦 Cài đặt và chạy
 
@@ -104,32 +117,58 @@ src/
 - Node.js 16+ 
 - npm hoặc yarn
 
-### Cài đặt dependencies
+### Cài đặt dependencies (Frontend)
 ```bash
 cd digital-performance-optimizer
 npm install
 ```
 
-### Chạy development server
+### Chạy development server (Frontend)
 ```bash
 npm start
 ```
 
 Ứng dụng sẽ chạy tại `http://localhost:3000`
 
-### Build production
+### Cài đặt dependencies (Backend)
+```bash
+cd digital-performance-optimizer/backend
+pip install -r requirements.txt
+```
+
+### Chạy development server (Backend)
+```bash
+cd digital-performance-optimizer/backend
+uvicorn app.main:app --reload
+```
+
+Backend API sẽ chạy tại `http://localhost:8000`
+
+### Build production (Frontend)
 ```bash
 npm run build
 ```
 
 ## 🔧 Cấu hình
 
-### Environment Variables
+### Environment Variables (Frontend)
 Tạo file `.env.local` trong thư mục gốc:
 
 ```env
 REACT_APP_SUPABASE_URL=your_supabase_url
 REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Environment Variables (Backend)
+Tạo file `.env` trong thư mục `backend/`:
+
+```env
+# Copy từ env.example và cập nhật các giá trị thực
+DATABASE_URL=postgresql://username:password@localhost:5432/digital_performance_optimizer
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SECRET_KEY=your-secret-key-here
+REDIS_URL=redis://localhost:6379/0
 ```
 
 ### Platform Integrations

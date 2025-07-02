@@ -20,48 +20,45 @@ pip install facebook-business python-dateutil pandas numpy
 pip install celery redis python-jose[cryptography] passlib[bcrypt]
 ```
 
-#### 1.2 Cấu trúc Backend
+#### 1.2 Cấu trúc Backend (Đã cập nhật 2025)
 ```
 backend/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                 # FastAPI app
-│   ├── config.py              # Configuration
-│   ├── database.py            # Database connection
-│   ├── models/                # SQLAlchemy models
+│   ├── main.py                 # FastAPI app entrypoint
+│   ├── core/                   # Core config, security, celery
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   └── security.py
+│   ├── database/               # DB connection, session, migrations
+│   ├── models/                 # SQLAlchemy models
 │   │   ├── __init__.py
 │   │   ├── user.py
 │   │   ├── organization.py
 │   │   ├── analytics.py
 │   │   └── goals.py
-│   ├── schemas/               # Pydantic schemas
+│   ├── schemas/                # Pydantic schemas
 │   │   ├── __init__.py
 │   │   ├── user.py
 │   │   ├── analytics.py
 │   │   └── goals.py
-│   ├── api/                   # API routes
+│   ├── api/                    # API routes
 │   │   ├── __init__.py
 │   │   ├── auth.py
 │   │   ├── analytics.py
 │   │   ├── goals.py
 │   │   └── organizations.py
-│   ├── services/              # Business logic
+│   ├── services/               # Business logic/service layer
 │   │   ├── __init__.py
 │   │   ├── google_analytics.py
 │   │   ├── meta_ads.py
 │   │   ├── woocommerce.py
 │   │   └── ai_insights.py
-│   ├── utils/                 # Utilities
-│   │   ├── __init__.py
-│   │   ├── auth.py
-│   │   └── helpers.py
-│   └── core/                  # Core functionality
-│       ├── __init__.py
-│       ├── security.py
-│       └── config.py
+│   ├── tasks/                  # Celery tasks, scheduled jobs
+│   └── utils/                  # Helper functions, utilities
 ├── requirements.txt
-├── .env
-└── docker-compose.yml
+├── pyproject.toml
+└── env.example
 ```
 
 #### 1.3 API Endpoints cần xây dựng
