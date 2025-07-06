@@ -99,4 +99,79 @@ export function buildExecutiveData(platformData: any) {
     criticalAlerts: [],
     keyInsights: []
   };
+}
+
+// Hàm tổng hợp các KPI bổ sung: CPC, CPM, Engagement Rate, CTR, Drop-off rate
+export function buildAdditionalKPIs(platformData: any) {
+  const kpis = [];
+  // CPC
+  if (platformData.clicks && platformData.spend) {
+    kpis.push({
+      title: 'CPC',
+      value: platformData.clicks > 0 ? platformData.spend / platformData.clicks : 0,
+      unit: '₫',
+      iconType: 'dollar',
+    });
+  }
+  // CPM
+  if (platformData.impressions && platformData.spend) {
+    kpis.push({
+      title: 'CPM',
+      value: platformData.impressions > 0 ? (platformData.spend / platformData.impressions) * 1000 : 0,
+      unit: '₫',
+      iconType: 'dollar',
+    });
+  }
+  // Engagement Rate
+  if (platformData.engagements && platformData.impressions) {
+    kpis.push({
+      title: 'Engagement Rate',
+      value: platformData.impressions > 0 ? (platformData.engagements / platformData.impressions) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  // CTR
+  if (platformData.clicks && platformData.impressions) {
+    kpis.push({
+      title: 'CTR',
+      value: platformData.impressions > 0 ? (platformData.clicks / platformData.impressions) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  // Drop-off rate giữa các bước funnel
+  if (platformData.traffic && platformData.lead) {
+    kpis.push({
+      title: 'Drop-off Traffic → Lead',
+      value: platformData.traffic > 0 ? (1 - platformData.lead / platformData.traffic) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  if (platformData.lead && platformData.qualifiedLead) {
+    kpis.push({
+      title: 'Drop-off Lead → Qualified Lead',
+      value: platformData.lead > 0 ? (1 - platformData.qualifiedLead / platformData.lead) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  if (platformData.qualifiedLead && platformData.order) {
+    kpis.push({
+      title: 'Drop-off Qualified Lead → Order',
+      value: platformData.qualifiedLead > 0 ? (1 - platformData.order / platformData.qualifiedLead) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  if (platformData.order && platformData.revenue) {
+    kpis.push({
+      title: 'Drop-off Order → Revenue',
+      value: platformData.order > 0 ? (1 - platformData.revenue / platformData.order) * 100 : 0,
+      unit: '%',
+      iconType: 'percent',
+    });
+  }
+  return kpis;
 } 

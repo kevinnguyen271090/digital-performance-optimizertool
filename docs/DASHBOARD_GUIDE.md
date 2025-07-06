@@ -337,4 +337,239 @@ ALTER TABLE connections ADD COLUMN account_details JSONB;
 
 ---
 
-*Tài liệu này được thiết kế cho Digital Marketing Director với kinh nghiệm lâu năm trong lĩnh vực Business Intelligence và Performance Marketing.* 
+*Tài liệu này được thiết kế cho Digital Marketing Director với kinh nghiệm lâu năm trong lĩnh vực Business Intelligence và Performance Marketing.*
+
+## Các biểu đồ và chỉ số mới bổ sung (2024)
+
+### 1. FunnelChart (Biểu đồ phễu chuyển đổi)
+- **Vị trí:** Ngay dưới KPI Card tổng quan.
+- **Ý nghĩa:** Thể hiện luồng chuyển đổi từ Traffic → Lead → Qualified Lead → Order → Revenue. Giúp nhận diện tỷ lệ rớt ở từng bước.
+
+### 2. PieChart (Biểu đồ tròn phân bổ nguồn)
+- **Vị trí:** Dưới FunnelChart, cho phép chọn phân bổ theo traffic, lead, doanh thu.
+- **Ý nghĩa:** Giúp xác định kênh/nguồn nào đóng góp nhiều nhất vào traffic, lead, doanh thu.
+
+### 3. EngagementChart (Biểu đồ tương tác)
+- **Vị trí:** Dưới PieChart.
+- **Ý nghĩa:** Theo dõi các chỉ số like, share, comment, CTR, Engagement Rate theo thời gian.
+
+### 4. CPCChart, CPMChart (Biểu đồ chi phí quảng cáo)
+- **Vị trí:** Dưới EngagementChart.
+- **Ý nghĩa:** Theo dõi biến động CPC, CPM theo thời gian hoặc theo kênh, giúp tối ưu chi phí quảng cáo.
+
+### 5. KPI Card bổ sung
+- **Các chỉ số mới:** CPC, CPM, Engagement Rate, CTR, Drop-off rate giữa các bước funnel.
+- **Ý nghĩa:** Đánh giá hiệu quả quảng cáo, tối ưu chuyển đổi, nhận diện vấn đề nhanh chóng.
+
+---
+
+## Cách đọc và sử dụng dashboard
+- **KPI Card:** Xem nhanh các chỉ số quan trọng, so sánh với mục tiêu.
+- **FunnelChart:** Xác định điểm rớt lớn nhất trong hành trình khách hàng.
+- **PieChart:** Ưu tiên tối ưu kênh/nguồn có tỷ trọng lớn hoặc hiệu quả thấp.
+- **EngagementChart:** Đánh giá sức mạnh nội dung, mức độ tương tác của khách hàng.
+- **CPC/CPM Chart:** Theo dõi chi phí, phát hiện bất thường để tối ưu ngân sách.
+
+---
+
+## Lưu ý
+- Các biểu đồ sẽ tự động ẩn nếu không có dữ liệu phù hợp.
+- Có thể mở rộng thêm các chỉ số hoặc biểu đồ khác theo nhu cầu thực tế.
+
+# DASHBOARD GUIDE
+
+## Tổng quan Dashboard
+
+Dashboard Digital Performance được thiết kế với 2 tab chính:
+
+### 1. Tab Overview (Tổng hợp)
+- **Mục đích**: Hiển thị tổng quan toàn hệ thống, không phân rã sâu
+- **Đối tượng**: Digital Manager, CEO, người quản lý tổng thể
+- **Tính năng**: KPI tổng hợp, biểu đồ tổng quan, insights chung
+
+### 2. Tab Executive (So sánh & Drill-down)
+- **Mục đích**: So sánh hiệu suất giữa các kênh/campaign, drill-down chi tiết
+- **Đối tượng**: Digital Executive, Campaign Manager, người quản lý chi tiết
+- **Tính năng**: So sánh, drill-down, filter theo kênh/campaign, phân rã KPI
+
+---
+
+## Tab Overview - Layout & Checklist
+
+### Layout mẫu
+```
+DashboardOverview.tsx
+├── OverviewHeader
+│   ├── DateRangePicker
+│   ├── Nút: Refresh, Export tổng hợp
+├── OverviewKPICards
+│   ├── Revenue Card (tổng)
+│   ├── Cost Card (tổng)
+│   ├── ROAS Card (tổng)
+│   ├── CPA Card (tổng)
+│   ├── CTR Card (tổng)
+│   ├── Conversion Rate Card (tổng)
+│   ├── CPC Card (tổng)
+│   ├── CPM Card (tổng)
+│   ├── Engagement Rate Card (tổng)
+│   ├── Drop-off Rate Card (tổng)
+│   ├── CLV Card (tổng)
+│   ├── Churn Rate Card (tổng)
+│   ├── New Customer Rate Card (tổng)
+│   └── Average Time to Convert Card (tổng)
+├── OverviewTrendChart
+│   ├── Line chart: Trend tổng hợp (Revenue, Cost, ROAS...)
+│   ├── Chỉ hiển thị tổng, không phân rã kênh
+├── OverviewFunnelChart
+│   ├── Funnel chart: Tổng hợp toàn hệ thống
+│   ├── Không drill-down theo kênh
+├── OverviewPieChart
+│   ├── Pie chart: Phân bổ tổng hợp (Revenue, Cost...)
+│   ├── Chỉ hiển thị tổng, không chi tiết kênh
+├── OverviewInsightsSection
+│   ├── Insights tổng hợp
+│   ├── Alert tổng hợp
+│   └── Recommendation chung
+```
+
+### Checklist Overview
+- [x] KPI Cards tổng hợp (không phân rã kênh)
+- [x] Trend chart tổng hợp
+- [x] Funnel chart tổng hợp
+- [x] Pie chart tổng hợp
+- [x] Insights tổng hợp
+- [x] Chỉ filter thời gian
+- [x] Không drill-down
+- [x] Không filter kênh/campaign
+- [x] Export tổng hợp
+
+---
+
+## Tab Executive - Layout & Checklist
+
+### Layout mẫu
+```
+ExecutiveDashboard.tsx
+├── ExecutiveHeader
+│   ├── Bộ lọc: [DateRangePicker] [Chọn kênh] [Chọn campaign] [Chọn KPI]
+│   ├── Nút: Export, So sánh kỳ, Drill-down
+├── ExecutiveKPITable
+│   ├── Bảng so sánh KPI theo kênh/campaign (có thể chọn nhiều KPI)
+│   ├── Cột động: Revenue, Cost, ROAS, CPA, CTR, Conversion Rate, ... (tùy filter)
+│   ├── Hàng: Mỗi kênh/campaign
+│   ├── Có thể drill-down từng hàng để xem chi tiết campaign/ad group/ad
+├── ExecutiveTrendChart
+│   ├── Line/Bar chart: So sánh trend KPI giữa các kênh/campaign (multi-series)
+│   ├── Có thể chọn KPI, kênh/campaign để so sánh
+├── ExecutiveFunnelCompare
+│   ├── Biểu đồ funnel so sánh từng kênh/campaign (nếu có data)
+├── ExecutivePieCompare
+│   ├── Pie chart: Phân bổ doanh thu/chi phí/lead theo kênh/campaign
+├── ExecutiveDrilldownSection
+│   ├── Khi chọn 1 kênh/campaign: Hiện chi tiết từng ad group/ad, từng ngày, từng creative
+│   ├── Có thể filter sâu hơn (ví dụ: theo audience, device, location...)
+├── ExecutiveAlertSection
+│   ├── Cảnh báo hiệu suất, bất thường, đề xuất tối ưu riêng cho từng kênh/campaign
+```
+
+### Checklist Executive
+
+#### A. Header & Filter
+- [x] Bộ lọc thời gian (DateRangePicker)
+- [x] Bộ lọc kênh (Google, Facebook, TikTok, Email, CRM, ...)
+- [x] Bộ lọc campaign (theo từng kênh)
+- [x] Bộ lọc KPI (chọn nhiều KPI để so sánh)
+- [x] Nút Export, So sánh kỳ (period comparison), Drill-down
+
+#### B. KPI Table (So sánh & phân rã)
+- [x] Bảng KPI động: mỗi hàng là 1 kênh/campaign, mỗi cột là 1 KPI (doanh thu, chi phí, ROAS, CPA, CTR, Conversion Rate, v.v.)
+- [x] Có thể drill-down từng hàng để xem chi tiết campaign → ad group → ad
+- [x] Có thể chọn nhiều KPI, nhiều kênh/campaign để so sánh
+- [x] Có highlight/cảnh báo khi KPI vượt ngưỡng hoặc bất thường
+
+#### C. Trend Chart (So sánh trend)
+- [x] Line/Bar chart: Multi-series (mỗi series là 1 kênh/campaign)
+- [x] Có thể chọn KPI, kênh/campaign để vẽ chart
+- [x] Có thể so sánh nhiều kênh/campaign cùng lúc
+- [x] Có thể drill-down theo ngày/tuần/tháng
+
+#### D. Funnel & Pie Compare (So sánh phân bổ)
+- [x] Funnel chart: So sánh tỷ lệ chuyển đổi từng bước theo từng kênh/campaign
+- [x] Pie chart: Phân bổ doanh thu/chi phí/lead theo kênh/campaign
+- [x] Có thể chọn loại phân bổ (revenue, cost, lead...)
+
+#### E. Drill-down Section (Phân rã sâu)
+- [x] Khi chọn 1 kênh/campaign: Hiện chi tiết từng ad group/ad, từng ngày, từng creative
+- [x] Có thể filter sâu hơn: audience, device, location, v.v.
+- [x] Có thể export dữ liệu drill-down
+
+#### F. Alert & Recommendation (Cảnh báo & đề xuất)
+- [x] Hiển thị cảnh báo hiệu suất riêng cho từng kênh/campaign (ví dụ: CPA tăng bất thường, ROAS giảm mạnh)
+- [x] Đề xuất tối ưu hóa riêng cho từng kênh/campaign (ví dụ: tăng ngân sách, đổi creative, thử audience mới)
+- [x] Có thể filter chỉ xem cảnh báo của 1 kênh/campaign
+
+#### G. Khác
+- [x] Không lặp lại các biểu đồ tổng hợp đã có ở Overview (ví dụ: không có KPI Card tổng hợp, không có funnel/pie tổng hợp toàn hệ thống)
+- [x] Mọi KPI đều phải phân rã theo kênh/campaign (không hiển thị số tổng)
+- [x] Có thể export bảng/chart theo filter hiện tại
+- [x] Có thể so sánh nhiều kỳ (period comparison: tuần này vs tuần trước, tháng này vs tháng trước...)
+
+---
+
+## Phân biệt rõ Overview vs Executive
+
+| Tiêu chí                | Overview (Tổng hợp)         | Executive (So sánh, drill-down)         |
+|-------------------------|-----------------------------|-----------------------------------------|
+| KPI                     | Tổng hợp toàn hệ thống      | Luôn phân rã theo kênh/campaign         |
+| Biểu đồ                 | Chỉ tổng hợp, không drill   | Luôn có so sánh, drill-down, filter     |
+| Filter                  | Chỉ filter thời gian        | Filter kênh, campaign, KPI, audience... |
+| Drill-down              | Không có                    | Có, nhiều cấp (kênh → campaign → ad)    |
+| Alert                   | Tổng hợp                    | Theo từng kênh/campaign                 |
+| Export                  | Tổng hợp                    | Theo filter, từng kênh/campaign         |
+| Trùng lặp KPI           | Không                       | Nếu trùng, luôn kèm phân rã             |
+
+---
+
+## Ví dụ minh họa
+
+### ExecutiveKPITable (So sánh KPI theo kênh/campaign)
+
+| Kênh/Campaign   | Revenue   | Cost      | ROAS | CPA   | CTR   | Conv. Rate | ... |
+|-----------------|-----------|-----------|------|-------|-------|------------|-----|
+| Facebook - C1   | 50,000,000| 20,000,000| 2.5x | 40,000| 5.2%  | 2.1%       | ... |
+| Google - C2     | 40,000,000| 15,000,000| 2.7x | 37,500| 4.8%  | 2.5%       | ... |
+| TikTok - C3     | 20,000,000| 8,000,000 | 2.0x | 45,000| 6.0%  | 1.8%       | ... |
+
+### ExecutiveTrendChart (So sánh trend KPI)
+
+- Line chart: Revenue của Facebook, Google, TikTok theo ngày
+- Có thể chọn KPI khác (Cost, ROAS, CPA...)
+
+### ExecutiveDrilldownSection
+
+- Khi click vào Facebook - C1: Hiện chi tiết từng ad group, ad, audience, device, location...
+
+---
+
+## Gợi ý UI/UX
+
+### Overview
+- **Header luôn cố định** khi scroll, filter đơn giản
+- **KPI Cards** hiển thị tổng hợp, không drill-down
+- **Chart** chỉ hiển thị tổng, không phân rã
+- **Export** chỉ tổng hợp
+
+### Executive
+- **Header luôn cố định** khi scroll, filter dễ thao tác
+- **Bảng KPI** có thể sort, filter, search, drill-down từng hàng
+- **Chart** có legend động, hover hiển thị số liệu chi tiết
+- **Drill-down** mở ra modal hoặc section bên dưới, không chuyển trang
+- **Alert** hiển thị badge màu, tooltip giải thích lý do cảnh báo
+- **Export** cho phép tải về Excel/PDF theo filter hiện tại
+
+---
+
+## Tóm lại
+
+- **Overview** = Chỉ tổng hợp, không filter sâu, không drill-down
+- **Executive** = So sánh, drill-down, filter sâu, mọi KPI đều phải phân rã, không lặp lại tổng hợp của Overview 

@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Layers, TrendingUp as TrendingUpIcon } from "lucide-react";
-import ExecutiveSummary from "../ExecutiveSummary";
-import PlatformDashboard from "../PlatformDashboard";
+import { TrendingUp as TrendingUpIcon } from "lucide-react";
+import ChannelSubTabs from "./ChannelSubTabs";
 import ChannelDetailView from "../ChannelDetailView";
+import { ExecutiveDashboard } from "./ExecutiveDashboard";
 import { PlatformConnection, DashboardView } from "../../types/dashboard";
 import { useTranslation } from 'react-i18next';
+import { zeroExecutiveData, zeroPlatformData, zeroConnectedPlatforms, createChannelDetailData } from "../../utils/mockData";
+// import { useDashboardData } from "../hooks/useDashboardData";
 
 interface DashboardContentProps {
   currentView: DashboardView;
@@ -18,6 +20,13 @@ interface DashboardContentProps {
   channelDetailData: any;
   dateRangeString: string;
 }
+
+const channelLabelMap: Record<string, string> = {
+  meta: 'Meta',
+  google: 'Google',
+  tiktok: 'TikTok',
+  woocommerce: 'WooCommerce'
+};
 
 const DashboardContent: React.FC<DashboardContentProps> = React.memo(({
   currentView,
@@ -32,86 +41,83 @@ const DashboardContent: React.FC<DashboardContentProps> = React.memo(({
 }) => {
   const { t } = useTranslation();
 
-  // Debugging logs to inspect incoming props
-  console.log("DashboardContent Props:", { currentView, connectedPlatforms, platformData, hasConnectedPlatforms });
+  // Memo hóa dateRange object để tránh tạo mới mỗi lần render
+  const dateRange = useMemo(() => {
+    if (!dateRangeString) return undefined;
+    const [start, end] = dateRangeString.split(' - ');
+    return {
+      from: new Date(start),
+      to: new Date(end)
+    };
+  }, [dateRangeString]);
+
+  // Nếu user chưa connect platform, dùng mock data = 0
+  const dataToShow = hasConnectedPlatforms ? platformData : zeroPlatformData;
+  const platformsToShow = hasConnectedPlatforms ? connectedPlatforms : zeroConnectedPlatforms;
+
+  // Danh sách kênh đã kết nối
+  const channelTabs = useMemo(() =>
+    platformsToShow.map(p => ({
+      key: p.platform,
+      label: channelLabelMap[p.platform] || p.platform.charAt(0).toUpperCase() + p.platform.slice(1)
+    })),
+    [platformsToShow]
+  );
+
+  // State: kênh đang active
+  const [activeChannel, setActiveChannel] = useState(channelTabs[0]?.key || '');
+
+  React.useEffect(() => {
+    if (channelTabs.length > 0 && !channelTabs.find(tab => tab.key === activeChannel)) {
+      setActiveChannel(channelTabs[0].key);
+    }
+  }, [channelTabs, activeChannel]);
 
   switch (currentView) {
     case 'executive':
       return (
-        <ExecutiveSummary 
+        <ExecutiveDashboard 
           data={executiveData}
-          dateRange={dateRangeString}
+          dateRange={dateRange}
         />
       );
 
-    case 'platforms':
+    case 'executive-detail':
       return (
-        <div className="space-y-6">
-          {hasConnectedPlatforms && connectedPlatforms.length > 0 ? (
-            connectedPlatforms.map((platform) => {
-              const dataForPlatform = platformData[platform.platform];
-              // Only render if data for the platform exists
-              if (!dataForPlatform || Object.keys(dataForPlatform).length === 0) {
-                console.warn(`No data or empty data for platform: ${platform.platform}`);
-                return (
-                   <div key={platform.platform} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                     <h3 className="font-bold text-lg capitalize">{platform.platform}</h3>
-                     <p className="text-gray-500 mt-2">{t('dashboard.no_data_platform', 'Không có dữ liệu để hiển thị cho nền tảng này.')}</p>
-                   </div>
-                )
-              }
-              return (
-                <PlatformDashboard
-                  key={platform.platform}
-                  platform={platform.platform}
-                  data={dataForPlatform}
-                  isConnected={platform.status === 'connected'}
-                  lastSync={platform.lastSync}
-                />
-              );
-            })
-          ) : (
-            <div className="text-center py-12">
-              <Layers className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                {t('dashboard.no_platform_connected', 'Chưa kết nối nền tảng nào')}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                {t('dashboard.connect_platforms', 'Kết nối các nền tảng để xem dữ liệu theo từng platform')}
-              </p>
-              <Link
-                to="/settings"
-                className="bg-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-accent/90 transition"
-              >
-                {t('dashboard.connect_platform', 'Kết nối nền tảng')}
-              </Link>
-            </div>
-          )}
-        </div>
+        <ExecutiveDashboard 
+          data={executiveData}
+          dateRange={dateRange}
+        />
       );
 
     case 'channels':
       return (
         <div className="space-y-6">
-          {hasConnectedPlatforms && connectedPlatforms.length > 0 ? (
-             connectedPlatforms.map(p => {
-              const channelData = platformData[p.platform];
-              // Only render if there's data for that channel
-              if (!channelData || Object.keys(channelData).length === 0) {
-                 console.warn(`No data or empty data for channel view: ${p.platform}`);
-                 return null;
-              }
-
-              return (
+          {channelTabs.length > 0 ? (
+            <>
+              <ChannelSubTabs
+                channels={channelTabs}
+                activeChannel={activeChannel}
+                onChange={setActiveChannel}
+              />
+              {(() => {
+                const p = platformsToShow.find(p => p.platform === activeChannel);
+                if (!p) return null;
+                const channelData = (dataToShow as any)[p.platform];
+                if (!channelData || Object.keys(channelData).length === 0) return null;
+                const channelDetailData = createChannelDetailData(p.platform, channelData);
+                return (
                   <ChannelDetailView
-                      key={p.platform}
-                      channel={p.platform} // Use the actual platform name
-                      data={channelData} // Use the real data
-                      selectedAccounts={selectedAccounts[p.platform] || []}
-                      onAccountFilterChange={(accountIds) => onAccountSelectionChange(p.platform, accountIds)}
+                    key={p.platform}
+                    channel={p.platform}
+                    data={channelDetailData}
+                    selectedAccounts={selectedAccounts[p.platform] || []}
+                    onAccountFilterChange={(accountIds) => onAccountSelectionChange(p.platform, accountIds)}
+                    isConnected={p.status === 'connected'}
                   />
-              );
-          })
+                );
+              })()}
+            </>
           ) : (
             <div className="text-center py-12">
               <TrendingUpIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />

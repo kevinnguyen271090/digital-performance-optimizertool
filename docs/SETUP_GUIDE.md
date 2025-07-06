@@ -11,6 +11,9 @@
 - Supabase account
 - Google Cloud account (cho OAuth)
 - Redis (cho Celery background jobs)
+- OpenSSL (cho HTTPS development)
+
+> ⚠️ **Lưu ý quan trọng**: Link test luôn phải là **https://localhost:3000** vì đã khai báo với bên thứ 3 để accept API. Không thay đổi trong giai đoạn build dự án.
 
 ## 📋 Bước 1: Setup Supabase Project
 
@@ -603,30 +606,29 @@ Nếu gặp vấn đề trong quá trình setup:
 
 Để chạy HTTPS trên localhost (cần thiết cho OAuth và bên thứ 3):
 
-#### Bước 1: Cài đặt mkcert
+#### Cách 1: Tự động tạo SSL (Khuyến nghị)
 ```bash
+cd frontend
+npm run setup
+```
+
+#### Cách 2: Thủ công với mkcert
+```bash
+# Bước 1: Cài đặt mkcert
 # Tải mkcert từ: https://github.com/FiloSottile/mkcert/releases
 # Copy file mkcert.exe vào C:\mkcert\
-```
 
-#### Bước 2: Cài đặt certificate authority
-```bash
+# Bước 2: Cài đặt certificate authority
 C:\mkcert\mkcert.exe -install
-```
 
-#### Bước 3: Tạo certificate cho localhost
-```bash
+# Bước 3: Tạo certificate cho localhost
 C:\mkcert\mkcert.exe localhost 127.0.0.1 ::1
-```
 
-#### Bước 4: Copy certificate files
-```bash
+# Bước 4: Copy certificate files
 copy "localhost+2.pem" "server.cert"
 copy "localhost+2-key.pem" "server.key"
-```
 
-#### Bước 5: Khởi động server HTTPS
-```bash
+# Bước 5: Khởi động server HTTPS
 npm run dev
 ```
 

@@ -94,7 +94,21 @@ Dashboard.tsx (Main)
     └── GoalModal.tsx
 ```
 
-### 2. Settings Flow
+### 2. Executive Dashboard Flow ✅ MỚI
+```
+ExecutiveDashboard.tsx (Main - 196 dòng)
+├── useExecutiveFilters.ts (53 dòng) - Custom hook quản lý filter state
+├── useExecutiveMockData.ts (81 dòng) - Custom hook quản lý mock data
+├── ExecutiveHeader.tsx - Header và filter controls
+├── ExecutiveKPITable.tsx - Bảng so sánh KPI với drill-down
+├── ExecutiveFunnelSection.tsx - Funnel chart (tách riêng)
+├── ExecutivePieSection.tsx - Pie chart (tách riêng)
+├── ExecutiveTrendSection.tsx - Trend chart (tách riêng)
+├── ExecutiveDrilldownSection.tsx - Phân rã chi tiết theo kênh/campaign
+└── ExecutiveAlertSection.tsx - Cảnh báo và đề xuất AI
+```
+
+### 3. Settings Flow
 ```
 Settings.tsx (Main)
 ├── ConnectedAccountsTab.tsx
@@ -106,7 +120,7 @@ Settings.tsx (Main)
 │   └── PlatformButton.tsx
 ```
 
-### 3. Google Sheets Flow
+### 4. Google Sheets Flow
 ```
 GoogleSheetsConnector.tsx (Main)
 ├── FilePicker.tsx
@@ -482,3 +496,693 @@ GoogleSheetsConnector.tsx (Main)
 **Last updated**: December 2024
 **Version**: 1.0
 **Status**: Active 
+
+## Các component dashboard mới (2024)
+
+### FunnelChart
+- **File:** src/components/dashboard/FunnelChart.tsx
+- **Props:**
+  - data: array các bước funnel (name, value)
+  - height (optional)
+- **Luồng dữ liệu:** Nhận data từ platformData tổng hợp.
+- **Vị trí sử dụng:** Dashboard overview, dưới KPI Card.
+- **Mở rộng:** Có thể thêm các bước funnel khác nếu cần.
+
+### PieChart
+- **File:** src/components/dashboard/PieChart.tsx
+- **Props:**
+  - data: array các nguồn (name, value)
+  - title (optional), height (optional)
+- **Luồng dữ liệu:** Nhận data từ platformData (trafficBySource, leadBySource, revenueBySource).
+- **Vị trí sử dụng:** Dashboard overview, dưới FunnelChart.
+- **Mở rộng:** Có thể dùng cho nhiều loại phân bổ khác.
+
+### EngagementChart
+- **File:** src/components/dashboard/EngagementChart.tsx
+- **Props:**
+  - data: array các mốc thời gian (date, like, share, comment, ctr, engagementRate)
+  - height (optional)
+- **Luồng dữ liệu:** Nhận data từ platformData.engagementTimeline.
+- **Vị trí sử dụng:** Dashboard overview, dưới PieChart.
+- **Mở rộng:** Có thể thêm các chỉ số tương tác khác.
+
+### CPCChart
+- **File:** src/components/dashboard/CPCChart.tsx
+- **Props:**
+  - data: array (label, cpc)
+  - height (optional)
+- **Luồng dữ liệu:** Nhận data từ platformData.cpcTimeline.
+- **Vị trí sử dụng:** Dashboard overview, dưới EngagementChart.
+
+### CPMChart
+- **File:** src/components/dashboard/CPMChart.tsx
+- **Props:**
+  - data: array (label, cpm)
+  - height (optional)
+- **Luồng dữ liệu:** Nhận data từ platformData.cpmTimeline.
+- **Vị trí sử dụng:** Dashboard overview, dưới CPCChart.
+
+## Executive Dashboard Components (2024)
+
+### ExecutiveHeader.tsx ✅ MỚI
+- **File:** src/components/dashboard/ExecutiveHeader.tsx
+- **Props:**
+  - dateRange, selectedChannels, selectedCampaigns, selectedKPIs
+  - drilldownLevel, selectedChannel, selectedCampaign
+  - onDateRangeChange, onChannelChange, onCampaignChange, onKPIChange
+  - onDrilldownLevelChange, onExport, onPeriodComparison, onClearFilters
+- **Tác dụng:** Header và filter controls cho tab Executive
+- **Features:** Date range picker, channel/campaign/KPI filters, drill-down selector, summary stats
+- **Vị trí sử dụng:** ExecutiveDashboard container
+
+### ExecutiveFunnelCompare.tsx ✅ MỚI
+- **File:** src/components/dashboard/ExecutiveFunnelCompare.tsx
+- **Props:**
+  - data: FunnelData[] (platform, lead, qualified_lead, order, revenue)
+  - selectedChannels, dateRange
+- **Tác dụng:** Biểu đồ funnel so sánh từng kênh/campaign
+- **Features:** Volume vs Conversion Rate toggle, step-by-step comparison, performance indicators
+- **Vị trí sử dụng:** ExecutiveDashboard, dưới ExecutiveKPITable
+
+### ExecutivePieCompare.tsx ✅ MỚI
+- **File:** src/components/dashboard/ExecutivePieCompare.tsx
+- **Props:**
+  - data: PieData[] (revenue, cost, leads, orders, roas, cpa)
+  - selectedChannels, dateRange
+- **Tác dụng:** Pie chart phân bổ doanh thu/chi phí/lead theo kênh/campaign
+- **Features:** Revenue/Cost/Leads/Orders distribution, percentage calculations, efficiency metrics
+- **Vị trí sử dụng:** ExecutiveDashboard, dưới ExecutiveFunnelCompare
+
+### ExecutiveKPITable.tsx
+- **File:** src/components/dashboard/ExecutiveKPITable.tsx
+- **Props:**
+  - data: array các kênh/campaign với KPI
+  - selectedKPIs, onDrilldown
+- **Tác dụng:** Bảng KPI so sánh với drill-down
+- **Features:** Sortable columns, performance indicators, drill-down actions
+- **Vị trí sử dụng:** ExecutiveDashboard, dưới ExecutiveHeader
+
+### ExecutiveDashboard.tsx
+- **File:** src/components/dashboard/ExecutiveDashboard.tsx
+- **Props:**
+  - data, dateRange, onDateRangeChange
+- **Tác dụng:** Container component cho tab Executive
+- **Features:** Filter management, drill-down logic, export functionality, period comparison
+- **Dependencies:** ExecutiveHeader, ExecutiveKPITable, ExecutiveFunnelCompare, ExecutivePieCompare
+- **Vị trí sử dụng:** DashboardContent (Executive view)
+
+---
+
+## Refactor & Best Practice
+- Tất cả component đều nhận data qua props, không phụ thuộc context toàn cục.
+- Dễ tái sử dụng, dễ test, dễ mở rộng.
+- Style đồng bộ với dashboard hiện tại. 
+
+## Tổng quan
+
+Hệ thống được thiết kế theo kiến trúc component-based với React + TypeScript, sử dụng các best practices để đảm bảo hiệu suất, khả năng bảo trì và mở rộng.
+
+## Cấu trúc Component
+
+### 1. Layout Components
+
+#### AppLayout.tsx
+- **Chức năng**: Layout chính của ứng dụng
+- **Props**: children, user, loading
+- **State**: sidebarOpen, currentView
+- **Features**: 
+  - Responsive sidebar navigation
+  - User profile dropdown
+  - Breadcrumb navigation
+  - Loading states
+
+#### ProtectedRoute.tsx
+- **Chức năng**: Bảo vệ route yêu cầu authentication
+- **Props**: children, requiredRole
+- **Features**:
+  - Kiểm tra authentication status
+  - Redirect to login nếu chưa đăng nhập
+  - Role-based access control
+  - Loading states
+
+### 2. Dashboard Components
+
+#### DashboardContent.tsx
+- **Chức năng**: Container chính cho dashboard
+- **Props**: selectedAccount, dateRange
+- **State**: activeTab, dashboardData
+- **Features**:
+  - Tab navigation (Overview, Executive)
+  - Data fetching và caching
+  - Error handling
+  - Loading states
+
+#### DashboardOverview.tsx
+- **Chức năng**: Tab Overview - Hiển thị tổng quan
+- **Props**: data, dateRange
+- **State**: selectedKPIs, chartType
+- **Features**:
+  - KPI Cards tổng hợp
+  - Trend charts tổng hợp
+  - Funnel charts tổng hợp
+  - Pie charts tổng hợp
+  - Insights tổng hợp
+  - Chỉ filter thời gian
+  - Không drill-down
+  - Export tổng hợp
+
+#### ExecutiveDashboard.tsx
+- **Chức năng**: Tab Executive - So sánh & drill-down
+- **Props**: data, dateRange, filters
+- **State**: selectedChannels, selectedCampaigns, selectedKPIs, drilldownLevel
+- **Features**:
+  - Bộ lọc kênh/campaign/KPI
+  - KPI Table so sánh
+  - Trend charts multi-series
+  - Funnel charts so sánh
+  - Pie charts phân bổ
+  - Drill-down section
+  - Alert theo kênh/campaign
+  - Export theo filter
+
+#### ExecutiveKPITable.tsx
+- **Chức năng**: Bảng so sánh KPI theo kênh/campaign
+- **Props**: data, selectedKPIs, selectedChannels
+- **State**: sortColumn, sortDirection, drilldownData
+- **Features**:
+  - Bảng động với cột KPI tùy chọn
+  - Sort theo cột
+  - Drill-down từng hàng
+  - Highlight KPI bất thường
+  - Export bảng
+
+#### ExecutiveTrendChart.tsx
+- **Chức năng**: Biểu đồ trend so sánh giữa các kênh/campaign
+- **Props**: data, selectedKPIs, selectedChannels, dateRange
+- **State**: chartType, selectedSeries
+- **Features**:
+  - Multi-series line/bar chart
+  - Legend động
+  - Hover tooltip
+  - Zoom/pan controls
+  - Export chart
+
+#### ExecutiveDrilldownSection.tsx
+- **Chức năng**: Phân rã chi tiết khi chọn kênh/campaign
+- **Props**: selectedChannel, selectedCampaign, drilldownData
+- **State**: drilldownLevel, filters
+- **Features**:
+  - Drill-down nhiều cấp (kênh → campaign → ad group → ad)
+  - Filter theo audience, device, location
+  - Chi tiết theo ngày/tuần/tháng
+  - Export drill-down data
+
+#### ExecutiveAlertSection.tsx
+- **Chức năng**: Cảnh báo và đề xuất theo kênh/campaign
+- **Props**: alerts, recommendations
+- **State**: selectedChannel, alertFilters
+- **Features**:
+  - Alert theo từng kênh/campaign
+  - Đề xuất tối ưu hóa
+  - Filter alert theo loại
+  - Export alert report
+
+### 3. KPI Components
+
+#### KPICard.tsx
+- **Chức năng**: Hiển thị KPI dạng card
+- **Props**: title, value, change, target, format
+- **Features**:
+  - Hiển thị giá trị hiện tại
+  - So sánh với kỳ trước
+  - Progress bar vs target
+  - Color coding theo performance
+  - Tooltip với chi tiết
+
+#### KPIImportModal.tsx
+- **Chức năng**: Modal import KPI từ file
+- **Props**: isOpen, onClose, onImport
+- **State**: file, preview, mapping
+- **Features**:
+  - Upload file Excel/CSV
+  - Preview data
+  - Map columns
+  - Validation
+  - Import progress
+
+### 4. Chart Components
+
+#### TrendChart.tsx
+- **Chức năng**: Biểu đồ trend line/bar
+- **Props**: data, type, options
+- **Features**:
+  - Line/Bar chart
+  - Multiple series
+  - Zoom/pan
+  - Export
+  - Responsive
+
+#### FunnelChart.tsx
+- **Chức năng**: Biểu đồ funnel
+- **Props**: data, stages
+- **Features**:
+  - Funnel visualization
+  - Drop-off highlighting
+  - Stage details
+  - Export
+
+#### PieChart.tsx
+- **Chức năng**: Biểu đồ pie/donut
+- **Props**: data, type
+- **Features**:
+  - Pie/Donut chart
+  - Legend
+  - Hover details
+  - Export
+
+#### EngagementChart.tsx
+- **Chức năng**: Biểu đồ engagement metrics
+- **Props**: data, metrics
+- **Features**:
+  - Engagement rate
+  - Time on site
+  - Bounce rate
+  - Page views
+
+#### CPCChart.tsx
+- **Chức năng**: Biểu đồ Cost Per Click
+- **Props**: data, channels
+- **Features**:
+  - CPC trends
+  - Channel comparison
+  - Threshold alerts
+
+#### CPMChart.tsx
+- **Chức năng**: Biểu đồ Cost Per Mille
+- **Props**: data, channels
+- **Features**:
+  - CPM trends
+  - Channel comparison
+  - Threshold alerts
+
+### 5. Settings Components
+
+#### Settings.tsx
+- **Chức năng**: Trang cài đặt chính
+- **Props**: user, organizations
+- **State**: activeTab, settings
+- **Features**:
+  - Tab navigation
+  - Account settings
+  - Connected accounts
+  - Notifications
+  - Security
+
+#### ConnectedAccountsTab.tsx
+- **Chức năng**: Quản lý tài khoản đã kết nối
+- **Props**: connectedAccounts
+- **State**: selectedAccount, modalState
+- **Features**:
+  - List connected accounts
+  - Connect new account
+  - Disconnect account
+  - Account details
+
+#### GoogleAccountSelector.tsx
+- **Chức năng**: Chọn tài khoản Google
+- **Props**: accounts, onSelect
+- **State**: selectedAccount
+- **Features**:
+  - List Google accounts
+  - Account selection
+  - Permission scopes
+  - Connection status
+
+#### WooCommerceConnectModal.tsx
+- **Chức năng**: Modal kết nối WooCommerce
+- **Props**: isOpen, onClose, onSuccess
+- **State**: connectionData, step
+- **Features**:
+  - OAuth flow
+  - Store selection
+  - Permission setup
+  - Connection test
+
+#### MetaConnectModal.tsx
+- **Chức năng**: Modal kết nối Meta Ads
+- **Props**: isOpen, onClose, onSuccess
+- **State**: connectionData, step
+- **Features**:
+  - OAuth flow
+  - Ad account selection
+  - Permission setup
+  - Connection test
+
+### 6. Profile Components
+
+#### Profile.tsx
+- **Chức năng**: Trang profile người dùng
+- **Props**: user, organizations
+- **State**: activeTab, editMode
+- **Features**:
+  - User information
+  - Organization management
+  - Security settings
+  - Activity log
+
+#### ProfileHeader.tsx
+- **Chức năng**: Header profile với avatar và thông tin cơ bản
+- **Props**: user, organization
+- **Features**:
+  - Avatar upload
+  - Basic info display
+  - Edit mode toggle
+  - Organization switcher
+
+#### ProfileEditForm.tsx
+- **Chức năng**: Form chỉnh sửa thông tin profile
+- **Props**: user, onSave
+- **State**: formData, validation
+- **Features**:
+  - Form validation
+  - Real-time updates
+  - Save/cancel actions
+  - Error handling
+
+#### SecuritySection.tsx
+- **Chức năng**: Quản lý bảo mật (2FA, password)
+- **Props**: user
+- **State**: twoFactorEnabled, setupStep
+- **Features**:
+  - 2FA setup/disable
+  - Password change
+  - Security logs
+  - Device management
+
+### 7. Google Sheets Components
+
+#### GoogleSheetsConnector.tsx
+- **Chức năng**: Kết nối và import dữ liệu từ Google Sheets
+- **Props**: isOpen, onClose, onImport
+- **State**: connection, sheets, selectedSheet
+- **Features**:
+  - OAuth authentication
+  - Sheet selection
+  - Data preview
+  - Import mapping
+
+#### FilePicker.tsx
+- **Chức năng**: Chọn file Google Sheets
+- **Props**: onSelect
+- **State**: files, selectedFile
+- **Features**:
+  - File browser
+  - Search/filter
+  - Recent files
+  - File details
+
+#### SheetPicker.tsx
+- **Chức năng**: Chọn sheet trong file Google Sheets
+- **Props**: file, onSelect
+- **State**: sheets, selectedSheet
+- **Features**:
+  - Sheet list
+  - Preview data
+  - Sheet info
+  - Selection
+
+#### Mapping.tsx
+- **Chức năng**: Map columns từ Google Sheets sang KPI
+- **Props**: sheetData, onMap
+- **State**: mapping, validation
+- **Features**:
+  - Column mapping
+  - Data validation
+  - Preview mapped data
+  - Save mapping
+
+#### Preview.tsx
+- **Chức năng**: Preview dữ liệu trước khi import
+- **Props**: mappedData, onConfirm
+- **State**: preview, validation
+- **Features**:
+  - Data preview
+  - Validation errors
+  - Import confirmation
+  - Progress tracking
+
+### 8. Channel Detail Components
+
+#### ChannelDetailView.tsx
+- **Chức năng**: Chi tiết kênh marketing
+- **Props**: channel, data
+- **State**: activeTab, dateRange
+- **Features**:
+  - Channel overview
+  - Performance metrics
+  - Campaign list
+  - Insights
+
+#### ChannelDetailHeader.tsx
+- **Chức năng**: Header với thông tin kênh
+- **Props**: channel, metrics
+- **Features**:
+  - Channel info
+  - Key metrics
+  - Connection status
+  - Quick actions
+
+#### ChannelDetailMetrics.tsx
+- **Chức năng**: Metrics chi tiết của kênh
+- **Props**: metrics, dateRange
+- **Features**:
+  - Performance metrics
+  - Trend analysis
+  - Comparison
+  - Alerts
+
+#### ChannelDetailTable.tsx
+- **Chức năng**: Bảng dữ liệu chi tiết
+- **Props**: data, columns
+- **Features**:
+  - Sortable columns
+  - Filtering
+  - Pagination
+  - Export
+
+#### ChannelDetailInsights.tsx
+- **Chức năng**: Insights và recommendations
+- **Props**: insights, recommendations
+- **Features**:
+  - AI insights
+  - Recommendations
+  - Performance alerts
+  - Action items
+
+### 9. UI Components
+
+#### ThemeToggle.tsx
+- **Chức năng**: Chuyển đổi theme light/dark
+- **Props**: theme, onToggle
+- **Features**:
+  - Theme switching
+  - Persistent preference
+  - Smooth transition
+
+#### Toast.tsx
+- **Chức năng**: Thông báo toast
+- **Props**: message, type, duration
+- **Features**:
+  - Success/error/info/warning
+  - Auto dismiss
+  - Manual dismiss
+  - Queue management
+
+#### SearchBar.tsx
+- **Chức năng**: Thanh tìm kiếm
+- **Props**: onSearch, placeholder
+- **State**: query, suggestions
+- **Features**:
+  - Real-time search
+  - Search suggestions
+  - Search history
+  - Clear search
+
+#### SearchModal.tsx
+- **Chức năng**: Modal tìm kiếm nâng cao
+- **Props**: isOpen, onClose, onSelect
+- **State**: query, filters, results
+- **Features**:
+  - Advanced search
+  - Multiple filters
+  - Search results
+  - Quick actions
+
+#### MobileNavigation.tsx
+- **Chức năng**: Navigation cho mobile
+- **Props**: currentView, onNavigate
+- **Features**:
+  - Bottom navigation
+  - Quick actions
+  - Notifications
+  - User menu
+
+### 10. Enterprise Components
+
+#### EnterpriseApp.tsx
+- **Chức năng**: App wrapper với enterprise features
+- **Props**: children
+- **Features**:
+  - Performance monitoring
+  - Error boundary
+  - Analytics tracking
+  - Security checks
+
+#### ErrorBoundary.tsx
+- **Chức năng**: Bắt và xử lý lỗi
+- **Props**: children, fallback
+- **Features**:
+  - Error catching
+  - Fallback UI
+  - Error reporting
+  - Recovery options
+
+#### OnboardingTour.tsx
+- **Chức năng**: Tour hướng dẫn người dùng mới
+- **Props**: isActive, onComplete
+- **State**: currentStep, steps
+- **Features**:
+  - Step-by-step tour
+  - Interactive highlights
+  - Progress tracking
+  - Skip option
+
+## Component Patterns
+
+### 1. Container/Presentational Pattern
+- Container components: Quản lý state và logic
+- Presentational components: Chỉ hiển thị UI
+
+### 2. Custom Hooks Pattern
+- Tách logic ra khỏi components
+- Reusable business logic
+- Testing dễ dàng hơn
+
+### 3. Compound Components Pattern
+- Components có thể kết hợp với nhau
+- Flexible API design
+- Type safety
+
+### 4. Render Props Pattern
+- Truyền render function làm prop
+- Flexible component composition
+- Dynamic rendering
+
+## Performance Optimization
+
+### 1. Memoization
+- React.memo cho components
+- useMemo cho expensive calculations
+- useCallback cho functions
+
+### 2. Lazy Loading
+- Code splitting
+- Dynamic imports
+- Suspense boundaries
+
+### 3. Virtual Scrolling
+- Cho large lists
+- Efficient rendering
+- Smooth scrolling
+
+### 4. Bundle Optimization
+- Tree shaking
+- Dead code elimination
+- Chunk splitting
+
+## Testing Strategy
+
+### 1. Unit Tests
+- Component rendering
+- Props validation
+- Event handling
+- State changes
+
+### 2. Integration Tests
+- Component interactions
+- API calls
+- User flows
+- Error scenarios
+
+### 3. E2E Tests
+- Complete user journeys
+- Critical paths
+- Cross-browser testing
+- Performance testing
+
+## Accessibility (a11y)
+
+### 1. Semantic HTML
+- Proper heading structure
+- ARIA labels
+- Keyboard navigation
+- Screen reader support
+
+### 2. Color Contrast
+- WCAG compliance
+- High contrast mode
+- Color blind friendly
+- Focus indicators
+
+### 3. Keyboard Navigation
+- Tab order
+- Focus management
+- Keyboard shortcuts
+- Escape handling
+
+## Internationalization (i18n)
+
+### 1. Translation System
+- React-i18next
+- Translation keys
+- Pluralization
+- Date/number formatting
+
+### 2. RTL Support
+- Right-to-left languages
+- Text direction
+- Layout adaptation
+- Icon flipping
+
+## Security Considerations
+
+### 1. Input Validation
+- XSS prevention
+- SQL injection prevention
+- File upload validation
+- Data sanitization
+
+### 2. Authentication
+- JWT tokens
+- Session management
+- Role-based access
+- 2FA support
+
+### 3. Data Protection
+- Encryption
+- Secure storage
+- Data masking
+- Audit logging
+
+---
+
+## Tóm lại
+
+Kiến trúc component được thiết kế để:
+- **Modular**: Dễ dàng thêm/sửa/xóa components
+- **Reusable**: Components có thể tái sử dụng
+- **Testable**: Dễ dàng viết tests
+- **Performant**: Tối ưu hiệu suất
+- **Accessible**: Hỗ trợ accessibility
+- **International**: Hỗ trợ đa ngôn ngữ
+- **Secure**: Bảo mật tốt 

@@ -72,23 +72,30 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
     };
   }, [securityService]);
 
-  // Rate limiting for API calls
+  // Rate limiting for API calls - tối ưu để tránh lỗi
   useEffect(() => {
     const originalFetch = window.fetch;
-    window.fetch = async function(input: RequestInfo | URL, init?: RequestInit) {
+    let isOverridden = false;
+
+    const customFetch = async function(input: RequestInfo | URL, init?: RequestInit) {
       const url = typeof input === 'string' ? input : input.toString();
       
-      // Check rate limit
-      if (!securityService.checkRateLimit(`api_${url}`, config.security.maxRequestsPerMinute, 60000)) {
-        securityService.logSecurityEvent('rate_limit', `API rate limit exceeded for ${url}`);
-        throw new Error('Rate limit exceeded');
+      // Chỉ áp dụng rate limit và tracking cho API calls thực sự
+      const isRealAPI = url.includes('api.example.com') || url.includes('localhost:3000/api');
+      
+      if (isRealAPI) {
+        // Check rate limit
+        if (!securityService.checkRateLimit(`api_${url}`, config.security.maxRequestsPerMinute, 60000)) {
+          securityService.logSecurityEvent('rate_limit', `API rate limit exceeded for ${url}`);
+          throw new Error('Rate limit exceeded');
+        }
       }
 
       try {
         const response = await originalFetch(input, init);
         
-        // Track API performance
-        if (config.analytics.enablePerformanceTracking) {
+        // Track API performance chỉ cho API calls thực sự
+        if (config.analytics.enablePerformanceTracking && isRealAPI) {
           track('api_call', {
             url,
             method: init?.method || 'GET',
@@ -99,20 +106,35 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
 
         return response;
       } catch (error) {
-        // Track API errors
-        if (config.analytics.enableErrorTracking) {
-          track('api_error', {
-            url,
-            method: init?.method || 'GET',
-            error: error instanceof Error ? error.message : 'Unknown error'
-          });
+        // Track API errors chỉ cho API calls thực sự và chỉ khi có error thực sự
+        if (config.analytics.enableErrorTracking && isRealAPI) {
+          // Chỉ track lỗi network thực sự, không phải lỗi do domain không tồn tại
+          if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+            // Đây là lỗi network bình thường khi chưa có backend
+            // Không cần track vì đây là expected behavior
+          } else {
+            track('api_error', {
+              url,
+              method: init?.method || 'GET',
+              error: error instanceof Error ? error.message : 'Unknown error'
+            });
+          }
         }
         throw error;
       }
     };
 
+    // Chỉ override nếu chưa override
+    if (!isOverridden) {
+      window.fetch = customFetch;
+      isOverridden = true;
+    }
+
     return () => {
-      window.fetch = originalFetch;
+      if (isOverridden) {
+        window.fetch = originalFetch;
+        isOverridden = false;
+      }
     };
   }, [securityService, track, config]);
 

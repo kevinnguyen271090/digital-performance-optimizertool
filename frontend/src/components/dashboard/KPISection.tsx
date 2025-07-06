@@ -34,38 +34,35 @@ const KPISection: React.FC<KPISectionProps> = ({ kpiData, onAddGoal, onImportExc
       </div>
 
       {/* KPI Cards - Responsive grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-        {kpiData.map((kpi, index) => (
-          <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-3">
-                  {kpi.icon}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {kpiData.map((kpi, idx) => {
+          let status = kpi.status;
+          return (
+            <div
+              key={idx}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-transform hover:scale-105 p-4 flex flex-col items-center relative"
+            >
+              <div className="absolute top-2 right-2">
+                {status === 'normal' && <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Tốt</span>}
+                {status === 'warning' && <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Cảnh báo</span>}
+                {status === 'danger' && <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Chưa đạt</span>}
+              </div>
+              <div title={kpi.description || kpi.title} className="text-3xl mb-2 cursor-help">{kpi.icon}</div>
+              <div className="text-lg font-bold">{kpi.value}</div>
+              <div className="text-gray-500 text-sm">{kpi.title}</div>
+              {typeof kpi.change === 'number' && (
+                <div className="w-full mt-2">
+                  <div className="h-2 rounded bg-gray-200 dark:bg-gray-700">
+                    <div
+                      className={`h-2 rounded ${status === 'normal' ? 'bg-green-500' : status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`}
+                      style={{ width: `${Math.min(100, Math.max(0, kpi.change))}%` }}
+                    />
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
-                  {kpi.title}
-                </h3>
-              </div>
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                kpi.status === 'normal' ? 'bg-green-100 text-green-800' :
-                kpi.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {kpi.status === 'normal' ? 'Tốt' : kpi.status === 'warning' ? 'Cần cải thiện' : 'Kritisk'}
-              </div>
+              )}
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {kpi.value}
-            </div>
-            {typeof kpi.change === 'number' && (
-              <div className={`text-sm ${
-                kpi.change > 0 ? 'text-green-600' : kpi.change < 0 ? 'text-red-600' : 'text-gray-500'
-              }`}>
-                {kpi.change > 0 ? '+' : ''}{kpi.change.toFixed(1)}% so với mục tiêu
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </>
   );

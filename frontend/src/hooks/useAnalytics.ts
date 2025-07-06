@@ -24,6 +24,10 @@ class AnalyticsService {
   private static instance: AnalyticsService;
   private userId?: string;
   private userProperties?: UserProperties;
+  private logCount = 0;
+  private readonly MAX_LOG_COUNT = 5;
+  private lastLogTime = 0;
+  private readonly LOG_COOLDOWN = 30000; // 30 giây
 
   static getInstance(): AnalyticsService {
     if (!AnalyticsService.instance) {
@@ -52,9 +56,14 @@ class AnalyticsService {
       timestamp: Date.now()
     };
 
-    // Development logging
+    // Development logging với giới hạn
     if (import.meta.env.MODE === 'development') {
-      console.log('[Analytics] Track:', analyticsEvent);
+      const now = Date.now();
+      if (this.logCount < this.MAX_LOG_COUNT && (now - this.lastLogTime) > this.LOG_COOLDOWN) {
+        console.log('[Analytics] Track:', analyticsEvent);
+        this.logCount++;
+        this.lastLogTime = now;
+      }
     }
 
     // TODO: Send to analytics service
@@ -80,9 +89,14 @@ class AnalyticsService {
       }
     };
 
-    // Development logging
+    // Development logging với giới hạn
     if (import.meta.env.MODE === 'development') {
-      console.log('[Analytics] Page View:', pageViewEvent);
+      const now = Date.now();
+      if (this.logCount < this.MAX_LOG_COUNT && (now - this.lastLogTime) > this.LOG_COOLDOWN) {
+        console.log('[Analytics] Page View:', pageViewEvent);
+        this.logCount++;
+        this.lastLogTime = now;
+      }
     }
 
     // TODO: Send to analytics service
@@ -134,5 +148,5 @@ export const usePageTracking = (page: string, title?: string) => {
 
   useEffect(() => {
     pageView(page, title);
-  }, [page, title]);
+  }, [page, title, pageView]);
 }; 

@@ -113,19 +113,33 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             </div>
 
             <div className="flex items-center space-x-4">
-              {/* Language Switcher */}
-              <div className="relative">
-                <button
-                  onClick={() => i18n.changeLanguage(i18n.language === 'vi' ? 'en' : 'vi')}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <span>{t('language.switch_language', 'Chuyển đổi ngôn ngữ')}</span>
-                  <span className="font-bold">{i18n.language === 'vi' ? 'VI' : 'EN'}</span>
-                </button>
-              </div>
-
               {/* Theme Toggle */}
               <ThemeToggle />
+
+              {/* Language Switcher - Dropdown */}
+              <div className="relative group">
+                <button
+                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
+                >
+                  <span>{i18n.language === 'vi' ? '🇻🇳' : '🇬🇧'}</span>
+                  <span className="font-bold">{i18n.language === 'vi' ? 'VI' : 'EN'}</span>
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
+                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+                  <button
+                    onClick={() => i18n.changeLanguage('vi')}
+                    className={`flex items-center w-full px-4 py-2 text-sm ${i18n.language === 'vi' ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                  >
+                    <span className="mr-2">🇻🇳</span> Tiếng Việt
+                  </button>
+                  <button
+                    onClick={() => i18n.changeLanguage('en')}
+                    className={`flex items-center w-full px-4 py-2 text-sm ${i18n.language === 'en' ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                  >
+                    <span className="mr-2">🇬🇧</span> English
+                  </button>
+                </div>
+              </div>
 
               {/* User Menu */}
               {user && (

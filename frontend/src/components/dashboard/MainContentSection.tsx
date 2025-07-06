@@ -28,8 +28,8 @@ const MainContentSection: React.FC<MainContentSectionProps> = ({
   compareChannels
 }) => {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full mb-8">
-      <div className="xl:col-span-2 w-full">
+    <div className="grid grid-cols-1 xl:grid-cols-1 gap-6 w-full mb-8">
+      {/* <div className="xl:col-span-2 w-full"> */}
         <DashboardContent 
           platformData={platformData}
           currentView={currentView}
@@ -41,7 +41,7 @@ const MainContentSection: React.FC<MainContentSectionProps> = ({
           channelDetailData={channelDetailData}
           dateRangeString={dateRangeString}
         />
-      </div>
+      {/* </div> */}
       <div className="w-full space-y-6">
         <DashboardKPIs kpis={kpiData} compareChannels={compareChannels} />
       </div>

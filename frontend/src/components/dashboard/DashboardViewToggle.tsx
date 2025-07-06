@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, TrendingUp, Layers, BarChart3 } from 'lucide-react';
+import { Grid, TrendingUp, Layers, BarChart3, Target } from 'lucide-react';
 import { DashboardView } from '../../types/dashboard';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +23,11 @@ const DashboardViewToggle: React.FC<DashboardViewToggleProps> = ({
       id: 'executive' as DashboardView,
       label: t('dashboard.executive', 'Executive'),
       icon: BarChart3
+    },
+    {
+      id: 'executive-detail' as DashboardView,
+      label: t('dashboard.executive_detail', 'Executive Detail'),
+      icon: Target
     },
     {
       id: 'platforms' as DashboardView,

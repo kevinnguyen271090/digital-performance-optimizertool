@@ -64,18 +64,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = React.memo(({
               <span className="hidden sm:inline">Executive</span>
             </button>
             <button
-              onClick={() => onViewChange('platforms')}
-              className={`flex items-center px-3 py-1.5 rounded-md font-medium text-xs md:text-sm transition-all duration-200 ${
-                currentView === 'platforms'
-                  ? 'bg-accent text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-              title="Nền tảng"
-            >
-              <Layers className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Nền tảng</span>
-            </button>
-            <button
               onClick={() => onViewChange('channels')}
               className={`flex items-center px-3 py-1.5 rounded-md font-medium text-xs md:text-sm transition-all duration-200 ${
                 currentView === 'channels'
@@ -116,11 +104,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = React.memo(({
           >
             <User className="w-5 h-5" />
           </button>
-          {/* Nút chuyển đổi ngôn ngữ */}
-          <div className="ml-2 flex items-center gap-1">
-            <button onClick={() => i18n.changeLanguage('vi')} className={`px-2 py-1 rounded ${i18n.language === 'vi' ? 'bg-accent text-white' : 'bg-gray-100 text-gray-700'}`}>VI</button>
-            <button onClick={() => i18n.changeLanguage('en')} className={`px-2 py-1 rounded ${i18n.language === 'en' ? 'bg-accent text-white' : 'bg-gray-100 text-gray-700'}`}>EN</button>
-          </div>
         </div>
       </div>
     </div>

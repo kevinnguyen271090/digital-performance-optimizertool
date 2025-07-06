@@ -12,13 +12,19 @@ import { useDashboardData } from "../hooks/useDashboardData";
 import { useDashboardState } from "../hooks/useDashboardState";
 import { DashboardKPIs } from '../components';
 import { useGoals } from '../hooks/useGoals';
-import { buildCompareChannels, buildOverviewKPIData, buildExecutiveData } from '../utils/dashboardUtils';
-import React, { useMemo, useState } from 'react';
+import { buildCompareChannels, buildOverviewKPIData, buildExecutiveData, buildAdditionalKPIs } from '../utils/dashboardUtils';
+import React, { useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import KPISection from '../components/dashboard/KPISection';
 import InsightsSection from '../components/dashboard/InsightsSection';
 import MainContentSection from '../components/dashboard/MainContentSection';
 import GoalsSection from '../components/dashboard/GoalsSection';
+import { zeroExecutiveData, zeroPlatformData, zeroConnectedPlatforms, mockData, channelsArrayToPlatformData } from "../utils/mockData";
+import FunnelChart from '../components/dashboard/FunnelChart';
+import PieChart from '../components/dashboard/PieChart';
+import EngagementChart from '../components/dashboard/EngagementChart';
+import CPCChart from '../components/dashboard/CPCChart';
+import CPMChart from '../components/dashboard/CPMChart';
 
 interface OutletContextType {
   session: Session | null;
@@ -36,7 +42,7 @@ const DashboardDataTableSection = React.memo(({ platformData, selectedChannel }:
 
 const Dashboard: React.FC = () => {
   const { session } = useOutletContext<OutletContextType>();
-  const { platformData, loading, hasConnectedPlatforms, connectedPlatforms } = useDashboardData(session);
+  const { data: rawPlatformData, loading, dataSource } = useDashboardData();
   const { 
     currentView, 
     dateRangeString, 
@@ -58,10 +64,41 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   const [showKPIModal, setShowKPIModal] = useState(false);
 
+  // Nếu dùng mockData, chuyển đổi mảng channels thành object platformData
+  const platformData = React.useMemo(() => {
+    if (!rawPlatformData) return {};
+    // Nếu là mảng channels (mock), convert sang object
+    if (Array.isArray(rawPlatformData.channels)) {
+      return channelsArrayToPlatformData(rawPlatformData.channels);
+    }
+    // Nếu đã là object đúng dạng, trả về luôn
+    return rawPlatformData;
+  }, [rawPlatformData]);
+
   // Build data từ platformData - memoize expensive calculations
   const compareChannels = useMemo(() => buildCompareChannels(platformData), [platformData]);
   const overviewKPIData = useMemo(() => buildOverviewKPIData(platformData), [platformData]);
   const executiveData = useMemo(() => buildExecutiveData(platformData), [platformData]);
+
+  // Dữ liệu funnel chuyển đổi tổng quan
+  const funnelData = useMemo(() => {
+    // Tính tổng từ các kênh đã kết nối
+    const totalTraffic = Object.values(platformData).reduce((sum: number, channel: any) => 
+      sum + (channel.traffic || channel.impressions || 0), 0);
+    const totalLeads = Object.values(platformData).reduce((sum: number, channel: any) => 
+      sum + (channel.leads || channel.conversions || 0), 0);
+    const totalOrders = Object.values(platformData).reduce((sum: number, channel: any) => 
+      sum + (channel.orders || 0), 0);
+    const totalRevenue = Object.values(platformData).reduce((sum: number, channel: any) => 
+      sum + (channel.revenue || 0), 0);
+    
+    return [
+      { name: 'Traffic', value: totalTraffic },
+      { name: 'Lead', value: totalLeads },
+      { name: 'Order', value: totalOrders },
+      { name: 'Revenue', value: totalRevenue },
+    ];
+  }, [platformData]);
 
   // Thêm icons cho overview KPIs - memoize để tránh re-render
   const overviewKPIs = useMemo(() => overviewKPIData.map(kpi => ({
@@ -71,6 +108,51 @@ const Dashboard: React.FC = () => {
           kpi.iconType === 'percent' ? <Percent className="w-5 h-5" /> :
           <TrendingUp className="w-5 h-5" />
   })), [overviewKPIData]);
+
+  // KPI bổ sung (CPC, CPM, Engagement Rate, CTR, Drop-off rate)
+  const additionalKPIs = useMemo(() => buildAdditionalKPIs(platformData), [platformData]);
+
+  // KPI nâng cao (CLV, Churn Rate, New Customer Rate, Average Time to Convert)
+  const advancedKPIs = useMemo(() => {
+    const kpis = [];
+    // CLV
+    if (platformData.totalRevenue && platformData.totalCustomers) {
+      kpis.push({
+        title: 'CLV',
+        value: platformData.totalCustomers > 0 ? platformData.totalRevenue / platformData.totalCustomers : 0,
+        unit: '₫',
+        iconType: 'dollar',
+      });
+    }
+    // Churn Rate
+    if (platformData.churnedCustomers && platformData.startCustomers) {
+      kpis.push({
+        title: 'Churn Rate',
+        value: platformData.startCustomers > 0 ? (platformData.churnedCustomers / platformData.startCustomers) * 100 : 0,
+        unit: '%',
+        iconType: 'percent',
+      });
+    }
+    // New Customer Rate
+    if (platformData.newCustomers && platformData.totalCustomers) {
+      kpis.push({
+        title: 'New Customer Rate',
+        value: platformData.totalCustomers > 0 ? (platformData.newCustomers / platformData.totalCustomers) * 100 : 0,
+        unit: '%',
+        iconType: 'percent',
+      });
+    }
+    // Average Time to Convert
+    if (platformData.totalConversionTime && platformData.totalConversions) {
+      kpis.push({
+        title: 'Avg. Time to Convert',
+        value: platformData.totalConversions > 0 ? platformData.totalConversionTime / platformData.totalConversions : 0,
+        unit: 'ngày',
+        iconType: 'chart',
+      });
+    }
+    return kpis;
+  }, [platformData]);
 
   // Tạo KPI data từ dữ liệu thực và goals
   const kpiData = useMemo(() => {
@@ -111,8 +193,125 @@ const Dashboard: React.FC = () => {
       });
     });
 
+    // Thêm KPI bổ sung
+    additionalKPIs.forEach(kpi => {
+      kpis.push({
+        title: kpi.title,
+        value: kpi.unit === '%' ? `${kpi.value.toFixed(2)}%` : `₫${Math.round(kpi.value).toLocaleString('vi-VN')}`,
+        change: undefined,
+        status: 'normal',
+        icon: kpi.iconType === 'dollar' ? <DollarSign className="w-5 h-5" /> : <Percent className="w-5 h-5" />
+      });
+    });
+
+    // Thêm KPI nâng cao
+    advancedKPIs.forEach(kpi => {
+      kpis.push({
+        title: kpi.title,
+        value: kpi.unit === '%' ? `${kpi.value.toFixed(2)}%` : kpi.unit === '₫' ? `₫${Math.round(kpi.value).toLocaleString('vi-VN')}` : `${kpi.value.toFixed(1)} ${kpi.unit}`,
+        change: undefined,
+        status: 'normal',
+        icon: kpi.iconType === 'dollar' ? <DollarSign className="w-5 h-5" /> : kpi.iconType === 'percent' ? <Percent className="w-5 h-5" /> : <BarChart2 className="w-5 h-5" />
+      });
+    });
+
     return kpis;
-  }, [overviewKPIData, goals]);
+  }, [overviewKPIData, goals, additionalKPIs, advancedKPIs]);
+
+  // Dữ liệu pie chart phân bổ nguồn
+  const pieTrafficData = useMemo(() => {
+    // Tạo data từ các kênh đã kết nối
+    const data = [];
+    if (platformData.meta) {
+      data.push({ name: 'Meta Ads', value: platformData.meta.impressions || 0 });
+    }
+    if (platformData.google) {
+      data.push({ name: 'Google Ads', value: platformData.google.impressions || 0 });
+    }
+    if (platformData.tiktok) {
+      data.push({ name: 'TikTok Ads', value: platformData.tiktok.impressions || 0 });
+    }
+    return data;
+  }, [platformData]);
+  
+  const pieLeadData = useMemo(() => {
+    const data = [];
+    if (platformData.meta) {
+      data.push({ name: 'Meta Ads', value: platformData.meta.conversions || 0 });
+    }
+    if (platformData.google) {
+      data.push({ name: 'Google Ads', value: platformData.google.conversions || 0 });
+    }
+    if (platformData.tiktok) {
+      data.push({ name: 'TikTok Ads', value: platformData.tiktok.conversions || 0 });
+    }
+    return data;
+  }, [platformData]);
+  
+  const pieRevenueData = useMemo(() => {
+    const data = [];
+    if (platformData.meta) {
+      data.push({ name: 'Meta Ads', value: platformData.meta.revenue || 0 });
+    }
+    if (platformData.google) {
+      data.push({ name: 'Google Ads', value: platformData.google.revenue || 0 });
+    }
+    if (platformData.tiktok) {
+      data.push({ name: 'TikTok Ads', value: platformData.tiktok.revenue || 0 });
+    }
+    return data;
+  }, [platformData]);
+  const [pieType, setPieType] = useState<'traffic' | 'lead' | 'revenue'>('traffic');
+
+  // Dữ liệu cho EngagementChart
+  const engagementChartData = useMemo(() => {
+    // Tạo mock data cho engagement timeline
+    return [
+      { date: '2024-01-01', like: 120, share: 45, comment: 23, ctr: 4.2, engagementRate: 2.5 },
+      { date: '2024-01-02', like: 135, share: 52, comment: 28, ctr: 4.5, engagementRate: 2.8 },
+      { date: '2024-01-03', like: 148, share: 58, comment: 31, ctr: 4.8, engagementRate: 3.1 },
+      { date: '2024-01-04', like: 142, share: 55, comment: 29, ctr: 4.3, engagementRate: 2.9 },
+      { date: '2024-01-05', like: 155, share: 62, comment: 34, ctr: 4.7, engagementRate: 3.2 },
+    ];
+  }, []);
+  
+  // Dữ liệu cho CPCChart
+  const cpcChartData = useMemo(() => {
+    // Tạo data từ các kênh
+    const data = [];
+    if (platformData.meta) {
+      data.push({ label: 'Meta Ads', cpc: platformData.meta.cpa || 0 });
+    }
+    if (platformData.google) {
+      data.push({ label: 'Google Ads', cpc: platformData.google.cpa || 0 });
+    }
+    if (platformData.tiktok) {
+      data.push({ label: 'TikTok Ads', cpc: platformData.tiktok.cpa || 0 });
+    }
+    return data;
+  }, [platformData]);
+  
+  // Dữ liệu cho CPMChart
+  const cpmChartData = useMemo(() => {
+    // Tính CPM từ spend và impressions
+    const data = [];
+    if (platformData.meta && platformData.meta.impressions) {
+      const cpm = platformData.meta.impressions > 0 ? 
+        (platformData.meta.spend / platformData.meta.impressions) * 1000 : 0;
+      data.push({ label: 'Meta Ads', cpm });
+    }
+    if (platformData.google && platformData.google.impressions) {
+      const cpm = platformData.google.impressions > 0 ? 
+        (platformData.google.spend / platformData.google.impressions) * 1000 : 0;
+      data.push({ label: 'Google Ads', cpm });
+    }
+    if (platformData.tiktok && platformData.tiktok.impressions) {
+      const cpm = platformData.tiktok.impressions > 0 ? 
+        (platformData.tiktok.spend / platformData.tiktok.impressions) * 1000 : 0;
+      data.push({ label: 'TikTok Ads', cpm });
+    }
+    return data;
+  }, [platformData]);
 
   // Xử lý import KPI từ Excel
   const handleImportKPI = async (importedKPIs: any[]) => {
@@ -142,6 +341,30 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Xác định trạng thái kết nối platform
+  const hasConnectedPlatforms = platformData && Object.keys(platformData).length > 0;
+  const connectedPlatforms = useMemo(() => {
+    return hasConnectedPlatforms ? Object.keys(platformData).map(p => ({ platform: p, status: 'connected', lastSync: new Date() })) : zeroConnectedPlatforms;
+  }, [hasConnectedPlatforms, platformData]);
+
+  // Memo hóa các callback để tránh re-render
+  const handleAccountSelectionChange = useCallback(() => {}, []);
+  const handleCloseKPIModal = useCallback(() => setShowKPIModal(false), []);
+  const handleCloseGoalModal = useCallback(() => closeGoalModal(), [closeGoalModal]);
+
+  // Memo hóa dateRange object
+  const dateRangeObject = useMemo(() => {
+    if (!dateRangeString) return undefined;
+    const [start, end] = dateRangeString.split(' - ');
+    return {
+      from: new Date(start),
+      to: new Date(end)
+    };
+  }, [dateRangeString]);
+
+  // Memo hóa empty object để tránh tạo mới mỗi lần render
+  const emptyChannelDetailData = useMemo(() => ({}), []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -150,26 +373,26 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  if (!hasConnectedPlatforms) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-600 mb-4">{t('dashboard.no_platform', 'Chưa có kết nối nền tảng')}</h2>
-          <p className="text-gray-500 mb-6">{t('dashboard.please_connect', 'Vui lòng kết nối các nền tảng marketing trong phần Cài đặt')}</p>
-          <div className="space-y-4">
-            <button 
-              onClick={() => setShowKPIModal(true)}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-4 h-4 inline mr-2" />
-              Nhập KPI thủ công
-            </button>
-            <p className="text-sm text-gray-400">Hoặc kết nối nền tảng để lấy dữ liệu tự động</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+//  if (!hasConnectedPlatforms) {
+//    return (
+//      <div className="flex items-center justify-center min-h-screen">
+//        <div className="text-center">
+//          <h2 className="text-2xl font-bold text-gray-600 mb-4">{t('dashboard.no_platform', 'Chưa có kết nối nền tảng')}</h2>
+//          <p className="text-gray-500 mb-6">{t('dashboard.please_connect', 'Vui lòng kết nối các nền tảng marketing trong phần Cài đặt')}</p>
+//          <div className="space-y-4">
+//            <button 
+//              onClick={() => setShowKPIModal(true)}
+//             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+//            >
+//              <Plus className="w-4 h-4 inline mr-2" />
+//              Nhập KPI thủ công
+//            </button>
+//            <p className="text-sm text-gray-400">Hoặc kết nối nền tảng để lấy dữ liệu tự động</p>
+//          </div>
+//        </div>
+//      </div>
+//    );
+//  }
 
   // Render nội dung theo tab đang chọn
   const renderContent = () => {
@@ -183,6 +406,26 @@ const Dashboard: React.FC = () => {
               onImportExcel={() => setShowKPIModal(true)}
             />
 
+            {/* Funnel Chart tổng quan */}
+            <FunnelChart data={funnelData} />
+
+            {/* Pie Chart phân bổ nguồn */}
+            <div className="mb-4">
+              <div className="flex gap-2 mb-2">
+                <button className={`px-3 py-1 rounded ${pieType === 'traffic' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`} onClick={() => setPieType('traffic')}>Traffic</button>
+                <button className={`px-3 py-1 rounded ${pieType === 'lead' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`} onClick={() => setPieType('lead')}>Lead</button>
+                <button className={`px-3 py-1 rounded ${pieType === 'revenue' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200'}`} onClick={() => setPieType('revenue')}>Doanh thu</button>
+              </div>
+              {pieType === 'traffic' && <PieChart data={pieTrafficData} title="Phân bổ nguồn traffic" />}
+              {pieType === 'lead' && <PieChart data={pieLeadData} title="Phân bổ nguồn lead" />}
+              {pieType === 'revenue' && <PieChart data={pieRevenueData} title="Phân bổ nguồn doanh thu" />}
+            </div>
+
+            {/* Engagement, CPC, CPM Charts */}
+            <EngagementChart data={engagementChartData} />
+            <CPCChart data={cpcChartData} />
+            <CPMChart data={cpmChartData} />
+
             <InsightsSection 
               platformData={platformData}
               selectedChannel={'all'}
@@ -195,7 +438,7 @@ const Dashboard: React.FC = () => {
               hasConnectedPlatforms={hasConnectedPlatforms}
               selectedAccounts={selectedAccounts}
               executiveData={executiveData}
-              channelDetailData={{}}
+              channelDetailData={emptyChannelDetailData}
               dateRangeString={dateRangeString}
               kpiData={kpiData}
               compareChannels={compareChannels}
@@ -216,7 +459,22 @@ const Dashboard: React.FC = () => {
         );
 
       case 'executive':
-      case 'platforms':
+        return (
+          <div className="w-full">
+            <DashboardContent 
+              platformData={platformData}
+              currentView={currentView}
+              connectedPlatforms={connectedPlatforms}
+              hasConnectedPlatforms={hasConnectedPlatforms}
+              selectedAccounts={selectedAccounts}
+              onAccountSelectionChange={handleAccountSelectionChange}
+              executiveData={executiveData}
+              channelDetailData={emptyChannelDetailData}
+              dateRangeString={dateRangeString}
+            />
+          </div>
+        );
+
       case 'channels':
         return (
           <div className="w-full">
@@ -226,9 +484,9 @@ const Dashboard: React.FC = () => {
               connectedPlatforms={connectedPlatforms}
               hasConnectedPlatforms={hasConnectedPlatforms}
               selectedAccounts={selectedAccounts}
-              onAccountSelectionChange={() => {}}
+              onAccountSelectionChange={handleAccountSelectionChange}
               executiveData={executiveData}
-              channelDetailData={{}}
+              channelDetailData={emptyChannelDetailData}
               dateRangeString={dateRangeString}
             />
           </div>
@@ -255,14 +513,14 @@ const Dashboard: React.FC = () => {
 
       <GoalModal
         isOpen={showGoalModal}
-        onClose={closeGoalModal}
+        onClose={handleCloseGoalModal}
         goal={editingGoal}
         onSave={handleSaveGoal}
       />
 
       <KPIImportModal
         isOpen={showKPIModal}
-        onClose={() => setShowKPIModal(false)}
+        onClose={handleCloseKPIModal}
         onImport={handleImportKPI}
       />
     </div>

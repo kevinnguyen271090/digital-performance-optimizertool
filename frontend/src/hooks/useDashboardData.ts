@@ -1,83 +1,93 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "../utils/supabaseClient";
-import { fetchAllPlatformData, DashboardMetrics } from "../utils/platformDataService";
-import { PlatformConnection } from "../types/dashboard";
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useDataService } from '@/services/dataService';
+import { dataSourceConfig } from '@/config/dataSource';
 
-export const useDashboardData = (session: Session | null) => {
-  const [realData, setRealData] = useState<DashboardMetrics>({});
+interface DashboardData {
+  overview: any;
+  channels: any[];
+  trends: any[];
+}
+
+interface UseDashboardDataProps {
+  dateRange?: { from: Date; to: Date };
+  selectedChannels?: string[];
+}
+
+export const useDashboardData = ({ dateRange, selectedChannels }: UseDashboardDataProps = {}) => {
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [hasConnectedPlatforms, setHasConnectedPlatforms] = useState(false);
-  const [connectedPlatforms, setConnectedPlatforms] = useState<PlatformConnection[]>([]);
-  const [platformData, setPlatformData] = useState<{[key: string]: any}>({});
+  const [error, setError] = useState<string | null>(null);
+  const [dataSource, setDataSource] = useState<'mock' | 'api' | 'hybrid'>('mock');
+  
+  // Cache để tránh fetch lặp lại
+  const cacheKey = useRef<string>('');
+  const isInitialized = useRef(false);
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchConnectionData = useCallback(async () => {
-    if (!session?.user) {
-      setHasConnectedPlatforms(false);
-      setConnectedPlatforms([]);
-      setLoading(false);
-      return;
-    }
+  const { getDashboardData } = useDataService();
 
-    setLoading(true);
+  const fetchData = useCallback(async () => {
     try {
-      // Fetch connections from Supabase, mirroring the query from Settings.tsx
-      // We remove the status filter to debug a potential RLS issue.
-      const { data: connections, error } = await supabase
-        .from('connections')
-        .select('platform, status, updated_at, metadata, account_details, last_connected, last_sync')
-        .eq('user_id', session.user.id);
-        // .eq('status', 'connected'); // Temporarily removed for debugging
-
-      if (error) {
-        console.error('Error fetching connections:', error);
-        throw error;
+      // Tạo cache key từ dependency
+      const newCacheKey = JSON.stringify({ dateRange, selectedChannels });
+      
+      // Nếu cache key giống nhau và đã có data, không fetch lại
+      if (cacheKey.current === newCacheKey && data && isInitialized.current) {
+        return;
       }
       
-      // Filter for connected platforms on the client-side
-      const connected = connections?.filter(c => c.status === 'connected') || [];
-
-      if (connected && connected.length > 0) {
-        setHasConnectedPlatforms(true);
-        const platformConnections: PlatformConnection[] = connected.map(c => ({
-          platform: c.platform,
-          status: c.status as 'connected' | 'available' | 'error',
-          lastSync: new Date(c.updated_at),
-        }));
-        setConnectedPlatforms(platformConnections);
-
-        // Fetch detailed data for connected platforms
-        const data = await fetchAllPlatformData(session.user.id);
-        setRealData(data);
-        setPlatformData(data); // Assuming fetchAllPlatformData returns the structure needed
-      } else {
-        setHasConnectedPlatforms(false);
-        setConnectedPlatforms([]);
-        setRealData({});
-        setPlatformData({});
+      // Clear timeout cũ nếu có
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
       }
-    } catch (error) {
-      console.error('Error in fetchConnectionData:', error);
-      setHasConnectedPlatforms(false);
-      setConnectedPlatforms([]);
+      
+      setLoading(true);
+      setError(null);
+      cacheKey.current = newCacheKey;
+
+      const params = {
+        dateRange,
+        selectedChannels,
+        ...dataSourceConfig
+      };
+
+      const result = await getDashboardData(params);
+      setData(result as DashboardData);
+      setDataSource(dataSourceConfig.mode);
+      isInitialized.current = true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      console.error('Dashboard data fetch error:', err);
     } finally {
       setLoading(false);
     }
-  }, [session]);
-
-  // Memoize expensive calculations
-  const memoizedPlatformData = useMemo(() => platformData, [platformData]);
-  const memoizedConnectedPlatforms = useMemo(() => connectedPlatforms, [connectedPlatforms]);
+  }, [getDashboardData, dateRange, selectedChannels]);
 
   useEffect(() => {
-    fetchConnectionData();
-  }, [fetchConnectionData]);
+    // Debounce fetch để tránh gọi quá nhiều
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetchData();
+    }, 100);
+
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, [fetchData]);
+
+  const refetch = useCallback(() => {
+    cacheKey.current = ''; // Reset cache để force fetch
+    isInitialized.current = false;
+    fetchData();
+  }, [fetchData]);
 
   return {
-    realData,
+    data,
     loading,
-    hasConnectedPlatforms,
-    connectedPlatforms: memoizedConnectedPlatforms,
-    platformData: memoizedPlatformData
+    error,
+    dataSource,
+    refetch,
+    config: dataSourceConfig
   };
 }; 

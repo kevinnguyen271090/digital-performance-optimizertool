@@ -36,10 +36,12 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 
 ### 4. Khởi động Development Server
 ```bash
-npm run dev
+npm run setup
 ```
 
-Truy cập: http://localhost:5173
+Truy cập: **https://localhost:3000**
+
+> ⚠️ **Lưu ý quan trọng**: Link test luôn phải là HTTPS vì đã khai báo với bên thứ 3 để accept API. Không thay đổi trong giai đoạn build dự án.
 
 ## ✅ Kiểm tra Setup
 

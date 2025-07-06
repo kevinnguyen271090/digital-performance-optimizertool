@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, Target, TrendingUp, ShoppingCart } from 'lucide-react';
+import { BarChart2, Users, Target, TrendingUp, ShoppingCart, Activity, PieChart } from 'lucide-react';
 
 interface ChannelDetailHeaderProps {
   channel: string;
@@ -44,6 +44,8 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
 
   const tabs = [
     { key: 'overview', label: 'Tổng quan', icon: <BarChart2 className="w-4 h-4" /> },
+    { key: 'metrics', label: 'Chỉ số', icon: <Activity className="w-4 h-4" /> },
+    { key: 'charts', label: 'Biểu đồ', icon: <PieChart className="w-4 h-4" /> },
     { key: 'accounts', label: 'Tài khoản', icon: <Users className="w-4 h-4" /> },
     { key: 'campaigns', label: 'Chiến dịch', icon: <Target className="w-4 h-4" /> },
     { key: 'trends', label: 'Xu hướng', icon: <TrendingUp className="w-4 h-4" /> },
@@ -70,15 +72,15 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
 
       {/* Tabs */}
       <div className="mt-6">
-        <nav className="flex space-x-1">
+        <nav className="flex space-x-1 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => onTabChange(tab.key)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.key
-                  ? 'bg-accent text-white'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'bg-accent text-white shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
               {tab.icon}
@@ -87,6 +89,12 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
           ))}
         </nav>
       </div>
+      
+      {/* Responsive scrollbar hide */}
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };

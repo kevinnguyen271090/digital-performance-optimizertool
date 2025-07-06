@@ -20,7 +20,7 @@ export interface PlatformAccounts {
   accounts: Account[];
 }
 
-export type DashboardView = 'overview' | 'platforms' | 'channels' | 'executive';
+export type DashboardView = 'overview' | 'platforms' | 'channels' | 'executive' | 'executive-detail';
 
 export interface DashboardState {
   goals: any[];
