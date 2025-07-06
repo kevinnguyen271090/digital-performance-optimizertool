@@ -106,8 +106,11 @@ async def api_root():
 
 
 # Import and include routers
-# from app.api.v1 import analytics, goals, organizations, auth
-# app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
+from app.api.v1 import analytics
+app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["analytics"])
+
+# Uncomment when other routers are ready
+# from app.api.v1 import goals, organizations, auth
 # app.include_router(goals.router, prefix="/api/v1/goals", tags=["goals"])
 # app.include_router(organizations.router, prefix="/api/v1/organizations", tags=["organizations"])
 # app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
