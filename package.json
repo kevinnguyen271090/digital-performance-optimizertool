@@ -37,7 +37,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/digital-performance-optimizer.git"
+    "url": "https://github.com/kevinnguyen271090/digital-performance-optimizer.git"
   },
   "engines": {
     "node": ">=18.0.0",
