@@ -1,84 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Users, Info } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid } from 'recharts';
-import { mockAttributionJourneys, AttributionJourney } from '@/utils/mockAttributionJourneys';
 import Modal from '../../ui/modal';
+import { useCohortAnalysisData } from '@/hooks/useCohortAnalysisData';
+import CohortRetentionChart from './CohortRetentionChart';
+import CohortRevenueAnalysis from './CohortRevenueAnalysis';
+import CohortBehaviorPatterns from './CohortBehaviorPatterns';
+import CohortComparisonTool from './CohortComparisonTool';
 
-// Sinh cohortWeek cho mỗi journey (giả lập)
-function assignCohortWeeks(journeys: AttributionJourney[], numWeeks = 8): (AttributionJourney & { cohortWeek: number })[] {
-  return journeys.map(j => ({ ...j, cohortWeek: Math.floor(Math.random() * numWeeks) + 1 }));
-}
-
-// Sinh dữ liệu retention: mỗi cohort, mỗi tuần còn lại bao nhiêu journey
-function buildCohortRetention(journeys: (AttributionJourney & { cohortWeek: number })[], numWeeks = 8): Record<string, any>[] {
-  const cohorts: Record<string, number[]> = {};
-  journeys.forEach(j => {
-    const cohort = `Week ${j.cohortWeek}`;
-    if (!cohorts[cohort]) cohorts[cohort] = Array(numWeeks).fill(0);
-    for (let w = j.cohortWeek - 1; w < numWeeks; w++) {
-      cohorts[cohort][w] += 1;
-    }
-  });
-  // Chuyển thành mảng cho chart
-  const chart: Record<string, any>[] = [];
-  for (let w = 0; w < numWeeks; w++) {
-    const row: Record<string, any> = { week: `Week ${w + 1}` };
-    Object.keys(cohorts).forEach(cohort => {
-      row[cohort] = cohorts[cohort][w];
-    });
-    chart.push(row);
-  }
-  return chart;
-}
-
-// Sinh dữ liệu revenue: mỗi cohort, mỗi tuần tổng revenue (giả sử mỗi journey revenue=1)
-function buildCohortRevenue(journeys: (AttributionJourney & { cohortWeek: number })[], numWeeks = 8): Record<string, any>[] {
-  const cohorts: Record<string, number[]> = {};
-  journeys.forEach(j => {
-    const cohort = `Week ${j.cohortWeek}`;
-    if (!cohorts[cohort]) cohorts[cohort] = Array(numWeeks).fill(0);
-    for (let w = j.cohortWeek - 1; w < numWeeks; w++) {
-      cohorts[cohort][w] += 1; // có thể thay bằng j.revenue nếu có
-    }
-  });
-  // Chuyển thành mảng cho chart
-  const chart: Record<string, any>[] = [];
-  for (let w = 0; w < numWeeks; w++) {
-    const row: Record<string, any> = { week: `Week ${w + 1}` };
-    Object.keys(cohorts).forEach(cohort => {
-      row[cohort] = cohorts[cohort][w];
-    });
-    chart.push(row);
-  }
-  return chart;
-}
+const COHORT_TABS = [
+  { key: 'Retention', label: 'Retention' },
+  { key: 'Revenue', label: 'Revenue' },
+  { key: 'Behavior', label: 'Behavior Patterns' },
+  { key: 'Comparison', label: 'Comparison' },
+];
 
 const CohortAnalysisModalContent: React.FC = () => {
   const [cohortType, setCohortType] = useState('Retention');
   const [showInfo, setShowInfo] = useState(false);
-  const numWeeks = 8;
-
-  // Gán cohortWeek cho journey (giả lập)
-  const journeysWithCohort = useMemo(() => assignCohortWeeks(mockAttributionJourneys, numWeeks), []);
-
-  // Sinh dữ liệu chart
-  const chartData = useMemo(() => {
-    if (cohortType === 'Retention') return buildCohortRetention(journeysWithCohort, numWeeks);
-    return buildCohortRevenue(journeysWithCohort, numWeeks);
-  }, [cohortType, journeysWithCohort]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
-  // Lấy danh sách cohort để vẽ nhiều line
-  const cohortKeys = useMemo(() => {
-    const keys = new Set<string>();
-    chartData.forEach(row => {
-      Object.keys(row).forEach(k => { if (k !== 'week') keys.add(k); });
-    });
-    return Array.from(keys);
-  }, [chartData]);
+  const { retention, revenue, behavior, comparison } = useCohortAnalysisData();
 
   return (
     <div>
@@ -95,33 +34,25 @@ const CohortAnalysisModalContent: React.FC = () => {
           <Info className="w-5 h-5" />
         </button>
       </div>
-      {/* Biểu đồ Cohort */}
-      <div className="mb-4">
-        <div className="flex gap-2 mb-2">
-          <button className={`px-2 py-1 rounded ${cohortType === 'Retention' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`} onClick={() => setCohortType('Retention')}>Retention</button>
-          <button className={`px-2 py-1 rounded ${cohortType === 'Revenue' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`} onClick={() => setCohortType('Revenue')}>Revenue</button>
-        </div>
-        <ResponsiveContainer width="100%" height={260}>
-          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis allowDecimals={false} />
-            <Tooltip />
-            <Legend />
-            {cohortKeys.map((cohort, idx) => (
-              <Line key={cohort} type="monotone" dataKey={cohort} stroke={`hsl(${(idx * 60) % 360}, 70%, 50%)`} name={cohort} />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+      {/* Tabs chọn loại phân tích */}
+      <div className="flex gap-2 mb-4">
+        {COHORT_TABS.map(tab => (
+          <button
+            key={tab.key}
+            className={`px-2 py-1 rounded ${cohortType === tab.key ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}
+            onClick={() => setCohortType(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
-      <form onSubmit={handleSubmit}>
-        <label className="block mb-2 text-sm font-medium">Chọn loại Cohort:</label>
-        <select className="border rounded px-2 py-1 mb-4 w-full" value={cohortType} onChange={e => setCohortType(e.target.value)}>
-          <option value="Retention">Retention</option>
-          <option value="Revenue">Revenue</option>
-        </select>
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Phân tích</button>
-      </form>
+      {/* Chart hiển thị theo loại */}
+      <div className="mb-4">
+        {cohortType === 'Retention' && <CohortRetentionChart data={retention} />}
+        {cohortType === 'Revenue' && <CohortRevenueAnalysis data={revenue} />}
+        {cohortType === 'Behavior' && <CohortBehaviorPatterns data={behavior} />}
+        {cohortType === 'Comparison' && <CohortComparisonTool data={comparison} />}
+      </div>
       {/* Modal giải thích Cohort Analysis */}
       <Modal open={showInfo} onClose={() => setShowInfo(false)} title="Giải thích Cohort Analysis">
         <div className="text-sm text-gray-700 dark:text-gray-200 space-y-4 max-h-96 overflow-y-auto">
