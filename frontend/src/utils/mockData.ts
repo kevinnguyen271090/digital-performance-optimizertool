@@ -1,3 +1,325 @@
+// Mock data cho Dashboard - Tuân thủ Data Source Strategy
+// Environment-based configuration và API contract consistency
+
+// ✅ LOGIC CHÍNH: Chỉ hiển thị số liệu các kênh đã kết nối, kênh chưa kết nối giá trị mặc định là 0
+// Danh sách kênh đã kết nối (connectedChannels)
+export const CONNECTED_CHANNELS = ['facebook', 'google'];
+export const DISCONNECTED_CHANNELS = ['tiktok', 'email'];
+
+// Helper function để filter data theo connectedChannels
+export const filterDataByConnectedChannels = <T extends { id: string }>(
+  data: T[],
+  connectedChannels: string[] = CONNECTED_CHANNELS
+): T[] => {
+  return data.map(item =>
+    connectedChannels.includes(item.id)
+      ? item
+      : { ...item, ...Object.keys(item).reduce((acc, key) => {
+          if (key !== 'id' && key !== 'name' && typeof item[key as keyof T] === 'number') {
+            acc[key as keyof T] = 0 as any;
+          }
+          return acc;
+        }, {} as Partial<T>)
+      }
+  );
+};
+
+// Helper function để kiểm tra có dữ liệu thật không
+export const hasRealData = <T extends { id: string }>(
+  data: T[],
+  connectedChannels: string[] = CONNECTED_CHANNELS,
+  numericFields: string[] = ['revenue', 'cost', 'roas', 'cpa', 'ctr', 'conversion_rate', 'leads', 'orders']
+): boolean => {
+  return data.some(item => 
+    connectedChannels.includes(item.id) && 
+    numericFields.some(field => {
+      const value = item[field as keyof T];
+      return typeof value === 'number' && value > 0;
+    })
+  );
+};
+
+// Helper function để tạo zero data cho kênh chưa kết nối
+export const createZeroData = <T extends { id: string }>(
+  template: T,
+  connectedChannels: string[] = CONNECTED_CHANNELS
+): T => {
+  return {
+    ...template,
+    ...Object.keys(template).reduce((acc, key) => {
+      if (key !== 'id' && key !== 'name' && typeof template[key as keyof T] === 'number') {
+        acc[key as keyof T] = 0 as any;
+      }
+      return acc;
+    }, {} as Partial<T>)
+  };
+};
+
+// Generate 7-day trend data
+const generateTrendData = (baseValue: number, variance: number = 0.2) => {
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    const randomFactor = 1 + (Math.random() - 0.5) * variance;
+    return {
+      date: date.toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
+      value: Math.round(baseValue * randomFactor),
+    };
+  });
+};
+
+// ✅ THÊM MỚI: Function để tạo data format cho ChannelDetailView
+export function createChannelDetailData(channelName: string, channelData: any): any {
+  // Tạo overview data
+  const overview = {
+    impressions: channelData.impressions || channelData.traffic || 0,
+    impressionsChange: 12,
+    clicks: channelData.clicks || 0,
+    clicksChange: 8,
+    ctr: channelData.ctr || 2.5,
+    ctrChange: 5,
+    spend: channelData.cost || 0,
+    spendChange: -3,
+    conversions: channelData.conversions || channelData.leads || 0,
+    conversionsChange: 15,
+    cpa: channelData.cpa || 40000,
+    cpaChange: -5,
+    revenue: channelData.revenue || 0,
+    revenueChange: 20,
+    roas: channelData.roas || 2.5,
+    roasChange: 10,
+    // Global KPIs
+    customerLifetimeValue: 1500000,
+    customerLifetimeValueChange: 8,
+    churnRate: 2.5,
+    churnRateChange: -1,
+    newCustomerRate: 15.2,
+    newCustomerRateChange: 5,
+    avgTimeToConvert: 7.5,
+    avgTimeToConvertChange: -2,
+    // Channel-specific metrics
+    cpc: channelData.cpc || 3500,
+    cpcChange: -3,
+    cpm: channelData.cpm || 120000,
+    cpmChange: -5,
+    engagementRate: channelData.engagementRate || 3.2,
+    engagementRateChange: 8,
+    avgSessionDuration: channelData.avgSessionDuration || 2.5,
+    avgSessionDurationChange: 5,
+    bounceRate: channelData.bounceRate || 45.2,
+    bounceRateChange: -3,
+    pageViews: channelData.pageViews || 15000,
+    pageViewsChange: 12,
+    uniqueVisitors: channelData.uniqueVisitors || 8000,
+    uniqueVisitorsChange: 15,
+    returnVisitors: channelData.returnVisitors || 2000,
+    returnVisitorsChange: 8,
+    avgOrderValue: channelData.avgOrderValue || 250000,
+    avgOrderValueChange: 10,
+    cartAbandonmentRate: channelData.cartAbandonmentRate || 65.5,
+    cartAbandonmentRateChange: -2
+  };
+
+  // Tạo accounts data
+  const accounts = [
+    {
+      id: `${channelName}_account_1`,
+      name: `${channelName} Account 1`,
+      type: 'primary',
+      metrics: {
+        impressions: overview.impressions * 0.6,
+        clicks: overview.clicks * 0.6,
+        ctr: overview.ctr,
+        spend: overview.spend * 0.6,
+        conversions: overview.conversions * 0.6,
+        cpa: overview.cpa,
+        revenue: overview.revenue * 0.6,
+        roas: overview.roas
+      },
+      change: 8
+    },
+    {
+      id: `${channelName}_account_2`,
+      name: `${channelName} Account 2`,
+      type: 'secondary',
+      metrics: {
+        impressions: overview.impressions * 0.4,
+        clicks: overview.clicks * 0.4,
+        ctr: overview.ctr,
+        spend: overview.spend * 0.4,
+        conversions: overview.conversions * 0.4,
+        cpa: overview.cpa,
+        revenue: overview.revenue * 0.4,
+        roas: overview.roas
+      },
+      change: 12
+    }
+  ];
+
+  // Tạo campaigns data
+  const campaigns = [
+    {
+      id: `${channelName}_campaign_1`,
+      name: `${channelName} Campaign 1`,
+      status: 'active',
+      metrics: {
+        impressions: overview.impressions * 0.5,
+        clicks: overview.clicks * 0.5,
+        ctr: overview.ctr,
+        spend: overview.spend * 0.5,
+        conversions: overview.conversions * 0.5,
+        cpa: overview.cpa,
+        revenue: overview.revenue * 0.5,
+        roas: overview.roas
+      },
+      change: 10
+    },
+    {
+      id: `${channelName}_campaign_2`,
+      name: `${channelName} Campaign 2`,
+      status: 'active',
+      metrics: {
+        impressions: overview.impressions * 0.5,
+        clicks: overview.clicks * 0.5,
+        ctr: overview.ctr,
+        spend: overview.spend * 0.5,
+        conversions: overview.conversions * 0.5,
+        cpa: overview.cpa,
+        revenue: overview.revenue * 0.5,
+        roas: overview.roas
+      },
+      change: 15
+    }
+  ];
+
+  // Tạo trends data với các chỉ số mới
+  const trends = {
+    impressions: generateTrendData(overview.impressions / 7, 0.3),
+    clicks: generateTrendData(overview.clicks / 7, 0.3),
+    ctr: generateTrendData(overview.ctr, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    spend: generateTrendData(overview.spend / 7, 0.3),
+    conversions: generateTrendData(overview.conversions / 7, 0.3),
+    revenue: generateTrendData(overview.revenue / 7, 0.3),
+    cpc: generateTrendData(overview.cpc / 7, 0.2),
+    cpm: generateTrendData(overview.cpm / 7, 0.2),
+    engagementRate: generateTrendData(overview.engagementRate, 0.3).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    avgSessionDuration: generateTrendData(overview.avgSessionDuration, 0.3).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    bounceRate: generateTrendData(overview.bounceRate, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    pageViews: generateTrendData(overview.pageViews / 7, 0.3),
+    uniqueVisitors: generateTrendData(overview.uniqueVisitors / 7, 0.3),
+    returnVisitors: generateTrendData(overview.returnVisitors / 7, 0.3),
+    avgOrderValue: generateTrendData(overview.avgOrderValue, 0.2),
+    cartAbandonmentRate: generateTrendData(overview.cartAbandonmentRate, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    // Global KPIs trends
+    customerLifetimeValue: generateTrendData(overview.customerLifetimeValue, 0.2),
+    churnRate: generateTrendData(overview.churnRate, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    newCustomerRate: generateTrendData(overview.newCustomerRate, 0.3).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
+    avgTimeToConvert: generateTrendData(overview.avgTimeToConvert, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) }))
+  };
+
+  // Tạo insights data
+  const insights = [
+    {
+      type: 'success' as const,
+      title: 'Performance tốt',
+      description: `${channelName} đang hoạt động tốt với ROAS ${overview.roas}x`,
+      impact: 'Tăng 20% so với tuần trước'
+    },
+    {
+      type: 'warning' as const,
+      title: 'CPA cao',
+      description: `CPA ${overview.cpa.toLocaleString()}đ cao hơn mục tiêu`,
+      impact: 'Cần tối ưu chi phí'
+    },
+    {
+      type: 'info' as const,
+      title: 'Cơ hội tăng trưởng',
+      description: 'Có thể tăng budget cho campaign hiệu quả',
+      impact: 'Dự kiến tăng 15% revenue'
+    }
+  ];
+
+  // Tạo demographics data
+  const demographics = {
+    ageGroups: [
+      { age: '18-24', percentage: 25 },
+      { age: '25-34', percentage: 35 },
+      { age: '35-44', percentage: 20 },
+      { age: '45-54', percentage: 15 },
+      { age: '55+', percentage: 5 }
+    ],
+    genders: [
+      { gender: 'Nam', percentage: 45 },
+      { gender: 'Nữ', percentage: 55 }
+    ],
+    locations: [
+      { location: 'TP.HCM', percentage: 40 },
+      { location: 'Hà Nội', percentage: 25 },
+      { location: 'Đà Nẵng', percentage: 15 },
+      { location: 'Khác', percentage: 20 }
+    ],
+    devices: [
+      { device: 'Mobile', percentage: 65 },
+      { device: 'Desktop', percentage: 30 },
+      { device: 'Tablet', percentage: 5 }
+    ]
+  };
+
+  // Tạo funnel data
+  const funnel = {
+    traffic: overview.impressions,
+    leads: overview.conversions * 2,
+    qualifiedLeads: overview.conversions * 1.5,
+    orders: overview.conversions,
+    revenue: overview.revenue
+  };
+
+  // Tạo engagement data
+  const engagement = {
+    likes: overview.clicks * 0.8,
+    shares: overview.clicks * 0.3,
+    comments: overview.clicks * 0.2,
+    saves: overview.clicks * 0.1,
+    clicks: overview.clicks
+  };
+
+  // Tạo performance data
+  const performance = {
+    topPerformingCampaigns: [
+      { name: 'Campaign A', metric: 'Revenue', value: overview.revenue * 0.6 },
+      { name: 'Campaign B', metric: 'Conversions', value: overview.conversions * 0.7 },
+      { name: 'Campaign C', metric: 'CTR', value: overview.ctr * 1.2 }
+    ],
+    topPerformingAds: [
+      { name: 'Ad 1', metric: 'Clicks', value: overview.clicks * 0.4 },
+      { name: 'Ad 2', metric: 'Conversions', value: overview.conversions * 0.5 },
+      { name: 'Ad 3', metric: 'CTR', value: overview.ctr * 1.1 }
+    ],
+    topPerformingAudiences: [
+      { name: 'Audience A', metric: 'Engagement', value: overview.engagementRate * 1.3 },
+      { name: 'Audience B', metric: 'Conversions', value: overview.conversions * 0.6 },
+      { name: 'Audience C', metric: 'CTR', value: overview.ctr * 1.4 }
+    ],
+    topPerformingCreatives: [
+      { name: 'Creative 1', metric: 'Clicks', value: overview.clicks * 0.3 },
+      { name: 'Creative 2', metric: 'Engagement', value: overview.engagementRate * 1.2 },
+      { name: 'Creative 3', metric: 'Conversions', value: overview.conversions * 0.4 }
+    ]
+  };
+
+  return {
+    overview,
+    accounts,
+    campaigns,
+    trends,
+    insights,
+    demographics,
+    funnel,
+    engagement,
+    performance
+  };
+}
+
 // Mock data cho Dashboard
 export const kpiData = {
   sessions: {
@@ -20,19 +342,6 @@ export const kpiData = {
     change: 12.3,
     status: "normal" as const,
   },
-};
-
-// Generate 7-day trend data
-const generateTrendData = (baseValue: number, variance: number = 0.2) => {
-  return Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const randomFactor = 1 + (Math.random() - 0.5) * variance;
-    return {
-      date: date.toLocaleDateString("vi-VN", { month: "short", day: "numeric" }),
-      value: Math.round(baseValue * randomFactor),
-    };
-  });
 };
 
 export const chartData = {
@@ -181,60 +490,6 @@ export const zeroConnectedPlatforms = [
   { platform: 'tiktok', status: 'connected', lastSync: new Date() },
   { platform: 'woocommerce', status: 'connected', lastSync: new Date() },
 ];
-
-// ✅ LOGIC CHÍNH: Chỉ hiển thị số liệu các kênh đã kết nối, kênh chưa kết nối giá trị mặc định là 0
-// Danh sách kênh đã kết nối (connectedChannels)
-export const CONNECTED_CHANNELS = ['facebook', 'google'];
-export const DISCONNECTED_CHANNELS = ['tiktok', 'email'];
-
-// Helper function để filter data theo connectedChannels
-export const filterDataByConnectedChannels = <T extends { id: string }>(
-  data: T[],
-  connectedChannels: string[] = CONNECTED_CHANNELS
-): T[] => {
-  return data.map(item =>
-    connectedChannels.includes(item.id)
-      ? item
-      : { ...item, ...Object.keys(item).reduce((acc, key) => {
-          if (key !== 'id' && key !== 'name' && typeof item[key as keyof T] === 'number') {
-            acc[key as keyof T] = 0 as any;
-          }
-          return acc;
-        }, {} as Partial<T>)
-      }
-  );
-};
-
-// Helper function để kiểm tra có dữ liệu thật không
-export const hasRealData = <T extends { id: string }>(
-  data: T[],
-  connectedChannels: string[] = CONNECTED_CHANNELS,
-  numericFields: string[] = ['revenue', 'cost', 'roas', 'cpa', 'ctr', 'conversion_rate', 'leads', 'orders']
-): boolean => {
-  return data.some(item => 
-    connectedChannels.includes(item.id) && 
-    numericFields.some(field => {
-      const value = item[field as keyof T];
-      return typeof value === 'number' && value > 0;
-    })
-  );
-};
-
-// Helper function để tạo zero data cho kênh chưa kết nối
-export const createZeroData = <T extends { id: string }>(
-  template: T,
-  connectedChannels: string[] = CONNECTED_CHANNELS
-): T => {
-  return {
-    ...template,
-    ...Object.keys(template).reduce((acc, key) => {
-      if (key !== 'id' && key !== 'name' && typeof template[key as keyof T] === 'number') {
-        acc[key as keyof T] = 0 as any;
-      }
-      return acc;
-    }, {} as Partial<T>)
-  };
-};
 
 // Mock data structure for development and testing
 export const mockData = {
@@ -449,141 +704,6 @@ export function channelsArrayToPlatformData(channels: any[]): any {
     else map[c.id] = c;
   });
   return map;
-}
-
-// ✅ THÊM MỚI: Function để tạo data format cho ChannelDetailView
-export function createChannelDetailData(channelName: string, channelData: any): any {
-  // Tạo overview data
-  const overview = {
-    impressions: channelData.impressions || channelData.traffic || 0,
-    impressionsChange: 12,
-    clicks: channelData.clicks || 0,
-    clicksChange: 8,
-    ctr: channelData.ctr || 2.5,
-    ctrChange: 5,
-    spend: channelData.cost || 0,
-    spendChange: -3,
-    conversions: channelData.conversions || channelData.leads || 0,
-    conversionsChange: 15,
-    cpa: channelData.cpa || 40000,
-    cpaChange: -5,
-    revenue: channelData.revenue || 0,
-    revenueChange: 20,
-    roas: channelData.roas || 2.5,
-    roasChange: 10
-  };
-
-  // Tạo accounts data
-  const accounts = [
-    {
-      id: `${channelName}_account_1`,
-      name: `${channelName} Account 1`,
-      type: 'primary',
-      metrics: {
-        impressions: overview.impressions * 0.6,
-        clicks: overview.clicks * 0.6,
-        ctr: overview.ctr,
-        spend: overview.spend * 0.6,
-        conversions: overview.conversions * 0.6,
-        cpa: overview.cpa,
-        revenue: overview.revenue * 0.6,
-        roas: overview.roas
-      },
-      change: 8
-    },
-    {
-      id: `${channelName}_account_2`,
-      name: `${channelName} Account 2`,
-      type: 'secondary',
-      metrics: {
-        impressions: overview.impressions * 0.4,
-        clicks: overview.clicks * 0.4,
-        ctr: overview.ctr,
-        spend: overview.spend * 0.4,
-        conversions: overview.conversions * 0.4,
-        cpa: overview.cpa,
-        revenue: overview.revenue * 0.4,
-        roas: overview.roas
-      },
-      change: 12
-    }
-  ];
-
-  // Tạo campaigns data
-  const campaigns = [
-    {
-      id: `${channelName}_campaign_1`,
-      name: `${channelName} Campaign 1`,
-      status: 'active',
-      metrics: {
-        impressions: overview.impressions * 0.5,
-        clicks: overview.clicks * 0.5,
-        ctr: overview.ctr,
-        spend: overview.spend * 0.5,
-        conversions: overview.conversions * 0.5,
-        cpa: overview.cpa,
-        revenue: overview.revenue * 0.5,
-        roas: overview.roas
-      },
-      change: 10
-    },
-    {
-      id: `${channelName}_campaign_2`,
-      name: `${channelName} Campaign 2`,
-      status: 'active',
-      metrics: {
-        impressions: overview.impressions * 0.5,
-        clicks: overview.clicks * 0.5,
-        ctr: overview.ctr,
-        spend: overview.spend * 0.5,
-        conversions: overview.conversions * 0.5,
-        cpa: overview.cpa,
-        revenue: overview.revenue * 0.5,
-        roas: overview.roas
-      },
-      change: 15
-    }
-  ];
-
-  // Tạo trends data
-  const trends = {
-    impressions: generateTrendData(overview.impressions / 7, 0.3),
-    clicks: generateTrendData(overview.clicks / 7, 0.3),
-    ctr: generateTrendData(overview.ctr, 0.2).map(item => ({ ...item, value: Number(item.value.toFixed(1)) })),
-    spend: generateTrendData(overview.spend / 7, 0.3),
-    conversions: generateTrendData(overview.conversions / 7, 0.3),
-    revenue: generateTrendData(overview.revenue / 7, 0.3)
-  };
-
-  // Tạo insights data
-  const insights = [
-    {
-      type: 'success' as const,
-      title: 'Performance tốt',
-      description: `${channelName} đang hoạt động tốt với ROAS ${overview.roas}x`,
-      impact: 'Tăng 20% so với tuần trước'
-    },
-    {
-      type: 'warning' as const,
-      title: 'CPA cao',
-      description: `CPA ${overview.cpa.toLocaleString()}đ cao hơn mục tiêu`,
-      impact: 'Cần tối ưu chi phí'
-    },
-    {
-      type: 'info' as const,
-      title: 'Cơ hội tăng trưởng',
-      description: 'Có thể tăng budget cho campaign hiệu quả',
-      impact: 'Dự kiến tăng 15% revenue'
-    }
-  ];
-
-  return {
-    overview,
-    accounts,
-    campaigns,
-    trends,
-    insights
-  };
 }
 
  

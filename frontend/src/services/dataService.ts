@@ -90,6 +90,7 @@ class DataService {
   private readonly MAX_LOG_COUNT = 1;
   private lastLogTime = 0;
   private readonly LOG_COOLDOWN = 15000; // 15 giây
+  private hasLoggedAPIUnavailable = false; // Thêm flag để tránh log spam
 
   async getData<T>(
     method: keyof APIService,
@@ -142,16 +143,10 @@ class DataService {
         }
         return await callService(this.apiService, method);
       } catch (error) {
-        const now = Date.now();
-        if (this.logCount < this.MAX_LOG_COUNT && (now - this.lastLogTime) > this.LOG_COOLDOWN) {
-          // Chỉ log khi không phải lỗi network bình thường
-          if (!(error instanceof TypeError && error.message.includes('Failed to fetch'))) {
-            console.warn('API failed, using mock data:', error);
-          } else {
-            console.log('API unavailable, using mock data');
-          }
-          this.logCount++;
-          this.lastLogTime = now;
+        // Chỉ log một lần khi API không khả dụng
+        if (!this.hasLoggedAPIUnavailable) {
+          console.log('API unavailable, using mock data');
+          this.hasLoggedAPIUnavailable = true;
         }
         return callService(this.mockService, fallbackMethod || method);
       }

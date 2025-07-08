@@ -258,3 +258,192 @@ MIT License - see [LICENSE](LICENSE) file
 **Digital Performance Optimizer** - Tối ưu hiệu suất marketing đa nền tảng 🚀
 
 > **Lưu ý**: Đây là dự án đang phát triển. Vui lòng xem [roadmap](./docs/PLANNING.md) để biết thêm chi tiết về các tính năng sắp tới. 
+
+## 🎯 **TỔNG QUAN**
+
+Digital Performance Optimizer là một nền tảng phân tích hiệu suất marketing kỹ thuật số toàn diện, được thiết kế để giúp các doanh nghiệp tối ưu hóa chiến dịch marketing và tăng ROI.
+
+## ✨ **TÍNH NĂNG CHÍNH**
+
+### 📊 **Dashboard Analytics**
+- **Overview**: KPIs tổng quan, trends, insights
+- **Executive**: Business metrics, funnel analysis
+- **Channel Detail**: Deep dive analytics cho từng kênh
+- **Real-time Monitoring**: Live performance tracking
+
+### 📋 **Reports System**
+- **Custom Reports**: Drag & drop builder
+- **Advanced Analytics**: Attribution, Cohort, Predictive
+- **Saved Reports**: Management và sharing
+- **Export Options**: PDF, Excel, CSV
+
+### ⚙️ **Settings & Management**
+- **Platform Connections**: Google, Meta, TikTok, WooCommerce
+- **User Management**: Profiles, permissions, organizations
+- **Security**: 2FA, OAuth, role-based access
+- **Data Export/Import**: Backup và restore
+
+## 🚀 **QUICK START**
+
+### **Prerequisites**
+- Node.js 18+ 
+- npm hoặc yarn
+- Git
+
+### **Installation**
+```bash
+# Clone repository
+git clone [repository-url]
+cd digital-performance-optimizer
+
+# Install dependencies
+cd frontend
+npm install
+
+# Start development server
+npm run dev
+```
+
+### **Access**
+- **Local:** https://localhost:3000
+- **HTTPS:** Enabled với SSL certificate
+- **Default:** Dashboard Overview
+
+## 🏗️ **TECHNOLOGY STACK**
+
+### **Frontend**
+- **React 18** + TypeScript
+- **Tailwind CSS** + Shadcn/ui
+- **Vite** build tool
+- **Recharts** data visualization
+- **Lucide React** icons
+
+### **Backend** (Planned)
+- **FastAPI** Python framework
+- **Supabase** database
+- **PostgreSQL** data storage
+- **Redis** caching
+
+### **Integrations**
+- **Google Analytics** + Google Ads
+- **Meta Business** + Facebook Ads
+- **TikTok Ads**
+- **WooCommerce**
+- **Email Marketing**
+
+## 📁 **PROJECT STRUCTURE**
+
+```
+digital-performance-optimizer/
+├── frontend/                 # React application
+│   ├── src/
+│   │   ├── components/      # UI components
+│   │   ├── pages/          # Page components
+│   │   ├── hooks/          # Custom hooks
+│   │   ├── utils/          # Utilities
+│   │   └── types/          # TypeScript types
+├── backend/                 # FastAPI backend (planned)
+├── docs/                   # Documentation
+├── scripts/                # Database scripts
+└── supabase/              # Supabase config
+```
+
+## 🔒 **SECURITY**
+
+### **⚠️ Known Issues**
+- **SheetJS Vulnerability**: High severity vulnerability trong package `xlsx`
+  - **Status**: No fix available
+  - **Impact**: Prototype Pollution, ReDoS attacks
+  - **Mitigation**: Chỉ xử lý file Excel từ nguồn tin cậy
+  - **Monitoring**: Theo dõi SheetJS updates
+
+### **Security Features**
+- ✅ HTTPS enabled
+- ✅ Input validation
+- ✅ XSS protection
+- ✅ OAuth 2.0 authentication
+- ✅ Role-based access control
+
+**Chi tiết:** Xem [SECURITY.md](./docs/SECURITY.md)
+
+## 📚 **DOCUMENTATION**
+
+### **Development**
+- [Project Structure](./docs/PROJECT_STRUCTURE.md)
+- [Component Architecture](./docs/COMPONENT_ARCHITECTURE.md)
+- [Data Source Strategy](./docs/DATA_SOURCE_STRATEGY.md)
+- [Setup Guide](./docs/SETUP_GUIDE.md)
+
+### **Features**
+- [Dashboard Guide](./docs/DASHBOARD_GUIDE.md)
+- [Reports System](./docs/ADVANCED_ANALYTICS_PLAN.md)
+- [Database Overview](./docs/DATABASE_OVERVIEW.md)
+- [API Documentation](./docs/FRONTEND_BACKEND_INTEGRATION.md)
+
+### **Progress**
+- [Current Status](./docs/CURRENT_STATUS.md)
+- [Development Plan](./docs/DEVELOPMENT_PLAN.md)
+- [Progress Tracking](./docs/PROGRESS.md)
+
+## 🎯 **FEATURES ROADMAP**
+
+### **Phase 1: Core Dashboard** ✅
+- [x] Overview analytics
+- [x] Executive dashboard
+- [x] Channel detail views
+- [x] Basic reporting
+
+### **Phase 2: Advanced Analytics** 🔄
+- [x] Attribution analysis
+- [ ] Cohort analysis
+- [ ] Predictive analytics
+- [ ] Competitive intelligence
+
+### **Phase 3: Enterprise Features** 📋
+- [ ] Custom report builder
+- [ ] Team collaboration
+- [ ] Advanced permissions
+- [ ] API integrations
+
+### **Phase 4: Backend Integration** 📋
+- [ ] FastAPI backend
+- [ ] Real data processing
+- [ ] Database optimization
+- [ ] Production deployment
+
+## 🤝 **CONTRIBUTING**
+
+### **Development Guidelines**
+1. Fork repository
+2. Create feature branch
+3. Follow coding standards
+4. Write tests
+5. Submit pull request
+
+### **Code Standards**
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Code quality rules
+- **Prettier**: Code formatting
+- **Conventional Commits**: Git commit messages
+
+## 📄 **LICENSE**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 **SUPPORT**
+
+### **Contact**
+- **Email**: [support@email.com]
+- **Documentation**: [docs-url]
+- **Issues**: [GitHub Issues]
+
+### **Community**
+- **Discord**: [Discord Server]
+- **Twitter**: [@handle]
+- **Blog**: [Blog URL]
+
+---
+
+**Version:** 0.1.0  
+**Last Updated:** January 2024  
+**Status:** 🚀 **Active Development** 

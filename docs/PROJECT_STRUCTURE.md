@@ -359,6 +359,40 @@ GoogleSheetsConnector.tsx (Main)
 - `REFACTOR_PROGRESS.md` - Tiến trình refactor
 - `CURRENT_STATUS.md` - Trạng thái hiện tại
 
+## 📁 Cấu trúc dự án phần Reports (2024)
+
+```
+frontend/src/components/reports/
+├── ReportsTab.tsx
+├── CustomReportsSection.tsx
+├── AdvancedAnalyticsSection.tsx
+├── SavedReportsSection.tsx
+├── analytics/
+│   ├── AttributionAnalysis.tsx
+│   ├── CohortAnalysis.tsx
+│   ├── PredictiveAnalytics.tsx
+│   ├── CompetitiveIntelligence.tsx
+│   ├── AdvancedSegmentation.tsx
+│   └── RealTimeMonitoring.tsx
+├── templates/
+│   └── ...
+└── mock/
+    └── ...
+```
+
+### Best Practice:
+- Mỗi module analytics là 1 file/component riêng trong `analytics/`.
+- Tách mock data, mock API vào `mock/` để dễ test/debug.
+- Template báo cáo để trong `templates/`.
+- Không để logic phức tạp trong ReportsTab, chỉ điều hướng và render.
+- Khi scale, chỉ cần thêm file mới, không ảnh hưởng code cũ.
+- Đặt tên file rõ ràng, dễ tìm kiếm.
+- Comment code rõ ràng, ưu tiên maintainability.
+
+### Lợi ích:
+- Dễ maintain, debug, scale, onboarding dev mới.
+- Chuẩn hóa cho team lớn/enterprise.
+
 ---
 
 **Last updated**: December 2024  

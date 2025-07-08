@@ -39,9 +39,9 @@ const getDataSourceConfig = (): DataSourceConfig => {
     
     default:
       return {
-        mode: 'api',
-        mockDataEnabled: false,
-        apiEnabled: true,
+        mode: 'mock',
+        mockDataEnabled: true,
+        apiEnabled: false,
         fallbackToMock: false
       };
   }

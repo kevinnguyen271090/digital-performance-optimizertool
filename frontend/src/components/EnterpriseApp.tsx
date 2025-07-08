@@ -76,6 +76,7 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
   useEffect(() => {
     const originalFetch = window.fetch;
     let isOverridden = false;
+    let hasLoggedAPIUnavailable = false; // Thêm flag để tránh log spam
 
     const customFetch = async function(input: RequestInfo | URL, init?: RequestInit) {
       const url = typeof input === 'string' ? input : input.toString();
@@ -111,7 +112,11 @@ const EnterpriseApp: React.FC<EnterpriseAppProps> = ({
           // Chỉ track lỗi network thực sự, không phải lỗi do domain không tồn tại
           if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
             // Đây là lỗi network bình thường khi chưa có backend
-            // Không cần track vì đây là expected behavior
+            // Chỉ log một lần để tránh spam
+            if (!hasLoggedAPIUnavailable) {
+              console.log('API unavailable, using mock data');
+              hasLoggedAPIUnavailable = true;
+            }
           } else {
             track('api_error', {
               url,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart2, Users, Target, TrendingUp, ShoppingCart, Activity, PieChart } from 'lucide-react';
+import { Facebook, Globe, TrendingUp, ShoppingCart, BarChart2 } from 'lucide-react';
 
 interface ChannelDetailHeaderProps {
   channel: string;
@@ -15,15 +15,15 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
   const getChannelIcon = (channel: string) => {
     switch (channel.toLowerCase()) {
       case 'meta':
-        return '🔵';
+        return <Facebook className="w-4 h-4" />;
       case 'google':
-        return '🟢';
+        return <Globe className="w-4 h-4" />;
       case 'tiktok':
-        return '🟣';
+        return <TrendingUp className="w-4 h-4" />;
       case 'woocommerce':
-        return '🟠';
+        return <ShoppingCart className="w-4 h-4" />;
       default:
-        return '⚫';
+        return <BarChart2 className="w-4 h-4" />;
     }
   };
 
@@ -43,58 +43,58 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
   };
 
   const tabs = [
-    { key: 'overview', label: 'Tổng quan', icon: <BarChart2 className="w-4 h-4" /> },
-    { key: 'metrics', label: 'Chỉ số', icon: <Activity className="w-4 h-4" /> },
-    { key: 'charts', label: 'Biểu đồ', icon: <PieChart className="w-4 h-4" /> },
-    { key: 'accounts', label: 'Tài khoản', icon: <Users className="w-4 h-4" /> },
-    { key: 'campaigns', label: 'Chiến dịch', icon: <Target className="w-4 h-4" /> },
-    { key: 'trends', label: 'Xu hướng', icon: <TrendingUp className="w-4 h-4" /> },
-    { key: 'insights', label: 'Insights', icon: <ShoppingCart className="w-4 h-4" /> }
+    { id: 'overview', label: 'Tổng quan', icon: '📊' },
+    { id: 'metrics', label: 'Chỉ số', icon: '📈' },
+    { id: 'charts', label: 'Biểu đồ', icon: '📉' },
+    { id: 'accounts', label: 'Tài khoản', icon: '👥' },
+    { id: 'campaigns', label: 'Chiến dịch', icon: '🎯' },
+    { id: 'trends', label: 'Xu hướng', icon: '📈' },
+    { id: 'insights', label: 'Insights', icon: '💡' },
+    { id: 'demographics', label: 'Nhân khẩu', icon: '👤' },
+    { id: 'funnel', label: 'Funnel', icon: '🔄' },
+    { id: 'engagement', label: 'Tương tác', icon: '❤️' },
+    { id: 'performance', label: 'Hiệu suất', icon: '🏆' }
   ];
 
   return (
-    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className={`p-3 rounded-lg ${getChannelColor(channel)}`}>
-            <span className="text-2xl">{getChannelIcon(channel)}</span>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              {channel} - Chi tiết kênh
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Phân tích chi tiết hiệu suất và insights
-            </p>
+    <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className={`p-2 rounded-lg ${getChannelColor(channel)}`}>
+              {getChannelIcon(channel)}
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                {channel} Channel Detail
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Chi tiết hiệu suất và phân tích {channel}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="mt-6">
-        <nav className="flex space-x-1 overflow-x-auto scrollbar-hide">
+      {/* Tab Navigation */}
+      <div className="px-6">
+        <nav className="flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => (
             <button
-              key={tab.key}
-              onClick={() => onTabChange(tab.key)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.key
-                  ? 'bg-accent text-white shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+                activeTab === tab.id
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
             >
-              {tab.icon}
+              <span>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           ))}
         </nav>
       </div>
-      
-      {/* Responsive scrollbar hide */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };
