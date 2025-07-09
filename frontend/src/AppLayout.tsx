@@ -100,8 +100,8 @@ const AppLayout = () => {
       <ToastManager toasts={toasts} onClose={removeToast} />
       
       <div className="flex" style={{ overflow: "visible" }}>
-        <aside className="hidden lg:flex w-64 bg-white dark:bg-gray-800 flex-col p-4 shadow-lg">
-          <div className="text-2xl font-bold mb-8 text-indigo-600 dark:text-indigo-400" id="tour-step-1">Avenger Hub</div>
+        <aside className="hidden lg:flex w-64 bg-primary dark:bg-[#111827] flex-col p-4 shadow-lg">
+          <div className="text-2xl font-bold mb-8 text-white" id="tour-step-1"> Digital Marketing Hub</div>
           <nav className="flex-1 space-y-2">
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -110,7 +110,7 @@ const AppLayout = () => {
                 <NavItem
                   key={item.name}
                   to={item.href}
-                  icon={<Icon className="h-5 w-5" />}
+                  icon={<Icon className={`h-5 w-5 ${isActive ? 'text-transparent bg-clip-text bg-gradient-to-r from-gradientFrom to-gradientTo' : 'text-white/70'} transition`} />}
                   label={item.name}
                   isActive={isActive}
                 />
@@ -120,16 +120,16 @@ const AppLayout = () => {
         </aside>
         
         <div className="flex-1 flex flex-col" style={{ overflow: "visible" }}>
-          <header className="relative z-10 flex items-center justify-between bg-white dark:bg-gray-800 shadow-md px-4 md:px-6 py-3 md:py-4">
+          <header className="relative z-10 flex items-center justify-between bg-white dark:bg-[#1F2937] shadow-md px-4 md:px-6 py-3 md:py-4">
             <div></div>
             <div className="flex items-center space-x-2 md:space-x-4">
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="flex items-center space-x-2 px-2 md:px-3 py-2 text-sm text-gray-600 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                className="flex items-center space-x-2 px-2 md:px-3 py-2 text-sm bg-gradient-to-r from-gradientFrom to-gradientTo text-white rounded-md hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-sm"
               >
                 <Search className="w-4 h-4" />
                 <span className="hidden sm:inline">Tìm kiếm</span>
-                <kbd className="hidden lg:inline-flex ml-2 items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
+                <kbd className="hidden lg:inline-flex ml-2 items-center px-2 py-1 text-xs font-medium text-white bg-white/20 border border-white/30 rounded">
                   ⌘K
                 </kbd>
               </button>
@@ -139,22 +139,22 @@ const AppLayout = () => {
               {/* Language Switcher - Dropdown */}
               <div className="relative group">
                 <button
-                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
+                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/50 rounded-md transition-colors"
                 >
                   <span>{i18n.language === 'vi' ? '🇻🇳' : '🇬🇧'}</span>
                   <span className="font-bold">{i18n.language === 'vi' ? 'VI' : 'EN'}</span>
                   <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </button>
-                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
+                <div className="absolute right-0 mt-2 w-32 bg-gray-900 dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
                   <button
                     onClick={() => i18n.changeLanguage('vi')}
-                    className={`flex items-center w-full px-4 py-2 text-sm ${i18n.language === 'vi' ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                    className={`flex items-center w-full px-4 py-2 text-sm text-white hover:bg-accent ${i18n.language === 'vi' ? 'font-bold bg-accent/20' : ''}`}
                   >
                     <span className="mr-2">🇻🇳</span> Tiếng Việt
                   </button>
                   <button
                     onClick={() => i18n.changeLanguage('en')}
-                    className={`flex items-center w-full px-4 py-2 text-sm ${i18n.language === 'en' ? 'font-bold text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                    className={`flex items-center w-full px-4 py-2 text-sm text-white hover:bg-accent ${i18n.language === 'en' ? 'font-bold bg-accent/20' : ''}`}
                   >
                     <span className="mr-2">🇬🇧</span> English
                   </button>
@@ -164,22 +164,22 @@ const AppLayout = () => {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setUserMenuOpen((open) => !open)}
-                  className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-blue-500 rounded-full text-white text-sm font-medium hover:bg-blue-600 transition-colors"
+                  className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-gradient-to-r from-gradientFrom to-gradientTo rounded-full text-white text-sm font-medium hover:opacity-90 transition-colors shadow-sm"
                 >
                   U
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-gray-700">
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-900 dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 border border-gray-700">
                     <button
                       onClick={() => { setUserMenuOpen(false); window.location.href = '/profile'; }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-accent transition-colors"
                     >
                       <span className="mr-2">👤</span> Hồ sơ
                     </button>
-                    <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                    <hr className="my-1 border-gray-700" />
                     <button
                       onClick={() => { setUserMenuOpen(false); /* TODO: logout logic */ }}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50"
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:bg-red-500/20 transition-colors"
                     >
                       <span className="mr-2">🚪</span> Đăng xuất
                     </button>
@@ -204,11 +204,12 @@ const NavItem = ({ to, icon, label, isActive }: { to: string, icon: JSX.Element,
   return (
     <Link
       to={to}
-      className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
-        isActive
-          ? "bg-indigo-500 text-white font-semibold"
-          : "text-gray-600 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-gray-700"
-      }`}
+      className={`flex items-center gap-3 px-4 py-2 rounded-l-lg transition-all cursor-pointer font-semibold focus:outline-none focus:ring-2 focus:ring-accent/70
+        ${isActive
+          ? 'bg-white/10 border-l-4 border-accent text-white shadow-md'
+          : 'text-white/80 hover:bg-white/5 hover:text-accent'}
+      `}
+      tabIndex={0}
     >
       {icon}
       <span>{label}</span>

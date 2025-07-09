@@ -97,30 +97,28 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
+          <div className="flex items-center gap-2 text-lg md:text-xl">
             <BarChart3 className="h-5 w-5" />
-            Executive Dashboard
-            <Badge variant="secondary">So sánh & Drill-down</Badge>
+            <span className="font-semibold">Executive Dashboard</span>
+            <Badge variant="secondary" className="ml-2 text-xs px-2 py-0.5 h-6">So sánh & Drill-down</Badge>
           </div>
-          
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="outline"
               size="sm"
               onClick={onPeriodComparison}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs px-3 py-1 h-7"
             >
               <TrendingUp className="h-4 w-4" />
               So sánh kỳ
             </Button>
-            
             <Button
               variant="outline"
               size="sm"
               onClick={onExport}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs px-3 py-1 h-7"
             >
               <Download className="h-4 w-4" />
               Export
@@ -128,11 +126,11 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="pt-0 pb-2">
         {/* Filter Row 1 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
+        <div className="flex flex-wrap gap-3 md:gap-4 items-end">
+          <div className="space-y-1 min-w-[160px]">
+            <label className="dashboard-filter-label text-xs font-medium flex items-center gap-1 mb-1">
               <Calendar className="h-4 w-4" />
               Thời gian
             </label>
@@ -140,9 +138,8 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               onDateRangeChange={(startDate, endDate) => onDateRangeChange?.({ from: startDate, to: endDate })}
             />
           </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-1 min-w-[140px]">
+            <label className="dashboard-filter-label text-xs font-medium flex items-center gap-1 mb-1">
               <Filter className="h-4 w-4" />
               Kênh
             </label>
@@ -150,7 +147,7 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               value={selectedChannels[0] || 'all'} 
               onValueChange={onChannelChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="dashboard-filter-input h-8 text-xs">
                 <SelectValue placeholder="Chọn kênh" />
               </SelectTrigger>
               <SelectContent>
@@ -163,9 +160,8 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-1 min-w-[140px]">
+            <label className="dashboard-filter-label text-xs font-medium flex items-center gap-1 mb-1">
               <Target className="h-4 w-4" />
               Campaign
             </label>
@@ -173,7 +169,7 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               value={selectedCampaigns[0] || 'all'} 
               onValueChange={onCampaignChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="dashboard-filter-input h-8 text-xs">
                 <SelectValue placeholder="Chọn campaign" />
               </SelectTrigger>
               <SelectContent>
@@ -186,9 +182,8 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-1 min-w-[120px]">
+            <label className="dashboard-filter-label text-xs font-medium flex items-center gap-1 mb-1">
               <BarChart3 className="h-4 w-4" />
               KPI
             </label>
@@ -196,11 +191,10 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               value={selectedKPIs[0] || 'revenue'} 
               onValueChange={onKPIChange}
             >
-              <SelectTrigger>
+              <SelectTrigger className="dashboard-filter-input h-8 text-xs">
                 <SelectValue placeholder="Chọn KPI" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả KPI</SelectItem>
                 {availableKPIs.map(kpi => (
                   <SelectItem key={kpi.value} value={kpi.value}>
                     {kpi.label}
@@ -209,61 +203,43 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        {/* Filter Row 2 - Drill-down & Active Filters */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium">Drill-down:</label>
-              <Select 
-                value={drilldownLevel} 
-                onValueChange={(value) => onDrilldownLevelChange(value as any)}
-              >
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {drilldownLevels.map(level => (
-                    <SelectItem key={level.value} value={level.value}>
-                      {level.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Active Filters Display */}
-            <div className="flex items-center gap-2">
-              {selectedChannel && (
-                <Badge variant="secondary" className="text-xs">
-                  Kênh: {availableChannels.find(c => c.value === selectedChannel)?.label}
-                </Badge>
-              )}
-              {selectedCampaign && (
-                <Badge variant="outline" className="text-xs">
-                  Campaign: {availableCampaigns.find(c => c.value === selectedCampaign)?.label}
-                </Badge>
-              )}
-              {selectedKPIs.length > 0 && (
-                <Badge variant="outline" className="text-xs">
-                  KPI: {selectedKPIs.length} đã chọn
-                </Badge>
-              )}
-            </div>
+          <div className="space-y-1 min-w-[120px]">
+            <label className="dashboard-filter-label text-xs font-medium flex items-center gap-1 mb-1">
+              Drill-down:
+            </label>
+            <Select 
+              value={drilldownLevel} 
+              onValueChange={onDrilldownLevelChange}
+            >
+              <SelectTrigger className="dashboard-filter-input h-8 text-xs">
+                <SelectValue placeholder="Chọn drill-down" />
+              </SelectTrigger>
+              <SelectContent>
+                {drilldownLevels.map(level => (
+                  <SelectItem key={level.value} value={level.value}>
+                    {level.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1 min-w-[120px]">
+            <label className="dashboard-filter-label text-xs font-medium mb-1 opacity-0">Ẩn</label>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClearFilters}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-xs px-2 py-1 h-8 text-gray-400 hover:text-red-500"
             >
               Xóa filter
             </Button>
           </div>
+          <div className="flex flex-col gap-1 min-w-[120px]">
+            <label className="dashboard-filter-label text-xs font-medium mb-1 opacity-0">Ẩn</label>
+            <Badge variant="secondary" className="text-xs px-2 py-0.5 h-7">KPI: {selectedKPIs.length} đã chọn</Badge>
+          </div>
         </div>
+      </CardContent>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
@@ -284,7 +260,6 @@ export const ExecutiveHeader: React.FC<ExecutiveHeaderProps> = ({
             <div className="text-sm text-gray-500">CPA TB</div>
           </div>
         </div>
-      </CardContent>
     </Card>
   );
 }; 

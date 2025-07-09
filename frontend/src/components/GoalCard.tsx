@@ -44,28 +44,28 @@ const GoalCard: React.FC<GoalCardProps> = React.memo(({
   const getStatusColor = () => {
     switch (goalData.status) {
       case "completed":
-        return "border-success bg-success/10";
+        return "border-green-200 dark:border-green-700 bg-white dark:bg-[#1F2937]";
       case "ahead":
-        return "border-success bg-success/5";
+        return "border-green-200 dark:border-green-700 bg-white dark:bg-[#1F2937]";
       case "on-track":
-        return "border-accent bg-accent/10";
+        return "border-accent dark:border-accent bg-white dark:bg-[#1F2937]";
       case "behind":
-        return "border-danger bg-danger/10";
+        return "border-red-200 dark:border-red-700 bg-white dark:bg-[#1F2937]";
       default:
-        return "border-gray-200 bg-gray-50";
+        return "border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1F2937]";
     }
   };
 
   const getStatusIcon = () => {
     switch (goalData.status) {
       case "completed":
-        return <CheckCircle className="w-5 h-5 text-success" />;
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
       case "ahead":
-        return <TrendingUp className="w-5 h-5 text-success" />;
+        return <TrendingUp className="w-5 h-5 text-green-500" />;
       case "on-track":
         return <Target className="w-5 h-5 text-accent" />;
       case "behind":
-        return <AlertCircle className="w-5 h-5 text-danger" />;
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
       default:
         return <Target className="w-5 h-5 text-gray-400" />;
     }
@@ -86,15 +86,29 @@ const GoalCard: React.FC<GoalCardProps> = React.memo(({
     }
   };
 
+  const getStatusBadge = () => {
+    switch (goalData.status) {
+      case "completed":
+      case "ahead":
+        return "bg-gradient-to-r from-gradientFrom to-gradientTo text-white";
+      case "on-track":
+        return "bg-accent text-white";
+      case "behind":
+        return "bg-red-500 text-white";
+      default:
+        return "bg-gray-500 text-white";
+    }
+  };
+
   const getProgressColor = () => {
-    if (isCompleted) return "bg-success";
+    if (isCompleted) return "bg-gradient-to-r from-gradientFrom to-gradientTo";
     if (progress >= 80) return "bg-accent";
     if (progress >= 50) return "bg-yellow-500";
-    return "bg-danger";
+    return "bg-red-500";
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border p-6 ${getStatusColor()}`}>
+    <div className={`bg-white dark:bg-[#1F2937] rounded-xl shadow-sm border p-6 transition-all duration-300 hover:shadow-lg ${getStatusColor()}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
@@ -105,12 +119,7 @@ const GoalCard: React.FC<GoalCardProps> = React.memo(({
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            goalData.status === "completed" ? "bg-success/20 text-success" :
-            goalData.status === "ahead" ? "bg-success/20 text-success" :
-            goalData.status === "on-track" ? "bg-accent/20 text-accent" :
-            "bg-danger/20 text-danger"
-          }`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge()}`}>
             {getStatusText()}
           </span>
           {(onEdit || onDelete) && (
@@ -128,7 +137,7 @@ const GoalCard: React.FC<GoalCardProps> = React.memo(({
               {onDelete && (
                 <button
                   onClick={onDelete}
-                  className="p-1 text-gray-400 hover:text-danger transition-colors"
+                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -177,12 +186,12 @@ const GoalCard: React.FC<GoalCardProps> = React.memo(({
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
             {goalData.trend > 0 ? (
-              <TrendingUp className="w-4 h-4 text-success" />
+              <TrendingUp className="w-4 h-4 text-green-500" />
             ) : (
-              <TrendingDown className="w-4 h-4 text-danger" />
+              <TrendingDown className="w-4 h-4 text-red-500" />
             )}
             <span className={`text-sm font-medium ${
-              goalData.trend > 0 ? "text-success" : "text-danger"
+              goalData.trend > 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
             }`}>
               {goalData.trend > 0 ? "+" : ""}{goalData.trend}% so với tuần trước
             </span>

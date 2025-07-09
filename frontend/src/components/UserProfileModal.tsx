@@ -81,36 +81,36 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, ac
     >
       {/* Modal content */}
       <div 
-        className={`relative bg-white dark:bg-gray-800 w-72 h-full shadow-2xl p-6 ${animationClass}`}
+        className={`relative bg-white dark:bg-gray-800 w-80 h-full shadow-2xl p-6 border-l-4 border-gradientFrom ${animationClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">My Account</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
-            <X className="w-5 h-5" />
+        <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-gradientFrom to-gradientTo rounded-xl p-4 -m-6 mb-6">
+          <h2 className="text-xl font-bold text-white">My Account</h2>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10">
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
         <nav className="flex flex-col">
           <button
-            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'profile' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            className={`flex items-center space-x-4 p-3 rounded-lg transition-colors font-semibold ${activeTabState === 'profile' ? 'bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             onClick={() => setActiveTabState('profile')}
           >
-            <User className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <User className={`w-5 h-5 ${activeTabState === 'profile' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
             <span>Profile</span>
           </button>
           <button
-            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'billing' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            className={`flex items-center space-x-4 p-3 rounded-lg transition-colors font-semibold ${activeTabState === 'billing' ? 'bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             onClick={() => setActiveTabState('billing')}
           >
-            <CreditCard className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <CreditCard className={`w-5 h-5 ${activeTabState === 'billing' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
             <span>Billing</span>
           </button>
           <button
-            className={`flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${activeTabState === 'settings' ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+            className={`flex items-center space-x-4 p-3 rounded-lg transition-colors font-semibold ${activeTabState === 'settings' ? 'bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow' : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             onClick={() => setActiveTabState('settings')}
           >
-            <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <Settings className={`w-5 h-5 ${activeTabState === 'settings' ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
             <span>Settings</span>
           </button>
           
@@ -118,7 +118,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ isOpen, onClose, ac
 
           <button 
             onClick={handleLogout}
-            className="flex items-center space-x-4 p-3 rounded-lg text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors"
+            className="flex items-center space-x-4 p-3 rounded-lg text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors font-semibold"
           >
             <LogOut className="w-5 h-5" />
             <span>Log out</span>

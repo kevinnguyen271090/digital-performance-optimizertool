@@ -42,7 +42,7 @@ const CohortRetentionChart: React.FC<CohortRetentionChartProps> = ({ data }) => 
                 const d = props.payload;
                 if (d[`${cohort}_isOutlier`]) return <circle {...props} r={6} fill="#ef4444" />;
                 if (d[`${cohort}_isMissing`]) return <circle {...props} r={6} fill="#facc15" />;
-                return <circle {...props} r={3} fill={props.stroke} />;
+                return <circle {...props} r={3} fill={typeof props.stroke === 'string' ? props.stroke : '#2563eb'} />;
               }}
             />
           ))}

@@ -183,7 +183,7 @@ export const ExecutiveTrendChart: React.FC<ExecutiveTrendChartProps> = ({
           </ResponsiveContainer>
         </div>
         {/* Summary stats */}
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-black">
           {filteredChannels.map((channel, index) => {
             const totalValue = trendData.reduce((sum, day) => sum + (day[channel.id] || 0), 0);
             const avgValue = totalValue / trendData.length;

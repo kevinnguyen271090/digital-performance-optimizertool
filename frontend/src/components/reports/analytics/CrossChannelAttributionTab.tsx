@@ -27,7 +27,7 @@ const CrossChannelAttributionTab: React.FC = () => {
       </div>
       <form className="mb-2">
         <label className="block mb-2 text-sm font-medium">Chọn mô hình Attribution:</label>
-        <select className="border rounded px-2 py-1 mb-2 w-full" value={model} onChange={e => setModel(e.target.value as AttributionModel)}>
+        <select className="border rounded px-2 py-1 mb-2 w-full text-black placeholder:text-black bg-white" value={model} onChange={e => setModel(e.target.value as AttributionModel)}>
           {MODELS.map(m => <option key={m}>{m}</option>)}
         </select>
       </form>

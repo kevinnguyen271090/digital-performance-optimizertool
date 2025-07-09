@@ -58,17 +58,17 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
-      <div className="px-6 py-4">
+      <div className="px-2 sm:px-4 md:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className={`p-2 rounded-lg ${getChannelColor(channel)}`}>
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className={`p-1.5 sm:p-2 rounded-lg ${getChannelColor(channel)}`}>
               {getChannelIcon(channel)}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                 {channel} Channel Detail
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 Chi tiết hiệu suất và phân tích {channel}
               </p>
             </div>
@@ -77,19 +77,19 @@ const ChannelDetailHeader: React.FC<ChannelDetailHeaderProps> = ({
       </div>
 
       {/* Tab Navigation */}
-      <div className="px-6">
-        <nav className="flex space-x-8 overflow-x-auto">
+      <div className="px-2 sm:px-4 md:px-6">
+        <nav className="flex space-x-4 sm:space-x-6 md:space-x-8 overflow-x-auto md:overflow-visible md:flex-wrap scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center space-x-2 py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
+              className={`flex items-center space-x-1 sm:space-x-2 py-2 sm:py-3 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition-colors ${
                 activeTab === tab.id
                   ? 'border-accent text-accent'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
               }`}
             >
-              <span>{tab.icon}</span>
+              <span className="text-xs sm:text-sm">{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           ))}

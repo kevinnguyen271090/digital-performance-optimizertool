@@ -18,6 +18,7 @@ import AttributionAnalysisModalContent from './analytics/AttributionAnalysisModa
 import CohortAnalysisModalContent from './analytics/CohortAnalysisModalContent';
 import PredictiveAnalyticsModalContent from './analytics/PredictiveAnalyticsModalContent';
 import CustomerJourneyMapModalContent from './analytics/CustomerJourneyMapModalContent';
+import SegmentationModalContent from './analytics/SegmentationModalContent';
 
 interface AnalyticsModule {
   id: string;
@@ -184,8 +185,9 @@ const AdvancedAnalyticsSection: React.FC<AdvancedAnalyticsSectionProps> = ({ onM
         {selectedModule === 'cohort' && <CohortAnalysisModalContent />}
         {selectedModule === 'predictive' && <PredictiveAnalyticsModalContent />}
         {selectedModule === 'journey-map' && <CustomerJourneyMapModalContent />}
+        {selectedModule === 'segmentation' && <SegmentationModalContent />}
         {/* Các module khác sẽ bổ sung sau khi confirm */}
-        {['attribution','cohort','predictive','journey-map'].indexOf(selectedModule || '') === -1 && (
+        {['attribution','cohort','predictive','journey-map','segmentation'].indexOf(selectedModule || '') === -1 && (
           <div className="h-64 bg-gray-50 dark:bg-gray-800 rounded-lg flex items-center justify-center">
             <div className="text-center">
               {selectedModule && analyticsModules.find(m => m.id === selectedModule)?.icon}
@@ -207,7 +209,7 @@ const AdvancedAnalyticsSection: React.FC<AdvancedAnalyticsSectionProps> = ({ onM
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Available Modules</p>
-                <p className="text-2xl font-bold text-green-600">3</p>
+                <p className="text-2xl font-bold text-green-600">4</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
@@ -219,7 +221,7 @@ const AdvancedAnalyticsSection: React.FC<AdvancedAnalyticsSectionProps> = ({ onM
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Coming Soon</p>
-                <p className="text-2xl font-bold text-yellow-600">2</p>
+                <p className="text-2xl font-bold text-yellow-600">1</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-500" />
             </div>
@@ -293,27 +295,11 @@ const analyticsModules: AnalyticsModule[] = [
     ]
   },
   {
-    id: 'competitive',
-    title: 'Competitive Intelligence',
-    description: 'Market share and competitor benchmarking',
-    icon: <Globe className="w-5 h-5" />,
-    status: 'coming-soon',
-    complexity: 'intermediate',
-    estimatedTime: '5-8 minutes',
-    features: [
-      'Market share analysis',
-      'Competitor benchmarking',
-      'Industry trends tracking',
-      'Competitive ad spend analysis',
-      'Market positioning insights'
-    ]
-  },
-  {
     id: 'segmentation',
     title: 'Advanced Segmentation',
     description: 'RFM analysis and behavioral segmentation',
     icon: <Target className="w-5 h-5" />,
-    status: 'coming-soon',
+    status: 'available',
     complexity: 'intermediate',
     estimatedTime: '5-7 minutes',
     features: [
@@ -329,7 +315,7 @@ const analyticsModules: AnalyticsModule[] = [
     title: 'Real-time Monitoring',
     description: 'Live dashboard and performance alerts',
     icon: <Activity className="w-5 h-5" />,
-    status: 'available',
+    status: 'coming-soon',
     complexity: 'basic',
     estimatedTime: '2-3 minutes',
     features: [

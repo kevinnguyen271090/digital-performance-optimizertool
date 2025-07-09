@@ -66,14 +66,16 @@ const ChannelDetailView: React.FC<ChannelDetailViewProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border">
+    <div className="bg-white dark:bg-gray-800 rounded-lg md:rounded-xl border overflow-hidden">
       <ChannelDetailHeader 
         channel={channel}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
       
-      {renderTabContent()}
+      <div className="overflow-x-auto">
+        {renderTabContent()}
+      </div>
     </div>
   );
 };

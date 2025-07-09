@@ -38,9 +38,9 @@ const AuthPage: React.FC = () => {
             if (!profile) {
               await supabase.from('user_profiles').insert({
                 user_id: user.id,
-                username: user.email.split('@')[0],
-                email: user.email,
-                avatar_url: user.email[0].toUpperCase(),
+                username: user.email ? user.email.split('@')[0] : 'unknown',
+                email: user.email ?? '',
+                avatar_url: user.email ? user.email[0].toUpperCase() : '',
                 role: 'user'
               });
             }
@@ -78,7 +78,7 @@ const AuthPage: React.FC = () => {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
       <div className="max-w-md w-full space-y-8 bg-white/80 dark:bg-gray-900/80 rounded-2xl shadow-2xl p-8 border border-gray-100 dark:border-gray-800 backdrop-blur-md z-10">
         <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold text-accent dark:text-accent">
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-black dark:text-accent">
             {isRegister ? 'Tạo tài khoản' : 'Chào mừng trở lại'}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">

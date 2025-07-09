@@ -1,6 +1,13 @@
-import React, { useState } from "react";
-import { X, Target, TrendingUp, DollarSign, Users } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { X, Target, Users, DollarSign, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface GoalModalProps {
   isOpen: boolean;
@@ -10,13 +17,17 @@ interface GoalModalProps {
   goal?: any;
 }
 
-const GoalModal: React.FC<GoalModalProps> = React.memo(({ isOpen, onClose, onSave, editGoal, goal }) => {
+const GoalModal = React.memo<GoalModalProps>(({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  editGoal, 
+  goal: goalToEdit 
+}) => {
   const { t } = useTranslation();
-  const goalToEdit = goal || editGoal;
-  
   const [formData, setFormData] = useState({
     title: goalToEdit?.title || "",
-    targetValue: goalToEdit?.targetValue || "",
+    targetValue: goalToEdit?.targetValue?.toString() || "",
     unit: goalToEdit?.unit || "sessions",
     period: goalToEdit?.period || "monthly",
     description: goalToEdit?.description || ""
@@ -87,20 +98,20 @@ const GoalModal: React.FC<GoalModalProps> = React.memo(({ isOpen, onClose, onSav
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div className="fixed inset-0 bg-black/50 transition-opacity" onClick={onClose} />
         
-        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div className="inline-block align-bottom bg-white dark:bg-gray-800 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-gray-200 dark:border-gray-700">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b dark:border-gray-700">
+          <div className="flex items-center justify-between p-6 border-b dark:border-gray-700 bg-gradient-to-r from-gradientFrom to-gradientTo">
             <div className="flex items-center space-x-3">
-              <Target className="w-6 h-6 text-accent" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <Target className="w-6 h-6 text-white" />
+              <h3 className="text-lg font-semibold text-white">
                 {goalToEdit ? t('goals.edit_goal', 'Chỉnh sửa mục tiêu') : t('goals.create_goal', 'Tạo mục tiêu mới')}
               </h3>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+              className="p-2 hover:bg-white/10 rounded-lg transition"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-white" />
             </button>
           </div>
 
@@ -145,19 +156,21 @@ const GoalModal: React.FC<GoalModalProps> = React.memo(({ isOpen, onClose, onSav
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('goals.unit', 'Đơn vị')}
               </label>
-              <select
-                value={formData.unit}
-                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-accent ${
-                  errors.unit ? "border-danger" : "border-gray-300 dark:border-gray-600"
-                } dark:bg-gray-700 dark:text-white`}
-              >
-                {units.map((unit) => (
-                  <option key={unit.value} value={unit.value}>
-                    {unit.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={formData.unit} onValueChange={(value) => setFormData({ ...formData, unit: value })}>
+                <SelectTrigger className={errors.unit ? "border-danger" : ""}>
+                  <SelectValue placeholder="Chọn đơn vị" />
+                </SelectTrigger>
+                <SelectContent>
+                  {units.map((unit) => (
+                    <SelectItem key={unit.value} value={unit.value}>
+                      <div className="flex items-center gap-2">
+                        <unit.icon className="w-4 h-4" />
+                        {unit.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.unit && <p className="mt-1 text-sm text-danger">{errors.unit}</p>}
             </div>
 
@@ -166,19 +179,18 @@ const GoalModal: React.FC<GoalModalProps> = React.memo(({ isOpen, onClose, onSav
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('goals.period', 'Chu kỳ')}
               </label>
-              <select
-                value={formData.period}
-                onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-1 focus:ring-accent ${
-                  errors.period ? "border-danger" : "border-gray-300 dark:border-gray-600"
-                } dark:bg-gray-700 dark:text-white`}
-              >
-                {periods.map((period) => (
-                  <option key={period.value} value={period.value}>
-                    {period.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={formData.period} onValueChange={(value) => setFormData({ ...formData, period: value })}>
+                <SelectTrigger className={errors.period ? "border-danger" : ""}>
+                  <SelectValue placeholder="Chọn chu kỳ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {periods.map((period) => (
+                    <SelectItem key={period.value} value={period.value}>
+                      {period.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {errors.period && <p className="mt-1 text-sm text-danger">{errors.period}</p>}
             </div>
 
@@ -207,7 +219,7 @@ const GoalModal: React.FC<GoalModalProps> = React.memo(({ isOpen, onClose, onSav
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 text-sm font-medium text-white bg-accent rounded-lg hover:bg-accent/90 transition"
+              className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-gradientFrom to-gradientTo rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md"
             >
               {t('button.save', 'Lưu')}
             </button>

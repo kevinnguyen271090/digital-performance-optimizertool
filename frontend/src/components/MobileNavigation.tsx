@@ -22,7 +22,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
+      <div className="lg:hidden bg-white dark:bg-[#1F2937] shadow-sm border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -31,7 +31,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
-          <h1 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">Avenger Hub</h1>
+          <h1 className="text-lg font-bold bg-gradient-to-r from-gradientFrom to-gradientTo bg-clip-text text-transparent">Digital Marketing Hub</h1>
         </div>
         <div className="flex items-center space-x-2">
           <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
@@ -56,13 +56,13 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => setIsMenuOpen(false)}
           />
-          <div className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="absolute left-0 top-0 h-full w-72 bg-primary dark:bg-[#111827] shadow-xl transform transition-transform duration-300 ease-in-out">
+            <div className="p-4 border-b border-white/10">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-indigo-600 dark:text-indigo-400">Avenger Hub</h2>
+                <h2 className="text-xl font-bold text-white">Digital Marketing Hub</h2>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -77,10 +77,10 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                       isActive(item.path)
-                        ? "bg-indigo-500 text-white shadow-md"
-                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? "bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow-md"
+                        : "text-white/80 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -90,8 +90,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
               })}
             </nav>
             <div className="absolute bottom-4 left-4 right-4">
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="p-4 bg-white/10 rounded-lg">
+                <p className="text-sm text-white/70">
                   Version 1.0.0
                 </p>
               </div>
@@ -101,7 +101,7 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
       )}
 
       {/* Bottom Navigation (Mobile) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1F2937] border-t border-gray-200 dark:border-gray-700 shadow-lg z-40">
         <div className="flex justify-around py-2">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -109,9 +109,9 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({ currentPath }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center py-2 px-3 transition-colors rounded-lg ${
+                className={`flex flex-col items-center py-2 px-3 transition-all duration-200 rounded-lg ${
                   isActive(item.path)
-                    ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20"
+                    ? "bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow-sm"
                     : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >

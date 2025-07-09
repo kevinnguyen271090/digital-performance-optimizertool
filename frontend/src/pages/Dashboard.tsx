@@ -220,46 +220,56 @@ const Dashboard: React.FC = () => {
 
   // Dữ liệu pie chart phân bổ nguồn
   const pieTrafficData = useMemo(() => {
-    // Tạo data từ các kênh đã kết nối
-    const data = [];
-    if (platformData.meta) {
-      data.push({ name: 'Meta Ads', value: platformData.meta.impressions || 0 });
+    if (platformData && Object.keys(platformData).length > 0) {
+      const data = [];
+      if (platformData.meta) {
+        data.push({ name: 'Meta Ads', value: platformData.meta.impressions || 0 });
+      }
+      if (platformData.google) {
+        data.push({ name: 'Google Ads', value: platformData.google.impressions || 0 });
+      }
+      if (platformData.tiktok) {
+        data.push({ name: 'TikTok Ads', value: platformData.tiktok.impressions || 0 });
+      }
+      // Nếu có ít nhất 1 giá trị > 0 thì trả về data thực
+      if (data.some(item => item.value > 0)) return data;
     }
-    if (platformData.google) {
-      data.push({ name: 'Google Ads', value: platformData.google.impressions || 0 });
-    }
-    if (platformData.tiktok) {
-      data.push({ name: 'TikTok Ads', value: platformData.tiktok.impressions || 0 });
-    }
-    return data;
+    // Fallback mock
+    return mockData.dashboard.trafficBySource.map(item => ({ name: item.source, value: item.value }));
   }, [platformData]);
   
   const pieLeadData = useMemo(() => {
-    const data = [];
-    if (platformData.meta) {
-      data.push({ name: 'Meta Ads', value: platformData.meta.conversions || 0 });
+    if (platformData && Object.keys(platformData).length > 0) {
+      const data = [];
+      if (platformData.meta) {
+        data.push({ name: 'Meta Ads', value: platformData.meta.conversions || 0 });
+      }
+      if (platformData.google) {
+        data.push({ name: 'Google Ads', value: platformData.google.conversions || 0 });
+      }
+      if (platformData.tiktok) {
+        data.push({ name: 'TikTok Ads', value: platformData.tiktok.conversions || 0 });
+      }
+      if (data.some(item => item.value > 0)) return data;
     }
-    if (platformData.google) {
-      data.push({ name: 'Google Ads', value: platformData.google.conversions || 0 });
-    }
-    if (platformData.tiktok) {
-      data.push({ name: 'TikTok Ads', value: platformData.tiktok.conversions || 0 });
-    }
-    return data;
+    return mockData.dashboard.leadBySource.map(item => ({ name: item.source, value: item.value }));
   }, [platformData]);
   
   const pieRevenueData = useMemo(() => {
-    const data = [];
-    if (platformData.meta) {
-      data.push({ name: 'Meta Ads', value: platformData.meta.revenue || 0 });
+    if (platformData && Object.keys(platformData).length > 0) {
+      const data = [];
+      if (platformData.meta) {
+        data.push({ name: 'Meta Ads', value: platformData.meta.revenue || 0 });
+      }
+      if (platformData.google) {
+        data.push({ name: 'Google Ads', value: platformData.google.revenue || 0 });
+      }
+      if (platformData.tiktok) {
+        data.push({ name: 'TikTok Ads', value: platformData.tiktok.revenue || 0 });
+      }
+      if (data.some(item => item.value > 0)) return data;
     }
-    if (platformData.google) {
-      data.push({ name: 'Google Ads', value: platformData.google.revenue || 0 });
-    }
-    if (platformData.tiktok) {
-      data.push({ name: 'TikTok Ads', value: platformData.tiktok.revenue || 0 });
-    }
-    return data;
+    return mockData.dashboard.revenueBySource.map(item => ({ name: item.source, value: item.value }));
   }, [platformData]);
   const [pieType, setPieType] = useState<'traffic' | 'lead' | 'revenue'>('traffic');
 

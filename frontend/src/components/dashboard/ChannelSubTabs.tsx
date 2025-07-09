@@ -17,7 +17,7 @@ const ChannelSubTabs: React.FC<ChannelSubTabsProps> = ({ channels, activeChannel
             className={`px-6 py-2 rounded-full font-semibold text-base transition-all duration-200 shadow-sm border-2 focus:outline-none focus:ring-2 focus:ring-accent/50 whitespace-nowrap
               ${activeChannel === ch.key
                 ? 'bg-accent text-white border-accent scale-105 shadow-lg'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-accent/10'}
+                : 'bg-white dark:bg-gray-800 text-black dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-accent/10'}
             `}
             style={{ minWidth: 120 }}
           >

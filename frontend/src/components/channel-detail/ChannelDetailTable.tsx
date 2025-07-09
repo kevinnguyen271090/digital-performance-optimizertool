@@ -89,21 +89,21 @@ const ChannelDetailTable: React.FC<ChannelDetailTableProps> = ({ data, type }) =
   };
 
   return (
-    <div className="p-6">
+    <div className="p-2 sm:p-4 md:p-6">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
+        <table className="w-full sm:min-w-max md:min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gradient-to-r from-gradientFrom/10 to-gradientTo/10">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
-                    column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                  className={`px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider ${
+                    column.sortable ? 'cursor-pointer hover:bg-gradient-to-r hover:from-gradientFrom/20 hover:to-gradientTo/20 transition-colors' : ''
                   }`}
                   onClick={() => column.sortable && handleSort(column.key)}
                 >
                   <div className="flex items-center space-x-1">
-                    <span>{column.label}</span>
+                    <span className="text-xs sm:text-sm">{column.label}</span>
                     {column.sortable && sortBy === column.key && (
                       sortOrder === 'asc' ? 
                         <TrendingUp className="w-3 h-3" /> : 
@@ -116,10 +116,10 @@ const ChannelDetailTable: React.FC<ChannelDetailTableProps> = ({ data, type }) =
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {sortedData.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={item.id} className="hover:bg-gradient-to-r hover:from-gradientFrom/10 hover:to-gradientTo/10 transition-colors">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    <div className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                       {item.name}
                     </div>
                     {type === 'campaigns' && item.status && (
@@ -128,34 +128,34 @@ const ChannelDetailTable: React.FC<ChannelDetailTableProps> = ({ data, type }) =
                       </div>
                     )}
                     {type === 'accounts' && item.type && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {item.type}
                       </div>
                     )}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatNumber(item.metrics.impressions)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatNumber(item.metrics.clicks)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {item.metrics.ctr.toFixed(2)}%
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatCurrency(item.metrics.spend)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatNumber(item.metrics.conversions)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatCurrency(item.metrics.cpa)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {formatCurrency(item.metrics.revenue)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                <td className="px-2 sm:px-4 md:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                   {item.metrics.roas.toFixed(2)}x
                 </td>
               </tr>

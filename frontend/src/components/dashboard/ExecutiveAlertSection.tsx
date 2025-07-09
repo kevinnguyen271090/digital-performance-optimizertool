@@ -1,22 +1,29 @@
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
-  AlertTriangle, 
+  AlertCircle, 
   CheckCircle, 
   XCircle, 
-  Info,
-  TrendingUp,
-  TrendingDown,
-  AlertCircle,
+  Info, 
+  TrendingUp, 
+  TrendingDown, 
+  Minus,
   Lightbulb,
   Target,
   Clock,
-  DollarSign,
+  BarChart3,
   Users,
-  BarChart3
+  DollarSign
 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Alert {
   id: string;
@@ -43,7 +50,7 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'warning' | 'success' | 'error' | 'info'>('all');
   const [filterSeverity, setFilterSeverity] = useState<'all' | 'low' | 'medium' | 'high'>('all');
 
-  // Filter alerts
+  // Lọc alerts theo channel và filter
   const filteredAlerts = useMemo(() => {
     let filtered = alerts;
     
@@ -62,67 +69,57 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
     return filtered;
   }, [alerts, selectedChannel, filterType, filterSeverity]);
 
-  // Get alert icon
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
       case 'error':
         return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'warning':
+        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
       case 'info':
         return <Info className="h-5 w-5 text-blue-500" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />;
+        return <Info className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  // Get severity badge
   const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'high':
-        return <Badge variant="destructive" className="text-xs">High</Badge>;
-      case 'medium':
-        return <Badge variant="secondary" className="text-xs">Medium</Badge>;
-      case 'low':
-        return <Badge variant="outline" className="text-xs">Low</Badge>;
-      default:
-        return null;
-    }
+    const variants = {
+      high: 'destructive',
+      medium: 'secondary',
+      low: 'outline'
+    } as const;
+    
+    return (
+      <Badge variant={variants[severity as keyof typeof variants]} className="text-xs">
+        {severity}
+      </Badge>
+    );
   };
 
-  // Get change indicator
   const getChangeIndicator = (change?: number) => {
     if (!change) return null;
     
     if (change > 0) {
-      return (
-        <div className="flex items-center gap-1 text-green-600">
-          <TrendingUp className="h-4 w-4" />
-          <span className="text-sm">+{change}%</span>
-        </div>
-      );
+      return <TrendingUp className="h-4 w-4 text-green-500" />;
+    } else if (change < 0) {
+      return <TrendingDown className="h-4 w-4 text-red-500" />;
     } else {
-      return (
-        <div className="flex items-center gap-1 text-red-600">
-          <TrendingDown className="h-4 w-4" />
-          <span className="text-sm">{change}%</span>
-        </div>
-      );
+      return <Minus className="h-4 w-4 text-gray-500" />;
     }
   };
 
-  // Mock recommendations
+  // Mock recommendations data
   const recommendations = useMemo(() => [
     {
       id: '1',
-      type: 'optimization',
-      title: 'Tối ưu Budget Allocation',
-      description: 'Chuyển 20% budget từ Facebook sang Google Ads để tăng ROAS',
+      type: 'budget',
+      title: 'Tăng Budget',
+      description: 'Tăng budget cho campaign có ROAS cao nhất',
       impact: 'high',
       effort: 'medium',
-      estimatedImprovement: '+15% ROAS'
+      estimatedImprovement: '+15% Revenue'
     },
     {
       id: '2',
@@ -159,28 +156,30 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
-              <select 
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value as any)}
-                className="text-sm bg-popover border border-gray-300 rounded px-2 py-1"
-              >
-                <option value="all">Tất cả loại</option>
-                <option value="warning">Warning</option>
-                <option value="success">Success</option>
-                <option value="error">Error</option>
-                <option value="info">Info</option>
-              </select>
+              <Select value={filterType} onValueChange={(value) => setFilterType(value as any)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Tất cả loại" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả loại</SelectItem>
+                  <SelectItem value="warning">Warning</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="error">Error</SelectItem>
+                  <SelectItem value="info">Info</SelectItem>
+                </SelectContent>
+              </Select>
               
-              <select 
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value as any)}
-                className="text-sm bg-popover border border-gray-300 rounded px-2 py-1"
-              >
-                <option value="all">Tất cả mức độ</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
+              <Select value={filterSeverity} onValueChange={(value) => setFilterSeverity(value as any)}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Tất cả mức độ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả mức độ</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </CardTitle>
         </CardHeader>
@@ -193,7 +192,7 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
               </div>
             ) : (
               filteredAlerts.map((alert) => (
-                <div key={alert.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-gray-50">
+                <div key={alert.id} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   <div className="flex-shrink-0">
                     {getAlertIcon(alert.type)}
                   </div>
@@ -210,14 +209,14 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
                     </div>
                     
                     {alert.metric && alert.value && (
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                         <span>{alert.metric}: {alert.value}</span>
                         {getChangeIndicator(alert.change)}
                       </div>
                     )}
                     
                     {alert.recommendation && (
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         <span className="font-medium">Đề xuất:</span> {alert.recommendation}
                       </div>
                     )}
@@ -247,7 +246,7 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {recommendations.map((rec) => (
-              <div key={rec.id} className="p-4 border rounded-lg space-y-3">
+              <div key={rec.id} className="p-4 border rounded-lg space-y-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-blue-500" />
@@ -261,14 +260,14 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
                   </Badge>
                 </div>
                 
-                <p className="text-sm text-gray-600">{rec.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{rec.description}</p>
                 
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    <span className="text-gray-500">Effort: {rec.effort}</span>
+                    <span className="text-gray-500 dark:text-gray-400">Effort: {rec.effort}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-green-600">
+                  <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
                     <TrendingUp className="h-3 w-3" />
                     <span>{rec.estimatedImprovement}</span>
                   </div>
@@ -298,22 +297,22 @@ export const ExecutiveAlertSection: React.FC<ExecutiveAlertSectionProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
+            <Button variant="outline" className="h-20 flex flex-col gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20">
               <DollarSign className="h-5 w-5" />
               <span className="text-xs">Budget Adjustment</span>
             </Button>
             
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
+            <Button variant="outline" className="h-20 flex flex-col gap-2 hover:bg-green-50 dark:hover:bg-green-900/20">
               <Users className="h-5 w-5" />
               <span className="text-xs">Audience Update</span>
             </Button>
             
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
+            <Button variant="outline" className="h-20 flex flex-col gap-2 hover:bg-purple-50 dark:hover:bg-purple-900/20">
               <Target className="h-5 w-5" />
               <span className="text-xs">Bidding Strategy</span>
             </Button>
             
-            <Button variant="outline" className="h-20 flex flex-col gap-2">
+            <Button variant="outline" className="h-20 flex flex-col gap-2 hover:bg-orange-50 dark:hover:bg-orange-900/20">
               <AlertCircle className="h-5 w-5" />
               <span className="text-xs">Create Alert</span>
             </Button>

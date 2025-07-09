@@ -1,8 +1,9 @@
 import React from "react";
-import { Grid, Layers, User, FileText } from "lucide-react";
+import { Grid, Layers, User, FileText, BarChart3, TrendingUp } from "lucide-react";
 import DateRangePicker from "../DateRangePicker";
 import { DashboardView } from "../../types/dashboard";
 import { useTranslation } from 'react-i18next';
+import { H1, Lead, GradientText } from "../ui/typography";
 
 interface DashboardHeaderProps {
   currentView: DashboardView;
@@ -23,83 +24,79 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = React.memo(({
 }) => {
   const { t, i18n } = useTranslation();
 
+  const viewConfigs = {
+    overview: {
+      icon: Grid,
+      label: 'Tổng quan'
+    },
+    executive: {
+      icon: BarChart3,
+      label: 'Executive'
+    },
+    channels: {
+      icon: TrendingUp,
+      label: 'Kênh'
+    }
+  };
+
   return (
     <div className="mb-4">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between md:gap-0">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-primary dark:text-white tracking-tight leading-tight">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-6">
+        {/* Tiêu đề + subtitle */}
+        <div className="flex flex-col md:flex-row md:items-end md:gap-4">
+          <H1 className="dashboard-title text-2xl md:text-3xl lg:text-4xl font-bold leading-tight m-0 p-0">
             {t('dashboard.title')}
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm md:text-base font-medium">
+          </H1>
+          <Lead className="dashboard-subtitle text-base md:text-lg opacity-70 md:ml-4 m-0 p-0">
             {t('dashboard.subtitle', 'Tổng quan hiệu suất marketing đa nền tảng')}
-          </p>
+          </Lead>
         </div>
-        <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-2 md:mt-0">
-          {/* Tab chuyển view */}
-          <div className="flex gap-1 bg-white dark:bg-gray-800 rounded-lg border p-1">
-            <button
-              onClick={() => onViewChange('overview')}
-              className={`flex items-center px-3 py-1.5 rounded-md font-medium text-xs md:text-sm transition-all duration-200 ${
-                currentView === 'overview'
-                  ? 'bg-accent text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-              title="Tổng quan"
-            >
-              <Grid className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Tổng quan</span>
-            </button>
-            <button
-              onClick={() => onViewChange('executive')}
-              className={`flex items-center px-3 py-1.5 rounded-md font-medium text-xs md:text-sm transition-all duration-200 ${
-                currentView === 'executive'
-                  ? 'bg-accent text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-              title="Executive"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <span className="hidden sm:inline">Executive</span>
-            </button>
-            <button
-              onClick={() => onViewChange('channels')}
-              className={`flex items-center px-3 py-1.5 rounded-md font-medium text-xs md:text-sm transition-all duration-200 ${
-                currentView === 'channels'
-                  ? 'bg-accent text-white shadow'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-              title="Kênh"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <span className="hidden sm:inline">Kênh</span>
-            </button>
+        {/* Filter row */}
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          {/* Tab Navigation */}
+          <div className="flex gap-1 bg-white dark:bg-[#1F2937] rounded-lg border border-gray-200 dark:border-gray-700 p-1 shadow-sm h-10">
+            {Object.entries(viewConfigs).map(([key, config]) => {
+              const Icon = config.icon;
+              const isActive = currentView === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => onViewChange(key as DashboardView)}
+                  className={`flex items-center px-3 py-1.5 rounded-md font-semibold text-xs transition-all duration-300 h-7 min-w-[80px] ${
+                    isActive
+                      ? 'bg-gradient-to-r from-gradientFrom to-gradientTo text-white shadow-sm scale-105'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  title={config.label}
+                >
+                  <Icon className="w-4 h-4 mr-1" />
+                  <span className="hidden sm:inline">{config.label}</span>
+                </button>
+              );
+            })}
           </div>
-          
-          {/* Nút tạo báo cáo */}
+          {/* Create Report Button */}
           {onCreateReport && (
             <button
               onClick={onCreateReport}
-              className="flex items-center space-x-2 bg-accent text-white px-3 py-2 rounded-lg font-medium hover:bg-accent/90 transition shadow-sm"
+              className="flex items-center space-x-2 bg-gradient-to-r from-gradientFrom to-gradientTo text-white px-3 py-1.5 rounded-md font-semibold text-xs hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 h-7"
               title="Tạo báo cáo"
             >
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">Tạo báo cáo</span>
             </button>
           )}
-          
-          {/* Filter ngày */}
-          <DateRangePicker 
-            onDateRangeChange={onDateRangeChange}
-            defaultRange="last30days"
-          />
-          {/* Nút tài khoản chỉ icon */}
+          {/* Date Range Picker */}
+          <div className="bg-white dark:bg-[#1F2937] rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm h-10 flex items-center px-2">
+            <DateRangePicker 
+              onDateRangeChange={onDateRangeChange}
+              defaultRange="last30days"
+            />
+          </div>
+          {/* Account Selector */}
           <button
             onClick={onToggleAccountSelector}
-            className="flex items-center justify-center w-9 h-9 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm text-gray-700 dark:text-white"
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm hover:shadow-md active:scale-95 text-gray-700 dark:text-gray-200"
             title="Chọn tài khoản"
           >
             <User className="w-5 h-5" />

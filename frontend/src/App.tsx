@@ -30,7 +30,7 @@ const App = () => {
   }, [config.caching.enableServiceWorker]);
 
   return (
-    <EnterpriseApp pageName="app" pageTitle="Avenger Hub">
+    <EnterpriseApp pageName="app" pageTitle="Digital Marketing Hub">
       <Router
         future={{
           v7_startTransition: true,
@@ -38,21 +38,7 @@ const App = () => {
         }}
       >
         <div className="App">
-          <nav className="bg-white dark:bg-gray-800 shadow-lg">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex justify-between h-16">
-                <div className="flex items-center space-x-8">
-                  <Link to="/" className="text-xl font-bold text-gray-900 dark:text-white">
-                    Digital Performance Optimizer
-                  </Link>
-                  <Link to="/demo" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                    Chart Demo
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </nav>
-
+          
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route element={<ProtectedRoute />}>

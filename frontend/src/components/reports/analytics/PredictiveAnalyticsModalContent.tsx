@@ -56,14 +56,14 @@ const PredictiveAnalyticsModalContent: React.FC = () => {
     if (active && payload && payload.length) {
       const d = payload[0].payload;
       return (
-        <div className="bg-white dark:bg-gray-900 p-3 rounded shadow text-xs min-w-[180px]">
+        <div className="bg-white dark:bg-gray-900 p-3 rounded shadow text-xs min-w-[180px] text-black">
           <div><b>Tháng:</b> {label}</div>
-          <div><b>{metricLabel} thực tế:</b> {d.value ?? 'N/A'}</div>
-          <div><b>{metricLabel} dự báo:</b> {d.forecast ?? 'N/A'}</div>
-          <div><b>Confidence:</b> {d.confidence ? d.confidence + '%' : 'N/A'}</div>
+          <div><b>{metricLabel} thực tế:</b> {d.value ?? <span className="bg-yellow-100 text-black font-semibold px-1 rounded">N/A</span>}</div>
+          <div><b>{metricLabel} dự báo:</b> {d.forecast ?? <span className="bg-blue-50 text-blue-800 font-semibold px-1 rounded">N/A</span>}</div>
+          <div><b>Confidence:</b> {d.confidence ? d.confidence + '%' : <span className="bg-yellow-100 text-black font-semibold px-1 rounded">N/A</span>}</div>
           <div><b>Xu hướng:</b> {d.trendLabel}</div>
-          {d.isOutlier && <div className="text-red-600 flex items-center gap-1"><AlertCircle className="inline w-4 h-4" /> Outlier</div>}
-          {d.isMissing && <div className="text-yellow-600 flex items-center gap-1"><AlertCircle className="inline w-4 h-4" /> Missing data</div>}
+          {d.isOutlier && <div className="bg-red-100 text-red-800 font-semibold flex items-center gap-1 px-1 rounded"><AlertCircle className="inline w-4 h-4" /> Outlier</div>}
+          {d.isMissing && <div className="bg-yellow-100 text-black font-semibold flex items-center gap-1 px-1 rounded"><AlertCircle className="inline w-4 h-4" /> Missing data</div>}
         </div>
       );
     }

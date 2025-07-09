@@ -155,12 +155,12 @@ export const ExecutiveKPITable: React.FC<ExecutiveKPITableProps> = ({
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Kênh/Campaign</TableHead>
+              <TableRow className="bg-gradient-to-r from-gradientFrom/10 to-gradientTo/10">
+                <TableHead className="w-[200px] text-gray-900 dark:text-white font-bold">Kênh/Campaign</TableHead>
                 {selectedKPIs.map(kpi => (
                   <TableHead 
                     key={kpi}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer hover:bg-gradient-to-r hover:from-gradientFrom/20 hover:to-gradientTo/20 text-gray-900 dark:text-white font-bold transition-colors"
                     onClick={() => handleSort(kpi)}
                   >
                     <div className="flex items-center gap-1">
@@ -173,62 +173,45 @@ export const ExecutiveKPITable: React.FC<ExecutiveKPITableProps> = ({
                     </div>
                   </TableHead>
                 ))}
-                <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead className="w-[100px] text-gray-900 dark:text-white font-bold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedData.map((item) => {
                 const isConnected = connectedChannels.includes(item.id);
-                
                 return (
-                  <TableRow key={item.id} className={`hover:bg-gray-50 ${!isConnected ? 'opacity-50' : ''}`}>
+                  <TableRow key={item.id} className={`hover:bg-gradient-to-r hover:from-gradientFrom/10 hover:to-gradientTo/10 transition-colors ${!isConnected ? 'opacity-50' : ''}`}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <span>{item.name}</span>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-gradient-to-r from-gradientFrom to-gradientTo text-white border-0 shadow-sm">
                           {item.id}
                         </Badge>
                         {!isConnected && (
-                          <Badge variant="outline" className="text-xs text-gray-500">
+                          <Badge variant="outline" className="text-xs text-gray-500 border-gray-300 bg-white dark:bg-gray-800">
                             Chưa kết nối
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    
                     {selectedKPIs.map(kpi => {
                       const value = item[kpi as keyof KPIData] as number || 0;
-                      const performance = isConnected ? getPerformanceIndicator(value, kpi) : 'neutral';
-                      
+                      const perf = getPerformanceIndicator(value, kpi);
                       return (
-                        <TableCell key={kpi}>
-                          <div className="flex items-center gap-2">
-                            <span className={`font-medium ${!isConnected ? 'text-gray-400' : ''}`}>
-                              {formatValue(value, kpi)}
-                            </span>
-                            {isConnected && performance === 'good' && (
-                              <TrendingUp className="h-4 w-4 text-green-500" />
-                            )}
-                            {isConnected && performance === 'bad' && (
-                              <TrendingDown className="h-4 w-4 text-red-500" />
-                            )}
-                            {performance === 'neutral' && (
-                              <Minus className="h-4 w-4 text-gray-400" />
-                            )}
-                          </div>
+                        <TableCell key={kpi} className="text-sm">
+                          <span className={`font-semibold px-2 py-1 rounded-lg ${
+                            perf === 'good' ? 'bg-gradient-to-r from-gradientFrom to-gradientTo text-white' :
+                            perf === 'bad' ? 'bg-red-500 text-white' :
+                            'bg-accent/20 text-accent'
+                          }`}>
+                            {formatValue(value, kpi)}
+                          </span>
                         </TableCell>
                       );
                     })}
-                    
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDrilldown(item.id)}
-                        className="h-8 w-8 p-0"
-                        disabled={!isConnected}
-                      >
-                        <ChevronRight className="h-4 w-4" />
+                      <Button size="sm" className="bg-gradient-to-r from-gradientFrom to-gradientTo text-white font-semibold shadow-sm hover:from-purple-700 hover:to-pink-700 transition">
+                        Xem chi tiết
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -240,7 +223,7 @@ export const ExecutiveKPITable: React.FC<ExecutiveKPITableProps> = ({
         
         {/* Summary row */}
         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-black">
             <div>
               <span className="text-gray-600">Tổng Revenue:</span>
               <span className="ml-2 font-medium">

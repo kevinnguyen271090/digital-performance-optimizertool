@@ -1,6 +1,14 @@
 import React, { useState } from "react";
-import { X, Download, FileText, Table } from "lucide-react";
+import { X, Download, FileText, Table, Sparkles, BarChart3, TrendingUp } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { H3, Lead } from "./ui/typography";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CreateReportModalProps {
   isOpen: boolean;
@@ -195,152 +203,147 @@ const CreateReportModal: React.FC<CreateReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-900">
-            {t('reports.create_report', 'Tạo báo cáo mới')}
-          </h2>
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-3xl shadow-strong w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto border border-gray-200/50 dark:border-gray-700/50">
+        {/* Modern Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <H3 className="text-xl">Tạo báo cáo mới</H3>
+              <Lead className="text-sm opacity-75">Tùy chỉnh và xuất báo cáo chi tiết</Lead>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 rounded-xl bg-gray-100/50 dark:bg-gray-800/50 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-all duration-200 hover:scale-110"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
+        {/* Modern Content */}
         <div className="p-6 space-y-6">
           {/* Report Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('reports.report_name', 'Tên báo cáo')}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Tên báo cáo
             </label>
             <input
               type="text"
               value={reportName}
               onChange={(e) => setReportName(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-accent"
-              placeholder={t('reports.report_name_placeholder', 'Nhập tên báo cáo')}
+              placeholder="Nhập tên báo cáo..."
+              className="w-full px-4 py-3 rounded-xl border border-gray-200/50 dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
+          {/* Time Range */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Khoảng thời gian
+            </label>
+            <Select value={timeRange} onValueChange={(value) => setTimeRange(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn khoảng thời gian" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="last_week">Tuần trước</SelectItem>
+                <SelectItem value="last_month">Tháng trước</SelectItem>
+                <SelectItem value="last_quarter">Quý trước</SelectItem>
+                <SelectItem value="custom">Tùy chỉnh</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Report Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
               Định dạng báo cáo
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
-                type="button"
                 onClick={() => setReportType("pdf")}
-                className={`flex items-center justify-center space-x-2 p-3 border rounded-lg transition ${
-                  reportType === "pdf" 
-                    ? "border-accent bg-accent/10 text-accent" 
-                    : "border-gray-300 hover:bg-gray-50"
+                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  reportType === "pdf"
+                    ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                    : "border-gray-200/50 dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50"
                 }`}
               >
-                <FileText className="w-4 h-4" />
-                <span className="text-sm">PDF</span>
+                <div className="flex items-center space-x-3">
+                  <FileText className="w-5 h-5 text-purple-500" />
+                  <span className="font-medium">PDF</span>
+                </div>
               </button>
               <button
-                type="button"
                 onClick={() => setReportType("excel")}
-                className={`flex items-center justify-center space-x-2 p-3 border rounded-lg transition ${
-                  reportType === "excel" 
-                    ? "border-accent bg-accent/10 text-accent" 
-                    : "border-gray-300 hover:bg-gray-50"
+                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                  reportType === "excel"
+                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                    : "border-gray-200/50 dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50"
                 }`}
               >
-                <Table className="w-4 h-4" />
-                <span className="text-sm">Excel</span>
+                <div className="flex items-center space-x-3">
+                  <Table className="w-5 h-5 text-green-500" />
+                  <span className="font-medium">Excel</span>
+                </div>
               </button>
             </div>
           </div>
 
-          {/* Time Range */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Khoảng thời gian
+          {/* Include Options */}
+          <div className="space-y-3">
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Nội dung báo cáo
             </label>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-accent"
-            >
-              <option value="last_week">Tuần trước</option>
-              <option value="last_month">Tháng trước</option>
-              <option value="last_quarter">Quý trước</option>
-              <option value="custom">Tùy chỉnh</option>
-            </select>
-          </div>
-
-          {/* Include Sections */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Bao gồm
-            </label>
-            <div className="space-y-3">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeKPI}
-                  onChange={(e) => setIncludeKPI(e.target.checked)}
-                  className="rounded border-gray-300 text-accent focus:ring-accent"
-                />
-                <span className="text-sm text-gray-700">KPI Overview</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeDataTable}
-                  onChange={(e) => setIncludeDataTable(e.target.checked)}
-                  className="rounded border-gray-300 text-accent focus:ring-accent"
-                />
-                <span className="text-sm text-gray-700">Bảng dữ liệu</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeCharts}
-                  onChange={(e) => setIncludeCharts(e.target.checked)}
-                  className="rounded border-gray-300 text-accent focus:ring-accent"
-                />
-                <span className="text-sm text-gray-700">Trend Charts</span>
-              </label>
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeRecommendations}
-                  onChange={(e) => setIncludeRecommendations(e.target.checked)}
-                  className="rounded border-gray-300 text-accent focus:ring-accent"
-                />
-                <span className="text-sm text-gray-700">AI Recommendations</span>
-              </label>
+            <div className="space-y-2">
+              {[
+                { key: 'kpi', label: 'KPI Tổng quan', icon: BarChart3, checked: includeKPI, setter: setIncludeKPI },
+                { key: 'charts', label: 'Biểu đồ', icon: TrendingUp, checked: includeCharts, setter: setIncludeCharts },
+                { key: 'recommendations', label: 'Khuyến nghị', icon: Sparkles, checked: includeRecommendations, setter: setIncludeRecommendations },
+                { key: 'dataTable', label: 'Bảng dữ liệu', icon: Table, checked: includeDataTable, setter: setIncludeDataTable }
+              ].map(({ key, label, icon: Icon, checked, setter }) => (
+                <label key={key} className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200/50 dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => setter(e.target.checked)}
+                    className="w-4 h-4 text-purple-500 rounded focus:ring-purple-500"
+                  />
+                  <Icon className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium">{label}</span>
+                </label>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t">
+        {/* Modern Footer */}
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200/50 dark:border-gray-700/50">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+            className="px-6 py-2.5 rounded-xl border border-gray-300/50 dark:border-gray-600/50 bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all duration-200"
           >
             Hủy
           </button>
           <button
             onClick={handleGenerateReport}
             disabled={isGenerating}
-            className="flex items-center space-x-2 bg-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-accent/90 transition disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-medium hover:shadow-strong active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {isGenerating ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                <span>Đang tạo...</span>
+              </>
             ) : (
-              <Download className="w-4 h-4" />
+              <>
+                <Download className="w-4 h-4" />
+                <span>Tạo báo cáo</span>
+              </>
             )}
-            <span>{isGenerating ? "Đang tạo..." : `Tạo ${reportType.toUpperCase()}`}</span>
           </button>
         </div>
       </div>
