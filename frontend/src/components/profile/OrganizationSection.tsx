@@ -1,44 +1,58 @@
-import React from 'react';
-import { Building2, Users, Calendar, Crown, Shield, Plus, MoreVertical } from 'lucide-react';
+import React, { useState } from 'react';
+import { Building, Plus, Users, Crown, Calendar, Settings } from 'lucide-react';
+import CreateOrganizationModal from '../CreateOrganizationModal';
 
-interface OrganizationMember {
-  organization_id: string;
-  role: string;
-  joined_at: string;
-  organization: {
+interface Organization {
+  organizations: {
+    id: string;
     name: string;
     created_at: string;
   };
+  role: string;
+  created_at: string;
 }
 
 interface OrganizationSectionProps {
-  organizations: OrganizationMember[];
-  loading: boolean;
-  error?: string;
-  onCreateOrganization: () => void;
-  onEditOrganization?: (orgId: string) => void;
+  organizations: Organization[];
+  userId: string;
+  onCreateOrganization?: () => void;
+  onInviteUser?: (organization: Organization) => void;
 }
 
 const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   organizations,
-  loading,
-  error,
+  userId,
   onCreateOrganization,
-  onEditOrganization
+  onInviteUser
 }) => {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [selectedOrgForSettings, setSelectedOrgForSettings] = useState<Organization | null>(null);
+
+  const handleOpenSettings = (org: Organization) => {
+    setSelectedOrgForSettings(org);
+    setShowSettingsModal(true);
+  };
+  const handleCloseSettings = () => {
+    setShowSettingsModal(false);
+    setSelectedOrgForSettings(null);
+  };
+
   const getRoleIcon = (role: string) => {
-    switch (role) {
+    switch (role.toLowerCase()) {
       case 'owner':
         return <Crown className="w-4 h-4 text-yellow-500" />;
       case 'admin':
-        return <Shield className="w-4 h-4 text-blue-500" />;
+        return <Settings className="w-4 h-4 text-blue-500" />;
+      case 'member':
+        return <Users className="w-4 h-4 text-green-500" />;
       default:
         return <Users className="w-4 h-4 text-gray-500" />;
     }
   };
 
   const getRoleLabel = (role: string) => {
-    switch (role) {
+    switch (role.toLowerCase()) {
       case 'owner':
         return 'Chủ sở hữu';
       case 'admin':
@@ -50,168 +64,151 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     }
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-200';
-      case 'admin':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-    }
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    onCreateOrganization?.();
   };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="animate-pulse">
-          <div className="flex items-center justify-between mb-6">
-            <div className="h-6 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
-            <div className="h-10 bg-gray-300 dark:bg-gray-600 rounded w-32"></div>
-          </div>
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border rounded-lg p-4">
-                <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Building2 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Tổ chức của bạn
-          </h2>
-          <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded-full">
-            {organizations.length}
-          </span>
-        </div>
-        
+        <h3 className="text-xl font-bold text-gray-800 flex items-center">
+          <Building className="w-5 h-5 mr-2" />
+          Tổ chức
+        </h3>
         <button
-          onClick={onCreateOrganization}
-          className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 shadow-sm"
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
-          <span>Tạo tổ chức mới</span>
+          <span>Tạo mới</span>
         </button>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div className="flex items-center space-x-2 text-red-800 dark:text-red-200">
-            <Shield className="w-4 h-4" />
-            <span className="text-sm">{error}</span>
-          </div>
-        </div>
-      )}
-
       {/* Organizations List */}
-      {organizations.length === 0 ? (
-        <div className="text-center py-12">
-          <Building2 className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Bạn chưa tham gia tổ chức nào
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Tạo tổ chức đầu tiên để bắt đầu quản lý dự án và team của bạn
-          </p>
-          <button
-            onClick={onCreateOrganization}
-            className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tạo tổ chức đầu tiên</span>
-          </button>
-        </div>
-      ) : (
+      {organizations && organizations.length > 0 ? (
         <div className="space-y-4">
           {organizations.map((org) => (
-            <div
-              key={org.organization_id}
-              className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
+            <div 
+              key={org.organizations.id} 
+              className="border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-md transition-all duration-200"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {org.organization.name}
-                    </h3>
-                    <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(org.role)}`}>
-                      {getRoleIcon(org.role)}
-                      <span>{getRoleLabel(org.role)}</span>
-                    </span>
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <Building className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800 text-lg">
+                        {org.organizations.name}
+                      </h4>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {getRoleIcon(org.role)}
+                        <span className="text-sm text-gray-600">
+                          {getRoleLabel(org.role)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center space-x-4 text-xs text-gray-500">
                     <div className="flex items-center space-x-1">
-                      <Calendar className="w-4 h-4" />
-                      <span>Tham gia: {formatDate(org.joined_at)}</span>
+                      <Calendar className="w-3 h-3" />
+                      <span>
+                        Tham gia: {new Date(org.created_at).toLocaleDateString('vi-VN')}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Building2 className="w-4 h-4" />
-                      <span>Tạo: {formatDate(org.organization.created_at)}</span>
+                      <Building className="w-3 h-3" />
+                      <span>
+                        Tạo: {new Date(org.organizations.created_at).toLocaleDateString('vi-VN')}
+                      </span>
                     </div>
                   </div>
                 </div>
-
-                {/* Action Menu */}
-                {(org.role === 'owner' || org.role === 'admin') && onEditOrganization && (
-                  <div className="relative">
-                    <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                    {/* Dropdown menu would go here */}
-                  </div>
+                
+                <button 
+                  onClick={() => handleOpenSettings(org)}
+                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Cài đặt tổ chức"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+                 {onInviteUser && (
+                  <button
+                    onClick={() => onInviteUser(org)}
+                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Mời thành viên"
+                  >
+                    <Users className="w-4 h-4" />
+                  </button>
                 )}
-              </div>
-
-              {/* Quick Stats (placeholder for future features) */}
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
-                <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                  <span>• Thành viên: 1</span>
-                  <span>• Dự án: 0</span>
-                  <span>• Kết nối: 0</span>
-                </div>
               </div>
             </div>
           ))}
         </div>
+      ) : (
+        <div className="text-center py-12">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Building className="w-10 h-10 text-gray-400" />
+          </div>
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+            Chưa có tổ chức nào
+          </h4>
+          <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+            Tạo tổ chức đầu tiên để bắt đầu quản lý dự án và chia sẻ với team của bạn
+          </p>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Tạo tổ chức đầu tiên
+          </button>
+        </div>
       )}
 
-      {/* Help Text */}
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <div className="flex items-start space-x-2">
-          <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-          <div>
-            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-              Về vai trò trong tổ chức
-            </h4>
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Chủ sở hữu:</strong> Toàn quyền quản lý tổ chức • 
-              <strong>Quản trị viên:</strong> Quản lý thành viên và cài đặt • 
-              <strong>Thành viên:</strong> Xem và sử dụng tính năng
-            </p>
+      {/* Create Organization Modal */}
+      <CreateOrganizationModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        userId={userId}
+      />
+
+      {showSettingsModal && selectedOrgForSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-semibold text-gray-800">Cài đặt tổ chức</h4>
+              <button
+                onClick={handleCloseSettings}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Đóng"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="text-sm text-gray-500">Tên tổ chức</div>
+                <div className="font-medium text-gray-900">{selectedOrgForSettings.organizations.name}</div>
+              </div>
+              <div className="text-sm text-gray-600">
+                Khu vực cài đặt chi tiết sẽ được bổ sung (quyền, thông tin doanh nghiệp...).
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleCloseSettings}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                Đóng
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

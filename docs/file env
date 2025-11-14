@@ -1,0 +1,205 @@
+backend/.env:
+# ========================================
+# Digital Performance Optimizer - Backend
+# ========================================
+
+# Application Settings
+DEBUG=true
+ENVIRONMENT=development
+SECRET_KEY=TvcGvl-3_YCUWY_W3yKjILv3NJ7HFPxtXjamL4HKU7A
+# Supabase Settings (REQUIRED)
+# --- PostgreSQL (Supabase) ---
+# Khuyến nghị: Transaction Pooler
+DATABASE_URL=postgresql://postgres.fcardarbkrvcfjvpshlz:Digi2710-27@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
+
+# (Tuỳ chọn) Direct connection cho dev cục bộ
+# DATABASE_URL=postgresql://postgres:Digi2710-27@db.fcardarbkrvcfjvpshlz.supabase.co:5432/postgres?sslmode=require
+
+# --- Supabase Auth/Config ---
+SUPABASE_URL=https://fcardarbkrvcfjvpshlz.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkaXl3b3lvbXN6eWZvbWN5c2tyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMzQyMjAsImV4cCI6MjA2OTYxMDIyMH0.LA7AQ0Q0CY_qvUspeOzsr5t5QJT_4jQ3Qktut15DTOQ
+SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjYXJkYXJia3J2Y2ZqdnBzaGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MjMwMjgsImV4cCI6MjA3NzI5OTAyOH0.iPLSBRYDNI4H3BKgTSNuIMc6_0j0ohdUWudlZtJGmBY
+SUPABASE_JWT_KEY=FouPeIVSAPyk6eqfyjjPj0okGGt88oGIpX69B5fJf/oNtnbqxtKNq77GEwFsp0PfsTyGdXUSrLPsPm77KDBo2g==
+SUPABASE_JWT_AUDIENCE=authenticated
+# Redis Configuration
+REDIS_HOST=redis
+REDIS_URL=redis://redis:6379
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+CACHE_TTL=3600
+CACHE_ENABLED=true
+# CORS Configuration
+ALLOWED_HOSTS=["localhost","0.0.0.0"]
+
+# CORS Settings
+CORS_ORIGINS=["https://localhost:3000","https://localhost:5173","https://localhost:3000","https://127.0.0.1:3000"]
+
+# Google APIs
+GOOGLE_CLIENT_ID=<GOOGLE_CLIENT_ID>
+GOOGLE_CLIENT_SECRET=<GOOGLE_CLIENT_SECRET>
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/oauth/google/callback
+GOOGLE_ADS_DEVELOPER_TOKEN=-i_-8bM-wCUU-4GHVJnRCA
+GOOGLE_ADS_SCOPE=https://www.googleapis.com/auth/adwords
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS_B64=ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAiYXZlbmdlcmh1YiIsCiAgInByaXZhdGVfa2V5X2lkIjogIjVhM2MyNTBjNzY4ODE3MGYxOTM2ZjAyNDk5ZmY5ZWFlMmQ4MzA4MGIiLAogICJwcml2YXRlX2tleSI6ICItLS0tLUJFR0lOIFBSSVZBVEUgS0VZLS0tLS1cbk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRRFJ0Qlk0MC9XeWJKLzNcbkJKYi9qRlJ6a01SaU1LVzUxUDBBR1JrVjk0a1p1OWlyUTg5ZVhUeFBkMzhIbHovM3VNeXI2eXlsUXV5dGg4RHNcbkkyK3dLU1BOMXUrTjIzdzNWSkpZSmRralU2dFZndno1eXQycVNTT2xFYVN3TldBNUlGM0xhWmw4N29YS2RjdU1cbjRrc0Z4aDlBODFSbnl2NWJQUEdITzVDMnE3bThYbHVzZUVKd3Zjd0lMMmdKK2h2Rkp1Q0VRQW5LbWU5TndrZW9cbm1sUjFFVFZqemd2UTViTEZPNGxvdU1Id09ZMXcrSi9EYWpiSlBVWWRXbmoxYkk5b2l4N0U4OTQ1dTROU0NoR0lcbnBmU2piUkNJblp4U3NQWFN1blVtSWVlclpGaFFybncvNzRhRWZIdm5xNWY0Mm9qNjU3L1lGTjEyN1hyNlExV2Rcbm51dGtoaUFWQWdNQkFBRUNnZ0VBQTBvNS84QnNSdXlFUWxIWkJoRDYwWHBzSXd3TG5CeGozZTBTZ3lLZm1KQk9cbkVuU3h0YzNWWTN2MVhKbE9zSVJ0SjJ2ZjJGaWdvSDdmMDhqeWlmNUJEblRCVit0K2cvSGtSTWtKQ3o3WEtYbnFcbit0aEZOSTZKanZ6ZVBNSFd0WWpwWGxnbVV3bHhmdENQdnBucExUa2FydmR6eUJmK3BxMC9BSExkZzBNUVEzV0lcbk5oTGVPMGREeFVLQk1PL29Md2hTb1B0dXNMaVk3RENwdmIvR2Rxa2s3Ny9YQWYwWWN1eDZDbzRLSDYra0g3WmFcbjVHMmJ1SVF3WDNacW1FbkJuSjZickYxQXlLRVUyUFlaY2ZBbkdVZ1pYY0JGbS9vME56VGhBOXVsczNOdHZqUWFcblloOVlSWURXQW5yaGZOckw5YjJ2OVdndmNOZk9GYXc2QzRHZXBRRHJPUUtCZ1FEKzlPbmFMejNtRXRGUUZXUFhcbmh2WXZXT0ZJNjV2cDVGZXBOT3dUWTZJMzFGNTVUSHdVbDhhVnBEbnpweXE5T3JXNG1sQUtnRUdYKzdWTzd3eHVcbkQxcGVQdGhCWG5QMGljVUU5c2tFQ0hSUll3N2t3Tkc3TldpUEJVZFBOcXRVU01weTNUSWFYditYMERkRHUrWExcbkF3L3NxN1FTSEthd3Z6ZzA0THFxMTBBZGp3S0JnUURTajhSaUc2VE5zdnFkUnh5ZWwvZzhESHNnNVNVdGRlRFZcbnpmcHZjNVhYY25OMVJUeFViYkM5VXFyUjdoUS9hMkVWUnNQYUZ1LzExYlpseVZyblpuSHBxSUl0K2FUT3lIRCtcbnpHZ0ZrZnROTWVwcFgwNlc3aXV1Y2JqQXloZDN5VkkyZHFMQVJjNW9PUmdyQkoxd3ZYRkYrZlVGeEIrc0h0cDhcbjdaaEFpRS9lR3dLQmdDRWpKL25weGZ2UFdsRTBWb08rME9TYWdyMTlrZ2cyVzRac2tIcDhxcXJpK1Z4K3FtbnFcbnlDN081NUZabXQ1NWNRRUxYWGZmNzZhWFdwdGx5cEhMZ1ExYTBiUzlXQWppbHk3ci9IaC91TTZUTjI1WCtXcUJcbnFKTmVOa1IvY0lsRjVMcEZNYXZueVFTc1ZXS0NXMzJsYWo1eW1yYjM3bHB1b0JtUFUvTzhnbUxWQW9HQkFJLzJcblM4Ym9MNTJVS1ZVdk1ab2RQVk9SRlA1QXJWS1ByZEdBcXlGWVhiS1lSZWlBRmVlRHQ3czVzaUVtTGlIT1FPcFRcbkg4VVV1YXZUR29vdFNVRzlBVlZJS1BsV0hpQmpXeDVha3lSNzB0M01xd0N3Y1FNd2hCMFpFOEI4YTk4eWZrdE9cbmdhZ0VFa09nQmE0ajBhRXJaUzc2MzFPNTdBMjZhcGZQdXJFa2diYlJBb0dBQ2pJcEZ1b01TTC91QXcyeVprdGJcblJMdk8va0ROaFM5cXJPdzdRL3FubFc2UWk1N1JTRS9vOC9ISHhvTFJ5a1JoUEZ2RnlWNlUyQzIwN0Rvb0pVZU5cbjVaOTlBOWdaMlFJa0hGeHllT2lhekZVUzFTbks0VVVsSlFxaEJCNG04aFVhS2Y4T3pOeUI3aVZMUDFLMFEzaCtcbnF3dysrY3Fqc1dTcDVLc1JlTGpPU0JRPVxuLS0tLS1FTkQgUFJJVkFURSBLRVktLS0tLVxuIiwKICAiY2xpZW50X2VtYWlsIjogImRpZ2l0YWxvcHRpbWl6YXRpb25AYXZlbmdlcmh1Yi5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsCiAgImNsaWVudF9pZCI6ICIxMTUxMzExNDc2OTcwOTcwMzg0NjgiLAogICJhdXRoX3VyaSI6ICJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20vby9vYXV0aDIvYXV0aCIsCiAgInRva2VuX3VyaSI6ICJodHRwczovL29hdXRoMi5nb29nbGVhcGlzLmNvbS90b2tlbiIsCiAgImF1dGhfcHJvdmlkZXJfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9vYXV0aDIvdjEvY2VydHMiLAogICJjbGllbnRfeDUwOV9jZXJ0X3VybCI6ICJodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9yb2JvdC92MS9tZXRhZGF0YS94NTA5L2RpZ2l0YWxvcHRpbWl6YXRpb24lNDBhdmVuZ2VyaHViLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwKICAidW5pdmVyc2VfZG9tYWluIjogImdvb2dsZWFwaXMuY29tIgp9Cg==
+
+# ========================================
+# Meta/Facebook Platform Configuration
+# ========================================
+META_APP_ID=1677824186255117
+META_APP_SECRET=7bfc589fd8c787979f57b78314517450
+META_REDIRECT_URI=https://localhost:3000/auth/oauth/callback
+
+# ========================================
+# TikTok Platform Configuration  
+# ========================================
+TIKTOK_CLIENT_KEY=sbawoyae00ykn449f1
+TIKTOK_CLIENT_SECRET=OypTo57rurY08TUmBDoFgN83fIbmeoey
+TIKTOK_REDIRECT_URI=https://localhost:3000/auth/oauth/callback
+
+# ========================================
+# WooCommerce Platform Configuration
+# ========================================
+WOOCOMMERCE_REDIRECT_URI=https://localhost:3000/auth/oauth/callback
+
+# Email Settings (Optional)
+SMTP_HOST=smtp.hostinger.com
+SMTP_PORT=465
+SMTP_USER=info@digitalmkthub.com
+SMTP_PASSWORD=Digi27100976@
+FROM_EMAIL=info@digitalmkthub.com
+FRONTEND_URL=https://localhost:3000
+
+# Monitoring (Optional)
+SENTRY_DSN=your-sentry-dsn
+PROMETHEUS_PORT=9090
+
+# Celery Settings (Optional)
+CELERY_BROKER_URL=redis://localhost:6379/0
+CELERY_RESULT_BACKEND=redis://localhost:6379/0
+
+# Email Templates
+EMAIL_VERIFICATION_SUBJECT=Xác thực tài khoản - Digital Performance Optimizer
+PASSWORD_RESET_SUBJECT=Đặt lại mật khẩu - Digital Performance Optimizer
+WELCOME_EMAIL_SUBJECT=Chào mừng đến với Digital Performance Optimizer!
+
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FORMAT=json
+
+# Development Settings
+RELOAD=true
+WORKERS=1
+HOST=0.0.0.0
+PORT=8000
+
+# Rate Limiting
+RATE_LIMIT_PER_MINUTE=60
+RATE_LIMIT_PER_HOUR=1000
+
+# Email Rate Limiting
+EMAIL_RATE_LIMIT_PER_HOUR=100
+EMAIL_RATE_LIMIT_PER_DAY=1000
+
+# Security Headers
+# SECURITY_HEADERS=true
+
+# Testing Configuration
+TESTING=false
+
+# Production Settings
+PRODUCTION=false
+DOMAIN=localhost
+PROTOCOL=http
+
+# ========================================
+# HƯỚNG DẪN SETUP
+# ========================================
+# 1. Backend đã được cấu hình với Supabase thật
+# 2. Chạy: python -m uvicorn app.main:app --reload
+# 3. API sẽ chạy tại: https://127.0.0.1:8000
+
+Frontend/.env
+# ========================================
+# Digital Performance Optimizer - Frontend
+# ========================================
+
+# Data Source Configuration
+
+# Options: mock, api, hybrid
+# - mock: Chỉ dùng mock data
+# - api: Chỉ dùng API thật
+# - hybrid: API với fallback về mock
+
+# API Configuration
+VITE_API_URL=http://localhost:8000/api/v1
+# URL của FastAPI backend
+
+# HTTPS Configuration
+VITE_HTTPS=true
+
+# Supabase Configuration (REQUIRED)
+VITE_SUPABASE_URL=https://fcardarbkrvcfjvpshlz.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkaXl3b3lvbXN6eWZvbWN5c2tyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMzQyMjAsImV4cCI6MjA2OTYxMDIyMH0.LA7AQ0Q0CY_qvUspeOzsr5t5QJT_4jQ3Qktut15DTOQ
+# Option 1: Direct Connection (khuyến nghị cho development)
+DATABASE_URL=postgresql://postgres:Digi2710-27@db.fcardarbkrvcfjvpshlz.supabase.co:5432/postgres
+
+# Option 2: Transaction Pooler (nếu cần IPv4 support)
+SUPABASE_URL=https://fcardarbkrvcfjvpshlz.supabase.co
+SUPABASE_TRASACTION_POOLER_DATABASE_URL=postgresql://postgres.fcardarbkrvcfjvpshlz:Digi2710-27@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres
+SUPABASE_DIRECT_URL=postgresql://postgres:Digi2710-27@db.fcardarbkrvcfjvpshlz.supabase.co:5432/postgres
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkaXl3b3lvbXN6eWZvbWN5c2tyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwMzQyMjAsImV4cCI6MjA2OTYxMDIyMH0.LA7AQ0Q0CY_qvUspeOzsr5t5QJT_4jQ3Qktut15DTOQ
+SUPABASE_JWT_KEY=FouPeIVSAPyk6eqfyjjPj0okGGt88oGIpX69B5fJf/oNtnbqxtKNq77GEwFsp0PfsTyGdXUSrLPsPm77KDBo2g==
+SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjYXJkYXJia3J2Y2ZqdnBzaGx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MjMwMjgsImV4cCI6MjA3NzI5OTAyOH0.iPLSBRYDNI4H3BKgTSNuIMc6_0j0ohdUWudlZtJGmBY
+SUPABASE_JWT_AUDIENCE=authenticated
+SUPABASE_PASSWORDS=Digi27100976@
+
+# Google APIs
+VITE_GOOGLE_CLIENT_ID=<GOOGLE_CLIENT_ID>
+VITE_GOOGLE_ADS_DEVELOPER_TOKEN=-i_-8bM-wCUU-4GHVJnRCA
+VITE_GOOGLE_ADS_CLIENT_SECRET=<GOOGLE_CLIENT_SECRET>
+VITE_GOOGLE_ADS_SCOPE=https://www.googleapis.com/auth/adwords
+VITE_GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/oauth/google/callback
+
+# ========================================
+# Meta/Facebook Platform Configuration
+# ========================================
+VITE_META_APP_ID=1677824186255117
+VITE_META_APP_SECRET=7bfc589fd8c787979f57b78314517450
+VITE_META_REDIRECT_URI=https://localhost:3000/auth/oauth/callback
+
+# ========================================
+# TikTok Platform Configuration
+# ========================================
+VITE_TIKTOK_CLIENT_KEY=sbawoyae00ykn449f1
+VITE_TIKTOK_CLIENT_SECRET=OypTo57rurY08TUmBDoFgN83fIbmeoey
+VITE_TIKTOK_REDIRECT_URI=https://localhost:3000/auth/oauth/callback
+
+# Feature Flags
+VITE_ENABLE_2FA=true
+VITE_ENABLE_EXECUTIVE_DASHBOARD=true
+
+VITE_ENABLE_ADVANCED_ANALYTICS=true
+
+# Development Settings
+VITE_DEBUG=true
+VITE_LOG_LEVEL=info
+
+# Google Analytics (Optional)
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Sentry (Optional)
+VITE_SENTRY_DSN=your-sentry-dsn
+
+VITE_ENABLE_EXECUTIVE_DASHBOARD=true
+VITE_ENABLE_ADVANCED_ANALYTICS=true
+VITE_FEATURE_FLAGS={"attribution":true,"predictive":false}
+
+# ========================================
+# HƯỚNG DẪN SETUP
+# ========================================
+# 1. Frontend đã được cấu hình với Supabase thật
+# 2. Chạy: npm run dev
+# 3. App sẽ chạy tại: https://localhost:3000 (HTTPS)
